@@ -1,0 +1,1188 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>赣鄱智轨</title>
+<!-- ECharts + ECharts-GL（免费CDN，无需任何API Key） -->
+<!-- ★ 依赖本地化：本地优先，CDN 兜底 ★
+     把 ECharts / ECharts-GL 放进 lib/ 后，本页不再依赖外网 CDN ——
+     断网、纯内网、CDN 被墙等情况下依然能完整渲染，
+     满足"任何网络环境都能打开"的要求。
+     若本地文件缺失，onerror 会自动回退到 jsDelivr。 -->
+<script src="lib/echarts.min.js"
+        onerror="this.onerror=null;(function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js';document.head.appendChild(s);})();"></script>
+<script src="lib/echarts-gl.min.js"
+        onerror="this.onerror=null;(function(){var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/echarts-gl@2/dist/echarts-gl.min.js';document.head.appendChild(s);})();"></script>
+<!-- ★ L3 智能体决策面板（数据驱动，消费 data/agent_decision.json）★
+     为什么单独成一个文件：index.html（零AK版）与 bmap.html（百度版）
+     共用同一套决策渲染逻辑，避免两处硬编码各自漂移。 -->
+<script src="js/agent-decision.js?v=20260926"
+        onerror="this.onerror=null;console.warn('[赣鄱智轨] js/agent-decision.js 未加载，智能体面板将回落为规则原型');"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:100%; height:100%; overflow:hidden; background:#0a1628;
+  font-family:'Microsoft YaHei','PingFang SC',sans-serif; color:#d0e6f5; }
+#map { position:absolute; top:0; left:0; width:100vw; height:100vh; }
+#topbar { position:absolute; top:0; left:0; right:0; height:56px; z-index:10;
+  background:linear-gradient(90deg,rgba(0,20,40,.92),rgba(0,40,70,.92));
+  border-bottom:1px solid #00d4ff; display:flex; align-items:center; padding:0 20px; gap:24px; }
+#topbar .brand { font-size:18px; font-weight:bold; color:#00d4ff; letter-spacing:1px; }
+#topbar .brand small { color:#5a8ab0; font-weight:normal; font-size:12px; margin-left:8px; }
+/* 6 个模块统一放在一个容器框内 */
+#module-nav { display:flex; gap:5px; margin-left:auto;
+  padding:4px 6px; border:1px solid #1a4a7c; border-radius:8px;
+  background:rgba(0,12,28,.72);
+  box-shadow:inset 0 0 14px rgba(0,212,255,.09), 0 0 0 1px rgba(0,212,255,.06); }
+#module-nav button { background:rgba(0,30,60,.6); border:1px solid #1a3a5c; color:#7ab8e0;
+  padding:6px 12px; border-radius:4px; cursor:pointer; font-size:12px; font-family:inherit; transition:all .15s; }
+#module-nav button:hover { border-color:#00d4ff; color:#00d4ff; }
+#module-nav button.active { background:#00d4ff; color:#001020; border-color:#00d4ff; }
+/* —— 优化出行方式：按钮 + 面板 —— */
+#module-nav button.opt-mod { color:#ffcc00; border-color:#7c6a1a;
+  background:linear-gradient(180deg,rgba(60,48,0,.85),rgba(30,24,0,.85)); }
+#module-nav button.opt-mod:hover { border-color:#ffcc00; color:#ffdd55; }
+#module-nav button.opt-mod.active { background:#ffcc00; color:#1a1200; border-color:#ffcc00;
+  box-shadow:0 0 12px rgba(255,204,0,.55); font-weight:bold; }
+#optimize-panel { position:absolute; top:118px; right:20px; z-index:12; width:310px;
+  background:rgba(0,20,40,.95); border:1px solid #ffcc00; border-radius:8px;
+  padding:14px 16px; color:#d0e6f5; display:none;
+  box-shadow:0 0 20px rgba(255,204,0,.18); }
+#optimize-panel .op-head { display:flex; align-items:center; margin-bottom:6px; }
+#optimize-panel .op-title { color:#ffcc00; font-size:15px; font-weight:bold; letter-spacing:.5px; }
+#optimize-panel .op-close { margin-left:auto; cursor:pointer; color:#5a8ab0; font-size:14px; }
+#optimize-panel .op-close:hover { color:#ffcc00; }
+#optimize-panel .op-sub { font-size:11px; color:#5a8ab0; line-height:1.6; margin-bottom:10px; }
+#optimize-panel .op-btn { width:100%; background:rgba(0,30,60,.9); border:1px solid #ffcc00;
+  color:#ffcc00; border-radius:4px; padding:8px 0; font-size:12px; font-family:inherit;
+  cursor:pointer; transition:all .15s; }
+#optimize-panel .op-btn:hover { filter:brightness(1.2); }
+#optimize-panel .op-btn.active { background:#ffcc00; color:#1a1200; font-weight:bold; }
+#optimize-panel .op-list { margin-top:10px; font-size:11px; line-height:1.9; color:#a0c8e0; }
+#optimize-panel .op-list i { display:inline-block; width:8px; height:8px; border-radius:50%;
+  background:#ffffff; margin-right:6px; vertical-align:middle; }
+#optimize-panel .op-note { margin-top:10px; padding-top:8px; border-top:1px solid #1a3a5c;
+  font-size:10px; color:#5a8ab0; line-height:1.6; }
+/* 第 7 个模块：双线对比（白系高亮，便于在导航栏一眼找到） */
+#module-nav button.cmp-mod { color:#ffffff; border-color:#4a6a8c;
+  background:linear-gradient(180deg,rgba(0,52,92,.85),rgba(0,28,56,.85)); }
+#module-nav button.cmp-mod:hover { border-color:#ffffff; color:#ffffff; }
+#module-nav button.cmp-mod.active { background:#ffffff; color:#001018; border-color:#ffffff;
+  box-shadow:0 0 12px rgba(255,255,255,.55); font-weight:bold; }
+.toolbar { position:absolute; top:70px; left:20px; z-index:9; display:flex; gap:8px; flex-wrap:wrap; max-width:520px; }
+.toolbar button { background:rgba(0,20,40,.9); border:1px solid #00d4ff; color:#00d4ff;
+  padding:7px 14px; border-radius:4px; cursor:pointer; font-size:12px; font-family:inherit; }
+.toolbar button:hover { background:rgba(0,60,100,.9); }
+.toolbar button.active { background:#00d4ff; color:#001020; }
+.toolbar button.danger { border-color:#ff3344; color:#ff3344; }
+.toolbar button.danger.active { background:#ff3344; color:#fff; }
+#legend { position:absolute; bottom:20px; left:20px; z-index:9;
+  background:rgba(0,20,40,.9); border:1px solid #1a3a5c; border-radius:6px;
+  padding:10px 14px; font-size:12px; line-height:1.8; }
+#legend .item { display:flex; align-items:center; gap:8px; }
+#legend .swatch { width:18px; height:4px; border-radius:2px; }
+#side-panel { position:absolute; top:70px; right:20px; width:320px; z-index:9;
+  background:rgba(0,20,40,.9); border:1px solid #00d4ff; border-radius:8px;
+  padding:16px; color:#fff; display:none; }
+#side-panel h3 { color:#00d4ff; margin-bottom:8px; font-size:16px; }
+#side-panel .row { padding:6px 0; border-bottom:1px solid #1a3a5c; font-size:13px; line-height:1.6; }
+#side-panel .row b { color:#00d4ff; }
+#side-panel .close { position:absolute; top:8px; right:12px; cursor:pointer; color:#5a8ab0; }
+/* 智能体面板 */
+#agent-panel { position:absolute; bottom:20px; right:20px; z-index:9; width:760px; max-width:calc(100vw - 40px);
+                max-height:calc(100vh - 120px); overflow-y:auto;
+  background:rgba(0,20,40,.92); border:1px solid #00d4ff; border-radius:8px; padding:12px 14px; color:#fff; }
+#agent-panel .ap-head { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+#agent-panel .ap-title { color:#00d4ff; font-size:14px; font-weight:bold; }
+#agent-panel .ap-scenarios { display:flex; gap:6px; flex-wrap:wrap; margin-left:auto; }
+#agent-panel .ap-btn { background:rgba(0,30,60,.6); border:1px solid #1a3a5c; color:#7ab8e0;
+  padding:4px 9px; border-radius:3px; cursor:pointer; font-size:11px; font-family:inherit; font-weight:bold; }
+#agent-panel .ap-btn:hover { border-color:#00d4ff; color:#00d4ff; }
+/* 4 个场景按钮：每个一种语义色，激活态高对比度 + 光晕 */
+#agent-panel .ap-btn.s0 { color:#7ad8ff; border-color:#1a4a7c; background:rgba(0,30,60,.7); }
+#agent-panel .ap-btn.s1 { color:#88ffbb; border-color:#1a5c3c; background:rgba(0,32,20,.7); }
+#agent-panel .ap-btn.s2 { color:#ffe066; border-color:#5c4a1a; background:rgba(40,28,0,.75); }
+#agent-panel .ap-btn.s3 { color:#ffb3bb; border-color:#7c2a30; background:rgba(40,10,14,.75); }
+#agent-panel .ap-btn.s0.active { background:linear-gradient(180deg,#33c8ff,#0090d8); color:#001020; border-color:#fff; box-shadow:0 0 10px #00b4ff; }
+#agent-panel .ap-btn.s1.active { background:linear-gradient(180deg,#3df599,#00b85c); color:#001a08; border-color:#fff; box-shadow:0 0 10px #00ff88; }
+#agent-panel .ap-btn.s2.active { background:linear-gradient(180deg,#ffd633,#cc9900); color:#1a1200; border-color:#fff; box-shadow:0 0 10px #ffcc00; }
+#agent-panel .ap-btn.s3.active { background:linear-gradient(180deg,#ff5566,#cc2233); color:#fff; border-color:#fff; box-shadow:0 0 12px #ff3344; animation:alert-pulse 1.4s ease-in-out infinite; }
+@keyframes alert-pulse { 0%,100%{box-shadow:0 0 10px #ff3344;} 50%{box-shadow:0 0 20px #ff5566,0 0 5px #ff8899;} }
+#agent-panel .ap-cards { display:flex; gap:8px; }
+#agent-panel .ap-card { flex:1; background:rgba(0,10,25,.7); border-top:3px solid #00d4ff;
+  border-radius:4px; padding:8px 10px; min-width:0; }
+#agent-panel .ap-card-name { font-size:12px; font-weight:bold; margin-bottom:6px; }
+#agent-panel .ap-metric { font-size:11px; color:#a0c8e0; line-height:1.7; }
+#agent-panel .ap-metric b { color:#fff; }
+#agent-panel .ap-reroute { font-size:11px; color:#ffaa00; margin-top:4px; }
+#agent-panel .ap-reason { font-size:10px; color:#5a8ab0; line-height:1.5; margin-top:6px;
+  border-top:1px solid #1a3a5c; padding-top:4px; }
+#agent-panel .ap-foot { margin-top:8px; font-size:10px; color:#5a8ab0; display:flex; justify-content:space-between; }
+/* ★ 智能体决策面板：4 张卡片 + 指标条 + 调用链表格需要更宽的容器 ★ */
+#agent-panel .ap-sub { font-size:10px; color:#5a8ab0; margin:2px 0 6px; }
+#agent-panel .ap-sep { border:0; border-top:1px solid #1a3a5c; margin:10px 0 8px; }
+/* 换乘面板 */
+/* ★ P0-4 修复：原先 top:70px 与左侧工具栏(.toolbar 同为 top:70px/left:20px)完全重叠，
+     打开换乘面板会盖住整条工具栏。现下移到工具栏下方，并加高度上限与滚动。 */
+#transfer-panel { position:absolute; top:196px; left:20px; z-index:9; width:520px;
+  max-height:calc(100vh - 240px); overflow-y:auto;
+  background:rgba(0,20,40,.94); border:1px solid #00d4ff; border-radius:8px;
+  padding:12px 14px; color:#fff; display:none; }
+#transfer-panel .tp-head { display:flex; align-items:center; margin-bottom:8px; }
+#transfer-panel .tp-title { color:#00d4ff; font-size:14px; font-weight:bold; }
+#transfer-panel .tp-close { margin-left:auto; cursor:pointer; color:#5a8ab0; }
+#transfer-panel .tp-modes { display:flex; gap:6px; margin-bottom:10px; }
+#transfer-panel .tp-modes button { background:rgba(0,30,60,.6); border:1px solid #1a3a5c; color:#7ab8e0;
+  padding:4px 10px; border-radius:3px; cursor:pointer; font-size:11px; font-family:inherit; }
+#transfer-panel .tp-modes button.active { background:#00d4ff; color:#001020; border-color:#00d4ff; }
+#transfer-panel .tp-flow { display:flex; align-items:stretch; gap:6px; }
+#transfer-panel .tp-col { flex:1; display:flex; align-items:center; }
+#transfer-panel .tp-node { width:100%; border-radius:4px; padding:8px; font-size:11px; text-align:center;
+  background:rgba(0,10,25,.7); border-top:3px solid var(--c); color:#d0e6f5; }
+#transfer-panel .tp-val { font-size:15px; font-weight:bold; color:var(--c); margin-top:4px; }
+#transfer-panel .tp-arrow { flex:.8; display:flex; flex-direction:column; justify-content:center; gap:4px; }
+#transfer-panel .tp-bar { height:8px; border-radius:4px; background:#00b4ff; transition:width .4s; }
+#transfer-panel .tp-label { font-size:10px; color:#5a8ab0; text-align:center; }
+#transfer-panel .tp-note { margin-top:10px; font-size:11px; color:#7ab8e0; line-height:1.5; }
+#transfer-panel .tp-note.warn { color:#ff8866; }
+#transfer-panel .tp-source { margin-top:6px; font-size:10px; color:#3a6a90; }
+#loading { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:20;
+  color:#00d4ff; font-size:16px; letter-spacing:2px; }
+
+/* ===== 附加模块：公路线 vs 轨道线 双线对比（左侧控制面板） ===== */
+#compare-panel { position:absolute; top:70px; left:20px; z-index:11; width:360px;
+  max-height:calc(100vh - 100px); overflow-y:auto;
+  background:rgba(0,20,40,.94); border:1px solid #00d4ff; border-radius:8px;
+  padding:14px 16px; color:#fff; display:none; }
+#compare-panel .cp-head { display:flex; align-items:center; margin-bottom:4px; }
+#compare-panel .cp-title { color:#00d4ff; font-size:15px; font-weight:bold; letter-spacing:.5px; }
+#compare-panel .cp-close { margin-left:auto; cursor:pointer; color:#5a8ab0; font-size:14px; }
+#compare-panel .cp-close:hover { color:#00d4ff; }
+#compare-panel .cp-sub { font-size:11px; color:#5a8ab0; line-height:1.5; margin-bottom:12px; }
+#compare-panel .cp-ctrl { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+#compare-panel .cp-ctrl label { font-size:12px; color:#7ab8e0; width:30px; flex-shrink:0; }
+#compare-panel .cp-ctrl select { flex:1; min-width:0; background:rgba(0,30,60,.9);
+  border:1px solid #1a3a5c; color:#d0e6f5; border-radius:3px; padding:5px 8px;
+  font-size:12px; font-family:inherit; cursor:pointer; }
+#compare-panel .cp-ctrl select:focus { outline:none; border-color:#00d4ff; }
+#cp-start { width:100%; background:linear-gradient(90deg,#00b4ff,#00d4ff); color:#001020;
+  border:none; border-radius:4px; padding:9px 0; font-size:13px; font-weight:bold;
+  font-family:inherit; cursor:pointer; margin-bottom:14px; letter-spacing:1px; transition:filter .15s; }
+#cp-start:hover { filter:brightness(1.15); }
+#compare-panel .cp-race { display:flex; flex-direction:column; gap:12px; margin-bottom:12px; }
+#compare-panel .cp-label { display:flex; align-items:center; justify-content:space-between;
+  font-size:12px; margin-bottom:5px; color:#d0e6f5; }
+#compare-panel .cp-label b { font-size:13px; }
+#compare-panel .cp-label b.road { color:#ff8b96; }
+#compare-panel .cp-label b.rail { color:#ffffff; }
+#compare-panel .cp-track { position:relative; height:22px; border-radius:4px;
+  background:rgba(0,10,25,.85); border:1px solid #1a3a5c; overflow:hidden; }
+#compare-panel .cp-fill { position:absolute; top:0; left:0; bottom:0; width:0; border-radius:3px; }
+#compare-panel .cp-fill.road { background:linear-gradient(90deg,rgba(204,34,51,.72),rgba(255,85,102,.85));
+  box-shadow:0 0 10px rgba(255,51,68,.4); }
+#compare-panel .cp-fill.rail { background:linear-gradient(90deg,#9fb3c8,#ffffff);
+  box-shadow:0 0 12px rgba(255,255,255,.45); }
+#compare-panel .cp-txt { position:absolute; left:0; right:0; top:0; bottom:0;
+  display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:bold;
+  color:#fff; text-shadow:0 1px 3px #000,0 0 4px #000; letter-spacing:.5px; }
+#compare-panel .cp-stat { font-size:10px; color:#7a9ab8; line-height:1.6;
+  margin-bottom:10px; padding:6px 9px; border-radius:3px;
+  background:rgba(0,10,25,.55); border-left:2px solid #1a4a7c; }
+#compare-panel .cp-stat b { font-weight:bold; }
+#compare-panel .cp-result { font-size:12px; line-height:1.7; color:#a0c8e0;
+  background:rgba(0,10,25,.6); border-left:3px solid #ffffff; border-radius:4px;
+  padding:9px 11px; margin-bottom:10px; display:none; }
+#compare-panel .cp-result b { color:#fff; }
+#compare-panel .cp-result .big { display:block; font-size:20px; font-weight:bold;
+  color:#ffffff; letter-spacing:.5px; margin-bottom:3px;
+  text-shadow:0 0 10px rgba(255,255,255,.45); }
+#compare-panel .cp-result .sub { font-size:10px; color:#5a8ab0; margin-top:5px; line-height:1.6; }
+#compare-panel .cp-legend { font-size:11px; color:#7ab8e0; line-height:2;
+  border-top:1px solid #1a3a5c; padding-top:8px; }
+#compare-panel .cp-legend i { display:inline-block; width:22px; border-top:3px solid;
+  margin-right:7px; vertical-align:middle; }
+#compare-panel .cp-legend i.road { border-top-style:dashed; border-color:#ff5566; }
+#compare-panel .cp-legend i.rail { border-color:#ffffff; }
+#map-note { position:absolute; bottom:20px; left:50%; transform:translateX(-50%); z-index:8;
+  background:rgba(0,20,40,.9); border:1px solid #1a3a5c; border-radius:20px;
+  padding:8px 20px; font-size:12px; color:#a0c8e0; display:none; white-space:nowrap; }
+#map-note .r { color:#ff8b96; font-weight:bold; }
+#map-note .g { color:#ffffff; font-weight:bold; }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="loading">正在加载江西省地图数据…</div>
+<script>
+// 全局错误捕获：任何脚本错误都直接显示在页面上，便于定位"地图打不开"这类问题
+window.onerror = function (msg, src, line) {
+  var el = document.getElementById('loading');
+  if (el) {
+    el.style.display = 'block';
+    el.style.color = '#ff5566';
+    el.style.fontSize = '13px';
+    el.style.textAlign = 'center';
+    el.style.lineHeight = '1.8';
+    el.innerHTML = '页面脚本出错：' + msg + '<br>文件：' + (src || '(内联)') +
+                   ' &nbsp;第 ' + line + ' 行';
+  }
+  return false;
+};
+</script>
+
+<div id="topbar">
+  <div class="brand">赣鄱智轨 <small>江西省通勤-旅游复合轨道</small></div>
+  <div id="module-nav">
+    <button data-mod="network" class="active">线网一张图</button>
+    <button data-mod="heat">客流热力</button>
+    <button data-mod="agent">智能体面板</button>
+    <button data-mod="transfer">换乘仿真</button>
+    <button data-mod="emergency">应急演示</button>
+    <button data-mod="optimize" class="opt-mod">优化出行方式</button>
+  </div>
+</div>
+
+<div class="toolbar" id="toolbar">
+  <button id="btn-heat-weekday" class="active">工作日模式</button>
+  <button id="btn-heat-holiday">周末节假日模式</button>
+  <button id="btn-heat-toggle">隐藏热力</button>
+  <button id="btn-layer-commuter" class="active">通勤层</button>
+  <button id="btn-layer-tourism" class="active">旅游层</button>
+  <button id="btn-transfer">换乘仿真·南昌站</button>
+  <button id="btn-emergency" class="danger">模拟边坡预警</button>
+</div>
+
+<div id="legend">
+  <div class="item"><span class="swatch" style="background:#ffcc00"></span>通勤层（既有铁路公交化 · 黄）</div>
+  <div class="item"><span class="swatch" style="background:#ff3344"></span>旅游层（轮轨+齿轨双制式单轨 · 红）</div>
+  <div class="item"><span class="swatch" style="background:#ff00ff"></span>应急风险段（品红 · 与旅游层红区分）</div>
+  <div class="item"><span class="swatch" style="background:#00ffcc"></span>应急改线路径（青绿）</div>
+  <div class="item"><span class="swatch" style="background:#ffffff"></span>原大巴通行（白点移动）</div>
+  <div class="item"><span class="swatch" style="background:#00d4ff"></span>站点</div>
+  <div class="item"><span class="swatch" style="background:#ff8800"></span>齿轨爬坡段（橙色闪烁）</div>
+</div>
+
+<div id="side-panel">
+  <span class="close" onclick="this.parentElement.style.display='none'">✕</span>
+  <h3 id="panel-title">站点信息</h3>
+  <div id="panel-content"></div>
+</div>
+
+<!-- ===== 优化出行方式面板（大巴车辆移动集中在此） ===== -->
+<div id="optimize-panel">
+  <div class="op-head">
+    <span class="op-title">优化出行方式</span>
+    <span class="op-close" id="op-close">✕</span>
+  </div>
+  <div class="op-sub">原大巴通行方式 · 车辆沿公路绕行走向移动</div>
+  <button id="op-bus-toggle" class="op-btn active">隐藏大巴车辆</button>
+  <div class="op-list" id="op-bus-list"></div>
+  <div class="op-note">白色圆点 = 大巴车辆；黄线 = 通勤层轨道；红线 = 旅游层轨道。大巴沿公路绕山，轨道穿山直达。</div>
+</div>
+
+<div id="transfer-panel">
+  <div class="tp-head"><span class="tp-title">换乘节点动态仿真 · 南昌站</span><span class="tp-close" id="tp-close">✕</span></div>
+  <div class="tp-modes">
+    <button data-mode="weekday" class="active">工作日</button>
+    <button data-mode="holiday">节假日</button>
+  </div>
+  <div class="tp-flow">
+    <div class="tp-col"><div class="tp-node" style="--c:#00b4ff">通勤层到达<div class="tp-val" id="tp-arrive">0</div></div></div>
+    <div class="tp-arrow"><div class="tp-bar" id="tp-bar1"></div><div class="tp-label">换乘通道</div></div>
+    <div class="tp-col"><div class="tp-node" style="--c:#ffaa00">通道疏运<div class="tp-val" id="tp-transfer">0</div></div></div>
+    <div class="tp-arrow"><div class="tp-bar" id="tp-bar2"></div><div class="tp-label">上车</div></div>
+    <div class="tp-col"><div class="tp-node" style="--c:#00ff88">单轨旅游层出发<div class="tp-val" id="tp-tourism">0</div></div></div>
+  </div>
+  <div class="tp-note" id="tp-note"></div>
+  <div class="tp-source">流量为仿真推演（基于南昌站流量做换乘比例推演）</div>
+</div>
+
+<div id="agent-panel">
+  <div class="ap-head">
+    <span class="ap-title">智能体决策面板</span>
+    <div class="ap-scenarios" id="ap-scenarios"></div>
+  </div>
+  <!-- ★ 地图应急场景（4 类灾情/运营场景，驱动地图覆盖物）—— 与下方"治理方案"是两件事 -->
+  <div class="ap-sub" id="ap-sub">地图应急场景（驱动地图覆盖物）</div>
+  <div class="ap-cards" id="ap-cards"></div>
+  <!-- ★ L3 智能体决策区：全部消费 data/agent_decision.json，不再硬编码任何业务数值 -->
+  <hr class="ap-sep">
+  <div id="gdp-root"></div>
+  <div class="ap-foot" id="ap-foot"></div>
+</div>
+
+<script>
+/* =====================================================================
+ * 赣鄱智轨 · 校赛演示版（ECharts-GL，零AK，自包含）
+ * 数据与逻辑镜像 sim/passenger_flow_sim.py / sim/dispatch_agent.py 输出
+ * ===================================================================== */
+'use strict';
+
+// ---------- 数据（与 web/js/config.js 一致） ----------
+// 线网配色（需求口径）：通勤层 = 黄色，旅游层 = 红色
+// 主题色（科技深蓝）
+// ★ P0-3 修复：应急色原为 #ff3344，与旅游层红色完全相同 —— 应急高亮叠在旅游线
+//   上时肉眼无法区分。现改为品红 #ff00ff（与黄/红/橙/白/青全部可辨）；
+//   改线路径改为青绿 #00ffcc（与通勤层的 #ffcc00 形成明确差异）。
+var COLOR = { commuter:'#ffcc00', tourism:'#ff3344', emergency:'#ff00ff', reroute:'#00ffcc', accent:'#00d4ff' };
+
+var commuterLines = [
+  { name:'昌九通勤线',
+    coords:[[115.89,28.68],[115.98,29.05],[115.99,29.32],[116.00,29.71]],
+    stations:[
+      {name:'南昌站',coord:[115.89,28.68],dailyFlow:'2.8万人次',transfer:'地铁1号线、公交',scenic:'滕王阁'},
+      {name:'永修站',coord:[115.98,29.05],dailyFlow:'0.6万人次',transfer:'公交',scenic:'云居山'},
+      {name:'共青城站',coord:[115.99,29.32],dailyFlow:'0.4万人次',transfer:'公交',scenic:'—'},
+      {name:'九江站',coord:[116.00,29.71],dailyFlow:'1.9万人次',transfer:'公交、旅游专线',scenic:'庐山'}]},
+  { name:'昌抚通勤线',
+    coords:[[115.89,28.68],[116.05,28.45],[116.36,27.95]],
+    stations:[
+      {name:'南昌站',coord:[115.89,28.68],dailyFlow:'2.8万人次',transfer:'地铁1号线、公交',scenic:'滕王阁'},
+      {name:'进贤站',coord:[116.05,28.45],dailyFlow:'0.3万人次',transfer:'公交',scenic:'—'},
+      {name:'抚州站',coord:[116.36,27.95],dailyFlow:'0.8万人次',transfer:'公交',scenic:'大觉山'}]},
+  // —— 以下为「全省市区打通」扩展段（依原方案 2.2 拓展路径）——
+  { name:'沪昆通勤线',
+    coords:[[115.89,28.68],[115.77,28.16],[115.55,28.06],[114.93,27.81],[114.42,27.80],[113.85,27.62]],
+    stations:[
+      {name:'丰城站',coord:[115.77,28.16],dailyFlow:'0.4万人次',transfer:'公交',scenic:'洪州窑'},
+      {name:'樟树站',coord:[115.55,28.06],dailyFlow:'0.3万人次',transfer:'公交',scenic:'阁皂山'},
+      {name:'新余站',coord:[114.93,27.81],dailyFlow:'0.6万人次',transfer:'公交',scenic:'仙女湖'},
+      {name:'宜春站',coord:[114.42,27.80],dailyFlow:'0.7万人次',transfer:'公交、旅游专线',scenic:'明月山'},
+      {name:'萍乡站',coord:[113.85,27.62],dailyFlow:'0.7万人次',transfer:'公交',scenic:'武功山、安源'}]},
+  { name:'京九通勤线',
+    coords:[[115.89,28.68],[114.99,27.11],[115.36,26.34],[114.94,25.83]],
+    stations:[
+      {name:'吉安站',coord:[114.99,27.11],dailyFlow:'0.9万人次',transfer:'公交、旅游专线',scenic:'井冈山'},
+      {name:'兴国站',coord:[115.36,26.34],dailyFlow:'0.3万人次',transfer:'公交',scenic:'将军园'},
+      {name:'赣州站',coord:[114.94,25.83],dailyFlow:'1.5万人次',transfer:'高铁、公交',scenic:'通天岩、瑞金'}]},
+  { name:'皖赣通勤线',
+    coords:[[115.89,28.68],[117.07,28.26],[117.18,29.27]],
+    stations:[
+      {name:'鹰潭站',coord:[117.07,28.26],dailyFlow:'0.7万人次',transfer:'公交、旅游专线',scenic:'龙虎山'},
+      {name:'景德镇站',coord:[117.18,29.27],dailyFlow:'0.6万人次',transfer:'公交、旅游专线',scenic:'古窑、瑶里'}]}
+];
+var tourismLines = [
+  // 赣东北原为一条闭环；按要求断开「婺源↔三清山」的直接连接，拆为两段独立线路
+  { name:'赣东北环线·上饶婺源段',
+    coords:[[117.97,28.45],[117.86,29.25]],
+    stations:[
+      {name:'上饶站',coord:[117.97,28.45],dailyFlow:'1.2万人次',transfer:'高铁、公交',scenic:'灵山'},
+      {name:'婺源站',coord:[117.86,29.25],dailyFlow:'0.9万人次',transfer:'公交、旅游专线',scenic:'篁岭、江湾'}]},
+  { name:'赣东北环线·三清山龙虎山段',
+    coords:[[118.06,28.91],[116.96,28.10],[117.97,28.45]],
+    stations:[
+      {name:'三清山站',coord:[118.06,28.91],dailyFlow:'0.7万人次',transfer:'景区接驳车',scenic:'三清山'},
+      {name:'龙虎山站',coord:[116.96,28.10],dailyFlow:'0.5万人次',transfer:'公交',scenic:'龙虎山、上清古镇'},
+      {name:'上饶站',coord:[117.97,28.45],dailyFlow:'1.2万人次',transfer:'高铁、公交',scenic:'灵山'}]},
+  { name:'环庐山旅游线',
+    coords:[[116.00,29.71],[115.85,29.55],[115.55,29.24],[116.00,29.71]],
+    stations:[
+      {name:'九江站',coord:[116.00,29.71],dailyFlow:'1.9万人次',transfer:'公交、旅游专线',scenic:'庐山'},
+      {name:'庐山站',coord:[115.85,29.55],dailyFlow:'1.5万人次',transfer:'索道、景区接驳',scenic:'庐山风景区'},
+      {name:'庐山西海站',coord:[115.55,29.24],dailyFlow:'0.8万人次',transfer:'游船码头',scenic:'庐山西海'}]},
+  // —— 以下为「全省市区打通」扩展段（依原方案 3.3 环线段：上饶/九江/鹰潭段外补赣西·赣南·赣东）——
+  { name:'赣西红色旅游线',
+    coords:[[114.99,27.11],[114.18,26.75],[114.28,27.72],[113.87,27.63],[114.99,27.11]],
+    stations:[
+      {name:'吉安站',coord:[114.99,27.11],dailyFlow:'0.9万人次',transfer:'公交、旅游专线',scenic:'井冈山'},
+      {name:'井冈山站',coord:[114.18,26.75],dailyFlow:'0.6万人次',transfer:'景区接驳车',scenic:'井冈山'},
+      {name:'明月山站',coord:[114.28,27.72],dailyFlow:'0.5万人次',transfer:'索道、景区接驳',scenic:'明月山'},
+      {name:'安源站',coord:[113.87,27.63],dailyFlow:'0.3万人次',transfer:'公交',scenic:'安源路矿'}]},
+  { name:'赣南客家旅游线',
+    coords:[[114.94,25.83],[116.03,25.88],[114.79,24.91],[114.94,25.83]],
+    stations:[
+      {name:'赣州站',coord:[114.94,25.83],dailyFlow:'1.5万人次',transfer:'高铁、公交',scenic:'通天岩、瑞金'},
+      {name:'瑞金站',coord:[116.03,25.88],dailyFlow:'0.4万人次',transfer:'景区接驳车',scenic:'共和国摇篮'},
+      {name:'龙南站',coord:[114.79,24.91],dailyFlow:'0.3万人次',transfer:'公交',scenic:'关西围屋'}]},
+  { name:'赣东古韵旅游线',
+    coords:[[117.18,29.27],[117.58,29.42],[117.41,28.32],[116.97,27.97],[117.18,29.27]],
+    stations:[
+      {name:'景德镇站',coord:[117.18,29.27],dailyFlow:'0.6万人次',transfer:'公交、旅游专线',scenic:'古窑、瑶里'},
+      {name:'瑶里站',coord:[117.58,29.42],dailyFlow:'0.2万人次',transfer:'景区接驳车',scenic:'瑶里古镇'},
+      {name:'龟峰站',coord:[117.41,28.32],dailyFlow:'0.4万人次',transfer:'景区接驳车',scenic:'龟峰'},
+      {name:'上清古镇站',coord:[116.97,27.97],dailyFlow:'0.3万人次',transfer:'景区接驳车',scenic:'上清古镇'}]},
+  // —— 依《以轨代巴》方案 3.3：大觉山旅游支线（抚州—资溪—大觉山）——
+  { name:'大觉山旅游支线',
+    coords:[[116.36,27.95],[117.07,27.70],[117.03,27.78]],
+    stations:[
+      {name:'抚州站',coord:[116.36,27.95],dailyFlow:'0.8万人次',transfer:'公交、接驳车',scenic:'大觉山'},
+      {name:'资溪站',coord:[117.07,27.70],dailyFlow:'0.2万人次',transfer:'景区接驳车',scenic:'大觉山、马头山'},
+      {name:'大觉山站',coord:[117.03,27.78],dailyFlow:'0.6万人次',transfer:'悬崖动车',scenic:'大觉山'}]},
+  // —— 依《以轨代巴》方案 3.4：梅岭"红轨"旅游线（南昌—湾里—梅岭）——
+  { name:'梅岭红轨旅游线',
+    coords:[[115.89,28.68],[115.78,28.70],[115.74,28.72],[115.72,28.80]],
+    stations:[
+      {name:'南昌站',coord:[115.89,28.68],dailyFlow:'2.8万人次',transfer:'地铁1号线、公交',scenic:'滕王阁'},
+      {name:'湾里站',coord:[115.74,28.72],dailyFlow:'0.4万人次',transfer:'索道、公交',scenic:'洪崖丹井、月亮湾'},
+      {name:'梅岭站',coord:[115.72,28.80],dailyFlow:'0.3万人次',transfer:'索道、景区接驳',scenic:'梅岭、竹海明珠'}]}
+];
+
+// ---------- 齿轨爬坡段（依《以轨代巴》方案 5.2）----------
+// 采用齿轨技术的陡坡路段，地图上以橙色闪烁标记；点击弹技术参数
+var SLOPE_SEGMENTS = [
+  { name:'三清山齿轨段',
+    coords:[[117.86,29.25],[118.06,28.91]],
+    grade:'最大坡度 120‰',
+    system:'米轨+齿轨双制式',
+    ref:'四川都四山地轨道交通',
+    note:'齿轨段时速 40km/h，双线设计' },
+  { name:'大觉山齿轨段',
+    coords:[[117.07,27.70],[117.03,27.78]],
+    grade:'适配悬崖陡坡',
+    system:'铰接式转向架+齿轨',
+    ref:'大觉山"悬崖动车"（13.14km，日运量2.5万人次）',
+    note:'三分之一路段贴悬崖，运行海拔 850-1150m' },
+  { name:'庐山陡坡段',
+    coords:[[116.00,29.71],[115.85,29.55]],
+    grade:'超过 60‰ 加装齿轨驱动',
+    system:'跨座式单轨 + 齿轨驱动模块',
+    ref:'重庆跨座式单轨 / 都四齿轨转向架',
+    note:'橡胶轮胎爬坡附着力更强，最小转弯半径 100m' }
+];
+
+// 客流仿真参数（镜像 passenger_flow_sim.py：锚定昌九36.3%上座率、大觉山2.5万/日、5A客流）
+var FLOW_STATIONS = [
+  {name:'南昌站',lng:115.89,lat:28.68,type:'commuter',base:28000},
+  {name:'永修站',lng:115.98,lat:29.05,type:'commuter',base:6000},
+  {name:'共青城站',lng:115.99,lat:29.32,type:'commuter',base:4000},
+  {name:'九江站',lng:116.00,lat:29.71,type:'commuter',base:19000},
+  {name:'进贤站',lng:116.05,lat:28.45,type:'commuter',base:3000},
+  {name:'抚州站',lng:116.36,lat:27.95,type:'commuter',base:8000},
+  {name:'上饶站',lng:117.97,lat:28.45,type:'tourism',base:12000},
+  {name:'婺源站',lng:117.86,lat:29.25,type:'tourism',base:9000},
+  {name:'三清山站',lng:118.06,lat:28.91,type:'tourism',base:7000},
+  {name:'龙虎山站',lng:116.96,lat:28.10,type:'tourism',base:5000},
+  {name:'庐山站',lng:115.85,lat:29.55,type:'tourism',base:15000},
+  {name:'庐山西海站',lng:115.55,lat:29.24,type:'tourism',base:8000},
+  // —— 全省市区打通新增（覆盖景德镇/萍乡/新余/鹰潭/赣州/吉安/宜春 7 市）——
+  {name:'丰城站',lng:115.77,lat:28.16,type:'commuter',base:4000},
+  {name:'樟树站',lng:115.55,lat:28.06,type:'commuter',base:3000},
+  {name:'新余站',lng:114.93,lat:27.81,type:'commuter',base:6000},
+  {name:'宜春站',lng:114.42,lat:27.80,type:'commuter',base:7000},
+  {name:'萍乡站',lng:113.85,lat:27.62,type:'commuter',base:7000},
+  {name:'吉安站',lng:114.99,lat:27.11,type:'commuter',base:9000},
+  {name:'兴国站',lng:115.36,lat:26.34,type:'commuter',base:2500},
+  {name:'赣州站',lng:114.94,lat:25.83,type:'commuter',base:15000},
+  {name:'鹰潭站',lng:117.07,lat:28.26,type:'commuter',base:7000},
+  {name:'景德镇站',lng:117.18,lat:29.27,type:'commuter',base:6000},
+  {name:'井冈山站',lng:114.18,lat:26.75,type:'tourism',base:6000},
+  {name:'明月山站',lng:114.28,lat:27.72,type:'tourism',base:5000},
+  {name:'安源站',lng:113.87,lat:27.63,type:'tourism',base:3000},
+  {name:'瑞金站',lng:116.03,lat:25.88,type:'tourism',base:4000},
+  {name:'龙南站',lng:114.79,lat:24.91,type:'tourism',base:3000},
+  {name:'瑶里站',lng:117.58,lat:29.42,type:'tourism',base:2000},
+  {name:'龟峰站',lng:117.41,lat:28.32,type:'tourism',base:3500},
+  {name:'上清古镇站',lng:116.97,lat:27.97,type:'tourism',base:3000},
+  // —— 依《以轨代巴》方案 3.3 / 3.4 新增 ——
+  {name:'资溪站',lng:117.07,lat:27.70,type:'tourism',base:2000},
+  {name:'大觉山站',lng:117.03,lat:27.78,type:'tourism',base:6000},
+  {name:'湾里站',lng:115.74,lat:28.72,type:'tourism',base:4000},
+  {name:'梅岭站',lng:115.72,lat:28.80,type:'tourism',base:3000}
+];
+var FLOW_MULT = { weekday:{commuter:1.00,tourism:0.45}, holiday:{commuter:0.75,tourism:2.60} };
+var FLOW_SEGMENTS = [
+  ['南昌站','永修站','共青城站','九江站'],
+  ['南昌站','进贤站','抚州站'],
+  ['上饶站','婺源站','三清山站','龙虎山站','上饶站'],
+  ['九江站','庐山站','庐山西海站','九江站'],
+  // 全省市区打通新增走廊
+  ['南昌站','丰城站','樟树站','新余站','宜春站','萍乡站'],
+  ['南昌站','吉安站','兴国站','赣州站'],
+  ['南昌站','鹰潭站','景德镇站'],
+  ['吉安站','井冈山站','明月山站','安源站','吉安站'],
+  ['赣州站','瑞金站','龙南站','赣州站'],
+  ['景德镇站','瑶里站','龟峰站','上清古镇站','景德镇站'],
+  // 以轨代巴新增走廊
+  ['抚州站','资溪站','大觉山站'],
+  ['南昌站','湾里站','梅岭站']
+];
+
+// 调度智能体规则镜像（镜像 dispatch_agent.py）
+var REROUTE = { affected_section:'三清山站→龙虎山站',
+  detour:[[118.06,28.91],[117.97,28.45],[116.96,28.10]] };
+var SCENARIOS = [
+  {key:'①工作日早高峰', tl:'workday_peak',    sf:'mid',  al:'none',      icon:'🚆'},
+  {key:'②周末节假日',   tl:'weekend_holiday', sf:'high', al:'none',      icon:'🏔'},
+  {key:'③工作日平峰',   tl:'workday_off',     sf:'low',  al:'none',      icon:'🕓'},
+  {key:'④边坡应急',     tl:'weekend_holiday', sf:'high', al:'slope_risk',icon:'⚠'}
+];
+function mirrorDispatch(tl, sf, al) {
+  var commuter, tourism, emergency;
+  if (tl==='workday_peak') commuter={headway_min:8,formation:'8辆大编组（高峰满负荷）',reason:'工作日早高峰昌九走廊通勤客流集中，参考昌九城际核定运能496863人次/年、上座率36.3%，公交化后唤醒富余运力。'};
+  else if (tl==='workday_off') commuter={headway_min:15,formation:'4辆标准编组',reason:'工作日平峰客流回落，缩短编组控成本，保留发车密度。'};
+  else commuter={headway_min:12,formation:'6辆中等编组',reason:'周末节假日通勤需求下降但仍有出行。'};
+  var base={low:[20,'4辆小编组'],mid:[12,'6辆中等编组'],high:[6,'8辆最大编组']}, b=base[sf], h=b[0], f=b[1];
+  if (tl==='weekend_holiday'&&sf==='high'){h=4;f='8辆最大编组+加密班次';}
+  tourism={headway_min:h,formation:f,reason:'景区预约'+(sf==='high'?'高，节假日旅游环线客流飙升，参考大觉山单轨日最高2.5万人次，加密发车':sf==='mid'?'中等，维持标准服务':'稀疏，拉长间隔降本')+'。'};
+  if (al==='none') emergency={status:'正常运行',strategy:'无告警，三层智能体按既定计划运行。',reroute:null,reason:'—'};
+  else emergency={status:'边坡风险告警',strategy:'①风险区段限速通过；②启动跨座式单轨旅游环线绕行；③通勤层加开疏运列车接驳滞留旅客；④推送预警信息至调度中心。',reroute:REROUTE,reason:'三清山—龙虎山区段突发边坡预警，参考广东铁投平台按预警等级精准推送防控指令的做法，自动生成绕行经上饶换乘的改线方案。'};
+  return { commuter_agent:Object.assign({name:'通勤调度智能体'},commuter),
+           tourism_agent:Object.assign({name:'旅游调度智能体'},tourism),
+           emergency_agent:Object.assign({name:'应急联动智能体'},emergency) };
+}
+
+// 换乘仿真模型（镜像 transfer-sim.js）
+var TRANSFER_MODES = {
+  weekday:{arrive:28000,share:.10,tourism:3000,bottleneck:false,note:'工作日通勤为主，换乘占比~10%，通道畅通。'},
+  holiday:{arrive:21000,share:.55,tourism:31200,bottleneck:true,note:'节假日大量通勤客转旅游，换乘占比~55%，通道拥堵风险高，建议加开疏运列车。'}
+};
+
+// ---------- 工具 ----------
+function lerp(a,b,t){return a+(b-a)*t;}
+function stationFlow(scenario,s){return Math.round(s.base*FLOW_MULT[scenario][s.type]);}
+function stationByName(n){for(var i=0;i<FLOW_STATIONS.length;i++)if(FLOW_STATIONS[i].name===n)return FLOW_STATIONS[i];return null;}
+
+// Catmull-Rom 样条平滑：把折线坐标转成流畅曲线（环线自动首尾闭合）
+function smoothCoords(coords,samplesPerSeg){
+  samplesPerSeg=samplesPerSeg||12;
+  var closed=coords.length>2&&
+    Math.abs(coords[0][0]-coords[coords.length-1][0])<1e-9&&
+    Math.abs(coords[0][1]-coords[coords.length-1][1])<1e-9;
+  var pts=closed?coords.slice(0,coords.length-1):coords.slice();
+  var n=pts.length;
+  if(n<3)return coords.slice();
+  function at(i){return closed?pts[((i%n)+n)%n]:pts[Math.max(0,Math.min(n-1,i))];}
+  var out=[], last=closed?n:n-1;
+  for(var i=0;i<last;i++){
+    var p0=at(i-1),p1=at(i),p2=at(i+1),p3=at(i+2);
+    for(var j=0;j<samplesPerSeg;j++){
+      var t=j/samplesPerSeg,t2=t*t,t3=t2*t;
+      out.push([
+        0.5*((2*p1[0])+(-p0[0]+p2[0])*t+(2*p0[0]-5*p1[0]+4*p2[0]-p3[0])*t2+(-p0[0]+3*p1[0]-3*p2[0]+p3[0])*t3),
+        0.5*((2*p1[1])+(-p0[1]+p2[1])*t+(2*p0[1]-5*p1[1]+4*p2[1]-p3[1])*t2+(-p0[1]+3*p1[1]-3*p2[1]+p3[1])*t3)
+      ]);
+    }
+  }
+  out.push(closed?out[0].slice():pts[n-1]);
+  return out;
+}
+
+// 线性加密：对任意 ≥2 点的折线按等参数插值出密集点。
+// ★ P0-3 补丁 ★ smoothCoords 对 n<3 的折线直接原样返回（见上 if(n<3)），
+//   而 agent_decision.json 的 risk_segments 每段只有 2 个端点，
+//   结果地图上只画出 4 个孤立点，看不出"风险段"。此处补一条线性插值通道。
+function densifyLine(coords,samplesPerSeg){
+  samplesPerSeg=samplesPerSeg||40;
+  if(!coords||coords.length<2)return (coords||[]).slice();
+  var out=[];
+  for(var i=0;i<coords.length-1;i++){
+    var a=coords[i],b=coords[i+1];
+    for(var j=0;j<samplesPerSeg;j++){
+      var t=j/samplesPerSeg;
+      out.push([a[0]+(b[0]-a[0])*t, a[1]+(b[1]-a[1])*t]);
+    }
+  }
+  var last=coords[coords.length-1];
+  out.push([last[0],last[1]]);
+  return out;
+}
+
+// 统一入口：点数足够走样条（更平滑），点数不足走线性加密（保证可见）
+function segPoints(coords,samplesPerSeg){
+  if(!coords||coords.length<2)return [];
+  return coords.length>=3?smoothCoords(coords,samplesPerSeg):densifyLine(coords,samplesPerSeg);
+}
+
+// 生成热力点（站点+走廊插值），并按强度分4档
+function computeHeat(scenario){
+  var pts=[];
+  FLOW_STATIONS.forEach(function(s){pts.push({lng:s.lng,lat:s.lat,count:stationFlow(scenario,s)});});
+  FLOW_SEGMENTS.forEach(function(stops){
+    for(var i=0;i<stops.length-1;i++){
+      var a=stationByName(stops[i]), b=stationByName(stops[i+1]);
+      var fa=stationFlow(scenario,a), fb=stationFlow(scenario,b);
+      var mid=Math.max(1,Math.round((fa+fb)/2*0.5));
+      for(var j=1;j<=3;j++){var t=j/4;
+        pts.push({lng:lerp(a.lng,b.lng,t),lat:lerp(a.lat,b.lat,t),count:mid});}
+    }
+  });
+  var tiers=[[],[],[],[]]; // L1低 L2中 L3高 L4极高
+  pts.forEach(function(p){
+    if(p.count>=20000)tiers[3].push([p.lng,p.lat,p.count]);
+    else if(p.count>=10000)tiers[2].push([p.lng,p.lat,p.count]);
+    else if(p.count>=4000)tiers[1].push([p.lng,p.lat,p.count]);
+    else tiers[0].push([p.lng,p.lat,p.count]);
+  });
+  return tiers;
+}
+
+// ---------- 全局状态 ----------
+var chart=null, currentScenario='weekday', heatOn=true, trainTimer=null, trains=[], curScen=0, emergencyOn=false;
+
+// ---------- 初始化地图（本地GeoJSON优先，DataV在线兜底） ----------
+function loadGeo(){
+  fetch('data/jiangxi.json').then(function(r){return r.json();}).then(init).catch(function(){
+    fetch('https://geo.datav.aliyun.com/areas_v3/bound/360000_full.json')
+      .then(function(r){return r.json();}).then(init).catch(showErr);
+  });
+}
+function showErr(){
+  var el=document.getElementById('loading');
+  el.innerHTML='地图数据加载失败。<br>请确认网络可访问 cdn.jsdelivr.net（ECharts 依赖），<br>或通过本地 server 打开（python3 -m http.server 8000）。';
+}
+
+function init(geoJSON){
+  document.getElementById('loading').style.display='none';
+  echarts.registerMap('jiangxi', geoJSON);
+  chart = echarts.init(document.getElementById('map'));
+
+  var allStations=[]; var seen={};
+  commuterLines.forEach(function(l){l.stations.forEach(function(s){if(!seen[s.name]){seen[s.name]=1;allStations.push(Object.assign({},s,{type:'commuter'}));}});});
+  tourismLines.forEach(function(l){l.stations.forEach(function(s){if(!seen[s.name]){seen[s.name]=1;allStations.push(Object.assign({},s,{type:'tourism'}));}});});
+
+  var heatTiers = computeHeat(currentScenario);
+
+  var option = {
+    backgroundColor:'#0a1628',
+    geo3D:{
+      map:'jiangxi', shading:'lambert', regionHeight:3,
+      itemStyle:{color:'#1a3a5c',borderColor:'#2a5a8c',borderWidth:1},
+      emphasis:{itemStyle:{color:'#2a5a8c'}},
+      light:{main:{intensity:1.2,shadow:true,alpha:40,beta:30},ambient:{intensity:.3}},
+      viewControl:{autoRotate:false,distance:180,alpha:45,beta:0},
+      label:{show:true,color:'#7ab8e0',fontSize:10}
+    },
+    series:[
+      // 客流热力（4档散点叠加）—— 黄→白→红三色系
+      // ★ 放在最前面（最底层）：先画热力，线网与站点再画上去，
+      //   否则大尺寸热力点会把线网整个盖住（这是"看不到黄/红线"的原因）
+      { id:'heatL1', type:'scatter3D', coordinateSystem:'geo3D', symbolSize:34,
+        itemStyle:{color:'#ffcc00',opacity:.14}, blendMode:'lighter', data:heatTiers[0] },
+      { id:'heatL2', type:'scatter3D', coordinateSystem:'geo3D', symbolSize:50,
+        itemStyle:{color:'#ffe066',opacity:.18}, blendMode:'lighter', data:heatTiers[1] },
+      { id:'heatL3', type:'scatter3D', coordinateSystem:'geo3D', symbolSize:70,
+        itemStyle:{color:'#ffffff',opacity:.22}, blendMode:'lighter', data:heatTiers[2] },
+      { id:'heatL4', type:'scatter3D', coordinateSystem:'geo3D', symbolSize:96,
+        itemStyle:{color:'#ff2d3f',opacity:.30}, blendMode:'lighter', data:heatTiers[3] },
+      // —— 通勤层线路（黄）——
+      // 说明：本环境下 ECharts-GL 的 lines3D 始终不渲染（已多次验证：同样高度下
+      // scatter3D 点能显示、lines3D 线不显示）。故改用「密集散点连成线」——
+      // scatter3D 已确认可正常显示（站点圆点、大巴圆点都正常出现过）
+      { id:'lineCommuter', type:'scatter3D', coordinateSystem:'geo3D', name:'通勤层',
+        symbolSize:8, itemStyle:{color:'#ffcc00',opacity:1},
+        data: lineToDots(commuterLines, 4, 70) },
+      // —— 旅游层线路（红）：同样用密集散点 ——
+      { id:'lineTourism', type:'scatter3D', coordinateSystem:'geo3D', name:'旅游层',
+        symbolSize:8, itemStyle:{color:'#ff3344',opacity:1},
+        data: lineToDots(tourismLines, 4, 70) },
+      // —— 站点：圆点 + 名称标签（画在线网之上；白色描边让站点从线上"跳"出来）——
+      { id:'stations', type:'scatter3D', coordinateSystem:'geo3D', name:'站点',
+        symbolSize:9,
+        itemStyle:{opacity:1, borderColor:'#ffffff', borderWidth:2,
+          color:function(p){return p.data.type==='commuter' ? '#ffcc00' : '#ff3344';}},
+        label:{show:true,formatter:'{b}',position:'top',color:'#ffffff',fontSize:9,
+          textBorderColor:'#000000',textBorderWidth:2},
+        data: allStations.map(function(s){return {name:s.name,value:[s.coord[0],s.coord[1],s.dailyFlow],
+          type:s.type,dailyFlow:s.dailyFlow,transfer:s.transfer,scenic:s.scenic};}) },
+      // —— 站点圆点已按要求移除：站点之间改由「线」表达（见上方黄线/红线）——
+
+      // 应急：风险段高亮 + 改线（初始空）
+      // ★ P0-3 修复（本处是"应急演示地图上零像素"的根因）★
+      //   原实现用 lines3D，而本环境 ECharts-GL 的 lines3D 实测始终不渲染
+      //   （同文件 609-611 行的注释已经承认这一点，但应急模块却仍在用 lines3D）。
+      //   现统一改为 scatter3D + 密集散点（复用 lineToDots 的同一套做法）。
+      { id:'emerRed', type:'scatter3D', coordinateSystem:'geo3D', name:'应急风险段',
+        symbolSize:9, itemStyle:{color:COLOR.emergency,opacity:1}, data:[] },
+      { id:'emerReroute', type:'scatter3D', coordinateSystem:'geo3D', name:'应急改线',
+        symbolSize:8, itemStyle:{color:COLOR.reroute,opacity:1}, data:[] },
+      // —— 原大巴通行方式：白色圆点沿线移动（替代原「双线对比」的公路虚线）——
+      // 点沿「公路绕行走向」移动，直观呈现大巴是如何绕山行驶的
+      { id:'busDot', type:'scatter3D', coordinateSystem:'geo3D', name:'原大巴',
+        symbol:'circle', symbolSize:11,
+        itemStyle:{color:'#ffffff',opacity:.95,borderColor:'#0a1628',borderWidth:2},
+        label:{show:true,position:'top',color:'#ffffff',fontSize:9,
+          textBorderColor:'#000',textBorderWidth:2},
+        data:[] },
+      // —— 依《以轨代巴》方案 5.2：齿轨爬坡段橙色标注 ——
+      // 三清山段 / 大觉山段 / 庐山陡坡段；period 短 → 橙色光点快速流动，呈闪烁感
+      // 齿轨爬坡段（橙）：同样改用密集散点
+      { id:'slopeSeg', type:'scatter3D', coordinateSystem:'geo3D', name:'齿轨爬坡段',
+        symbolSize:10, itemStyle:{color:'#ff8800',opacity:.95},
+        data: lineToDots(SLOPE_SEGMENTS, 4.2, 40) }
+    ]
+  };
+  chart.setOption(option);
+
+  // 站点点击弹窗（模块一交互）
+  chart.on('click', function(params){
+    // 齿轨爬坡段：点击弹技术参数（方案 5.2）
+    if(params.seriesId==='slopeSeg'){
+      var sg=null;
+      SLOPE_SEGMENTS.forEach(function(s){ if(s.name===params.name) sg=s; });
+      if(sg){
+        document.getElementById('panel-title').textContent='⚙ '+sg.name;
+        document.getElementById('panel-content').innerHTML=
+          '<div class="row">爬坡坡度：<b style="color:#ff8800">'+sg.grade+'</b></div>'+
+          '<div class="row">制式：<b>'+sg.system+'</b></div>'+
+          '<div class="row">借鉴案例：<b>'+sg.ref+'</b></div>'+
+          '<div class="row">技术要点：'+sg.note+'</div>';
+        document.getElementById('side-panel').style.display='block';
+      }
+    }
+    if(params.seriesId==='stations' && params.data && params.data.dailyFlow){
+      var d=params.data, panel=document.getElementById('side-panel');
+      document.getElementById('panel-title').textContent=d.name;
+      document.getElementById('panel-content').innerHTML=
+        '<div class="row">日均客流：<b>'+d.dailyFlow+'</b></div>'+
+        '<div class="row">接驳方式：<b>'+d.transfer+'</b></div>'+
+        '<div class="row">周边景区：<b>'+d.scenic+'</b></div>'+
+        '<div class="row">线路类型：<b>'+(d.type==='commuter'?'通勤层':'旅游层')+'</b></div>';
+      panel.style.display='block';
+    }
+  });
+  window.addEventListener('resize', function(){chart.resize();});
+  renderHeat();
+
+  // 原大巴通行方式：白点沿「公路绕行走向」移动（替代原双线对比）
+  startBus();
+
+  // 线网兜底：初始化稍后再强制下发一次，确保黄/红线条一定画出来
+  setTimeout(function(){ renderLines(); }, 350);
+
+  // 齿轨爬坡段「闪烁」效果（方案 5.2：橙色闪烁标记）
+  // ECharts-GL 没有 CSS 动画，用透明度脉动模拟；1s 一次，避免 3D 重绘开销过大
+  if(window._slopeBlinkTimer) clearInterval(window._slopeBlinkTimer);
+  var _slopeBright=true;
+  window._slopeBlinkTimer=setInterval(function(){
+    if(!chart) return;
+    _slopeBright=!_slopeBright;
+    try{
+      chart.setOption({series:[{id:'slopeSeg',itemStyle:{opacity:_slopeBright?0.95:0.25}}]});
+    }catch(e){}
+  },1000);
+}
+
+// ---------- 模块二：热力切换 ----------
+function renderHeat(){
+  if(!chart)return;
+  var tiers = computeHeat(currentScenario);
+  chart.setOption({series:[
+    {id:'heatL1',data:heatOn?tiers[0]:[]},
+    {id:'heatL2',data:heatOn?tiers[1]:[]},
+    {id:'heatL3',data:heatOn?tiers[2]:[]},
+    {id:'heatL4',data:heatOn?tiers[3]:[]}
+  ]});
+  // 侧栏客流Top3 + 真实性说明
+  var flows=FLOW_STATIONS.map(function(s){return {name:s.name,flow:stationFlow(currentScenario,s)};})
+    .sort(function(a,b){return b.flow-a.flow;}).slice(0,3);
+  var label=currentScenario==='weekday'?'工作日（通勤走廊集中）':'周末/节假日（旅游扩散）';
+  var panel=document.getElementById('side-panel');
+  panel.style.display='block';
+  document.getElementById('panel-title').textContent='客流热力 · '+label;
+  document.getElementById('panel-content').innerHTML=
+    '<div class="row">单位：<b>人次/日（仿真推演）</b></div>'+
+    flows.map(function(f){return '<div class="row">· '+f.name+' <b>'+f.flow.toLocaleString()+'</b></div>';}).join('')+
+    '<div class="row" style="font-size:11px;color:#5a8ab0;border:none">真实锚点：昌九城际上座率36.3%、大觉山日最高2.5万人次；本图客流为锚定上述真实量级的仿真推演。</div>';
+}
+function setScenario(sc){
+  currentScenario=sc;
+  document.getElementById('btn-heat-weekday').classList.toggle('active',sc==='weekday');
+  document.getElementById('btn-heat-holiday').classList.toggle('active',sc==='holiday');
+  renderHeat();
+}
+
+// ---------- 原大巴通行方式：点移动动画 ----------
+// 用「列车运行」式的圆点沿线移动，表示原来大巴在公路上的绕行走向
+// 数据复用 COMPARE_ROUTES 的 road 路径（公路走向）
+var BUS_Z = 4;                 // 抬到地表之上（geo3D regionHeight=3），否则会被地形埋住
+var busTimer = null, busPts = [];
+
+function busSetOption(data){
+  try{
+    chart.setOption({series:[{ id:'busDot',
+      type:'scatter3D', coordinateSystem:'geo3D', name:'原大巴',
+      symbol:'circle', symbolSize:11,
+      itemStyle:{color:'#ffffff',opacity:.95,borderColor:'#0a1628',borderWidth:2},
+      label:{show:true,position:'top',color:'#ffffff',fontSize:9,
+        textBorderColor:'#000',textBorderWidth:2},
+      data:data }]});
+  }catch(e){}
+}
+
+function startBus(){
+  if(busTimer || !chart) return;
+  busPts = COMPARE_ROUTES.map(function(r){
+    return { name:r.to, path:smoothCoords(r.road,26), i:0 };
+  });
+  // 先铺初始点，避免动画启动前空白
+  busSetOption(busPts.map(function(b){
+    return {name:b.name, value:[b.path[0][0], b.path[0][1], BUS_Z]};
+  }));
+  busTimer = setInterval(function(){
+    if(!chart) return;
+    busSetOption(busPts.map(function(b){
+      b.i = (b.i + 1) % b.path.length;
+      var p = b.path[b.i];
+      return {name:b.name, value:[p[0], p[1], BUS_Z]};
+    }));
+  }, 90);
+}
+
+function stopBus(){
+  if(busTimer){clearInterval(busTimer);busTimer=null;}
+  busPts=[];
+  if(chart) chart.setOption({series:[{id:'busDot',data:[]}]});
+}
+
+// ---------- 模块四：智能体面板 ----------
+function renderAgent(i){
+  curScen=i;
+  var s=SCENARIOS[i], d=mirrorDispatch(s.tl,s.sf,s.al);
+  var card=function(agent,accent){
+    var r=agent.reroute;
+    return '<div class="ap-card" style="border-top-color:'+accent+'">'+
+      '<div class="ap-card-name" style="color:'+accent+'">'+agent.name+'</div>'+
+      (agent.headway_min!=null?'<div class="ap-metric">发车间隔 <b>'+agent.headway_min+' min</b></div>':'')+
+      (agent.formation?'<div class="ap-metric">编组 <b>'+agent.formation+'</b></div>':'')+
+      (agent.status?'<div class="ap-metric">状态 <b>'+agent.status+'</b></div>':'')+
+      (r?'<div class="ap-reroute">改线：三清山站→上饶站→龙虎山站</div>':'')+
+      '<div class="ap-reason">'+agent.reason+'</div></div>';
+  };
+  document.getElementById('ap-cards').innerHTML=
+    card(d.commuter_agent,COLOR.commuter)+card(d.tourism_agent,COLOR.tourism)+card(d.emergency_agent,COLOR.emergency);
+  document.getElementById('ap-foot').innerHTML=
+    '<span>地图应急场景：'+s.icon+' '+s.key+'</span>'+
+    '<span>本行文案来源：<b>规则镜像</b>（仅用于驱动地图覆盖物）· '+
+    '智能体的真实输出见上方决策面板（消费 agent_decision.json）</span>';
+  var btns=document.querySelectorAll('#ap-scenarios .ap-btn');
+  btns.forEach(function(b,j){b.classList.toggle('active',j===i);});
+  // 联动：热力场景 + 应急
+  setScenario(s.tl==='weekend_holiday'?'holiday':'weekday');
+  if(s.al==='slope_risk'){activateEmergency(true);}else{activateEmergency(false);}
+}
+(function buildAgentButtons(){
+  var sc=document.getElementById('ap-scenarios');
+  SCENARIOS.forEach(function(s,i){
+    var b=document.createElement('button');b.className='ap-btn s'+i+(i===0?' active':'');
+    b.innerHTML=s.icon+' '+s.key;b.onclick=function(){renderAgent(i);};
+    sc.appendChild(b);
+  });
+  renderAgent(0);
+})();
+
+// ---------- 模块五：换乘仿真 ----------
+function renderTransfer(mode){
+  var m=TRANSFER_MODES[mode], max=40000, transfer=Math.round(m.arrive*m.share);
+  document.getElementById('tp-arrive').textContent=m.arrive.toLocaleString();
+  document.getElementById('tp-transfer').textContent=transfer.toLocaleString();
+  document.getElementById('tp-tourism').textContent=m.tourism.toLocaleString();
+  document.getElementById('tp-bar1').style.width=(transfer/max*100)+'%';
+  document.getElementById('tp-bar2').style.width=(m.tourism/max*100)+'%';
+  document.getElementById('tp-bar1').style.background=m.bottleneck?'#ff3344':'#00b4ff';
+  var note=document.getElementById('tp-note');
+  note.textContent=(m.bottleneck?'⚠ 拥堵瓶颈：':'✓ 通道畅通：')+m.note;
+  note.className='tp-note'+(m.bottleneck?' warn':'');
+}
+(function initTransfer(){
+  document.getElementById('tp-close').onclick=function(){document.getElementById('transfer-panel').style.display='none';};
+  document.querySelectorAll('#transfer-panel .tp-modes button').forEach(function(b){
+    b.onclick=function(){
+      document.querySelectorAll('#transfer-panel .tp-modes button').forEach(function(x){x.classList.toggle('active',x===b);});
+      renderTransfer(b.getAttribute('data-mode'));
+    };
+  });
+  renderTransfer('weekday');
+})();
+
+// ---------- 模块六：应急演示 ----------
+// 风险段与改线路径的坐标：
+//   · 若已加载智能体决策文档（data/agent_decision.json），优先采用其中的
+//     risk_segments / reroute —— 它们是**由真实拓扑与瓶颈站推出来的**，
+//     而不是写死的常量；被监控的线段会随场景变化。
+//   · 未加载时回落到方案文本口径（三清山→龙虎山 受影响段 + 经上饶绕行）。
+var EMER_SEG_DEFAULT = [[118.06,28.91],[116.96,28.10]];      // 三清山→龙虎山
+function emerRiskSegs(){
+  var d = window.__GANPO_DECISION__;
+  if (d && d.risk_segments && d.risk_segments.length) return d.risk_segments;
+  return [EMER_SEG_DEFAULT];
+}
+function emerReroute(){
+  var d = window.__GANPO_DECISION__;
+  if (d && d.reroute && d.reroute.length >= 2) return d.reroute;
+  return (typeof REROUTE !== 'undefined' && REROUTE.detour) ? REROUTE.detour : EMER_SEG_DEFAULT;
+}
+function activateEmergency(on){
+  if(!chart)return;
+  emergencyOn=on;
+  // 抬到 geo3D 区域顶面之上，否则会被地形遮挡；改用密集散点保证可见
+  var segDots=[], routeDots=[];
+  if(on){
+    emerRiskSegs().forEach(function(seg){
+      segPoints(seg,56).forEach(function(p){ segDots.push([p[0],p[1],4.6]); });
+    });
+    routeDots = segPoints(emerReroute(),56).map(function(p){ return [p[0],p[1],4.9]; });
+  }
+  chart.setOption({series:[
+    {id:'emerRed',data:on?segDots:[]},
+    {id:'emerReroute',data:on?routeDots:[]}
+  ]});
+  var b=document.getElementById('btn-emergency');
+  b.textContent=on?'解除边坡预警':'模拟边坡预警';
+  b.classList.toggle('active',on);
+  // 应急状态下把地图上的站点标签显式标注一次，便于评委确认"红线真的画上去了"
+  console.log('[赣鄱智轨] 应急覆盖物 → 风险段散点 ' + segDots.length +
+              ' 个 / 改线散点 ' + routeDots.length + ' 个');
+  if(on&&curScen!==3){renderAgent(3);}
+}
+
+// ---------- 线网显示开关 ----------
+// 把线路数据转成「密集散点」：本环境 lines3D 不渲染，靠密集点连成连续线
+// step 越大点越密（越像一条实线）
+function lineToDots(lines, z, step){
+  var out = [];
+  step = step || 50;
+  for (var i = 0; i < lines.length; i++) {
+    if (!lines[i] || !lines[i].coords) continue;
+    var path = smoothCoords(lines[i].coords, step);
+    for (var j = 0; j < path.length; j++) {
+      out.push([path[j][0], path[j][1], z]);
+    }
+  }
+  return out;
+}
+
+// 汇总所有站点（去重）—— 供「显示/隐藏线网」开关一并控制站点标记
+// （init 里的 allStations 是局部变量，这里需要一份全局可用的）
+function allStationList(){
+  var seen = {}, out = [];
+  var push = function (l, type) {
+    l.stations.forEach(function (s) {
+      if (seen[s.name]) return;
+      seen[s.name] = 1;
+      out.push({ name: s.name, coord: s.coord, dailyFlow: s.dailyFlow,
+                 transfer: s.transfer, scenic: s.scenic, type: type });
+    });
+  };
+  commuterLines.forEach(function (l) { push(l, 'commuter'); });
+  tourismLines.forEach(function (l) { push(l, 'tourism'); });
+  return out;
+}
+
+// 通勤层 / 旅游层 各自独立开关（站点跟随所属层的开关）
+var showCommuter = true, showTourism = true;
+
+function renderLines(){
+  if(!chart) return;
+  var stC = [], stT = [];
+  allStationList().forEach(function (s) {
+    var item = { name: s.name, value: [s.coord[0], s.coord[1], s.dailyFlow],
+                 type: s.type, dailyFlow: s.dailyFlow, transfer: s.transfer, scenic: s.scenic };
+    if (s.type === 'commuter') stC.push(item); else stT.push(item);
+  });
+  chart.setOption({series:[
+    { id:'lineCommuter', type:'scatter3D', coordinateSystem:'geo3D', name:'通勤层',
+      symbolSize:8, itemStyle:{color:'#ffcc00',opacity:1},
+      data: showCommuter ? lineToDots(commuterLines, 4, 70) : [] },
+    { id:'lineTourism', type:'scatter3D', coordinateSystem:'geo3D', name:'旅游层',
+      symbolSize:8, itemStyle:{color:'#ff3344',opacity:1},
+      data: showTourism ? lineToDots(tourismLines, 4, 70) : [] },
+    // ★ 站点标记：通勤站点跟通勤层开关、旅游站点跟旅游层开关
+    { id:'stations', type:'scatter3D', coordinateSystem:'geo3D', name:'站点',
+      symbolSize:9,
+      itemStyle:{opacity:1, borderColor:'#ffffff', borderWidth:2,
+        color:function(p){return p.data.type==='commuter' ? '#ffcc00' : '#ff3344';}},
+      label:{show:true,formatter:'{b}',position:'top',color:'#ffffff',fontSize:9,
+        textBorderColor:'#000000',textBorderWidth:2},
+      data: (showCommuter ? stC : []).concat(showTourism ? stT : []) }
+  ]});
+}
+
+// ---------- 优化出行方式：把「大巴车辆移动」集中到一个面板 ----------
+// ★ 必须是函数定义、在脚本末尾调用，不能写成立即执行：
+//   COMPARE_ROUTES 定义在脚本后半段，此处立即执行会引用未初始化的变量而抛错，
+//   导致整个脚本中断、末尾的 loadGeo() 跑不到 → 地图打不开。
+var busShown = true;
+function initOptimizePanel(){
+  // 面板内列出全部大巴线路
+  var list = document.getElementById('op-bus-list');
+  if(list){
+    COMPARE_ROUTES.forEach(function(r){
+      var d = document.createElement('div');
+      d.innerHTML = '<i></i>' + r.from + '→' + r.to + '　大巴 ' + r.roadMin + ' 分钟';
+      list.appendChild(d);
+    });
+  }
+  var panel = document.getElementById('optimize-panel');
+  function openPanel(){ panel.style.display='block'; }
+  function closePanel(){ panel.style.display='none'; }
+  var cl = document.getElementById('op-close');
+  if(cl) cl.onclick = closePanel;
+  var tb = document.getElementById('op-bus-toggle');
+  if(tb){
+    tb.onclick = function(){
+      busShown = !busShown;
+      this.textContent = busShown ? '隐藏大巴车辆' : '显示大巴车辆';
+      this.classList.toggle('active', busShown);
+      if(busShown){ startBus(); } else { stopBus(); }
+    };
+  }
+  // 供右上角导航按钮调用
+  window.toggleOptimizePanel = function(){
+    if(panel.style.display === 'block') closePanel(); else openPanel();
+  };
+}
+
+// ---------- 工具栏/导航绑定 ----------
+document.getElementById('btn-heat-weekday').onclick=function(){setScenario('weekday');};
+document.getElementById('btn-heat-holiday').onclick=function(){setScenario('holiday');};
+document.getElementById('btn-heat-toggle').onclick=function(){
+  heatOn=!heatOn;this.textContent=heatOn?'隐藏热力':'显示热力';this.classList.toggle('active',!heatOn);renderHeat();};
+document.getElementById('btn-transfer').onclick=function(){
+  var p=document.getElementById('transfer-panel');
+  p.style.display=p.style.display==='block'?'none':'block';};
+document.getElementById('btn-emergency').onclick=function(){activateEmergency(!emergencyOn);};
+// 通勤层 / 旅游层：两个独立小开关
+document.getElementById('btn-layer-commuter').onclick=function(){
+  showCommuter=!showCommuter;
+  this.classList.toggle('active', showCommuter);
+  renderLines();
+};
+document.getElementById('btn-layer-tourism').onclick=function(){
+  showTourism=!showTourism;
+  this.classList.toggle('active', showTourism);
+  renderLines();
+};
+
+document.querySelectorAll('#module-nav button').forEach(function(b){
+  b.onclick=function(){
+    var mod=b.getAttribute('data-mod');
+    document.querySelectorAll('#module-nav button').forEach(function(x){x.classList.remove('active');});
+    b.classList.add('active');
+    if(mod==='network'&&chart){chart.setOption({geo3D:{}});}
+    if(mod==='heat'){heatOn=true;document.getElementById('btn-heat-toggle').textContent='隐藏热力';renderHeat();}
+    if(mod==='transfer'){document.getElementById('transfer-panel').style.display='block';}
+    if(mod==='emergency'){activateEmergency(!emergencyOn);}
+    if(mod==='agent'){renderAgent(curScen);}
+    if(mod==='optimize'){ if(window.toggleOptimizePanel) window.toggleOptimizePanel(); }
+  };
+});
+
+// =====================================================================
+// 附加模块：公路线 vs 轨道线 双线对比
+// ---------------------------------------------------------------------
+// 视觉逻辑：公路=红色虚线+弯曲绕行+慢速光点(period 4s)
+//           轨道=白色实线+短捷直达+快速光点(period 1.5s)
+// 时间数据为方案测算值（非实测），答辩口径：公路按现状路况估算、轨道按设计速度估算
+// =====================================================================
+var COMPARE_ROUTES = [
+  { from:'南昌', to:'九江', mode:'通勤', roadMin:75, railMin:45,
+    roadNote:'福银高速·城际公交/自驾', railNote:'昌九城际公交化市域列车',
+    // 公路：绕行昌北—永修东—德安，呈缓S形
+    road:[[115.89,28.68],[115.95,28.76],[116.01,28.87],[116.04,28.99],[115.94,29.12],
+          [115.87,29.26],[115.96,29.39],[116.07,29.50],[116.03,29.61],[116.00,29.71]],
+    rail:[[115.89,28.68],[115.98,29.05],[115.99,29.32],[116.00,29.71]] },
+  { from:'南昌', to:'抚州', mode:'通勤', roadMin:70, railMin:35,
+    roadNote:'福银高速·城际公交', railNote:'昌福线市域列车',
+    // 公路：经进贤、东乡绕行
+    road:[[115.89,28.68],[115.94,28.57],[116.06,28.48],[116.28,28.43],[116.52,28.36],
+          [116.70,28.26],[116.66,28.14],[116.50,28.04],[116.36,27.95]],
+    rail:[[115.89,28.68],[116.05,28.45],[116.36,27.95]] },
+  { from:'南昌', to:'庐山', mode:'旅游', roadMin:120, railMin:55,
+    roadNote:'大巴至九江换乘中巴盘山', railNote:'通勤列车至九江换乘环庐山单轨',
+    // 公路：高速到九江后沿盘山公路反复S形上山
+    road:[[115.89,28.68],[115.97,28.82],[116.03,28.97],[115.93,29.10],[115.87,29.25],
+          [115.97,29.38],[116.06,29.49],[116.04,29.60],[116.10,29.67],[116.02,29.70],
+          [115.94,29.68],[115.89,29.64],[115.95,29.61],[116.01,29.59],[115.97,29.63],
+          [115.91,29.61],[115.87,29.58],[115.85,29.55]],
+    // 轨道：昌九城际直达九江后单轨直连上山
+    rail:[[115.89,28.68],[115.98,29.05],[115.99,29.32],[116.00,29.71],[115.85,29.55]] },
+  { from:'南昌', to:'三清山', mode:'旅游', roadMin:180, railMin:90,
+    roadNote:'大巴经沪昆高速至玉山换乘景区车', railNote:'高铁至上饶换乘赣东北旅游环线单轨',
+    // 公路：沪昆高速到玉山后盘山折返
+    road:[[115.89,28.68],[116.06,28.52],[116.30,28.43],[116.58,28.34],[116.88,28.31],
+          [117.20,28.29],[117.55,28.26],[117.88,28.31],[118.12,28.44],[118.26,28.60],
+          [118.18,28.72],[118.03,28.81],[118.05,28.86],[118.06,28.91]],
+    rail:[[115.89,28.68],[116.90,28.40],[117.97,28.45],[118.06,28.91]] },
+  { from:'上饶', to:'三清山', mode:'旅游', roadMin:70, railMin:25,
+    roadNote:'景区专线大巴经盘山公路', railNote:'上饶轨道交通旅游专线单轨',
+    road:[[117.97,28.45],[118.10,28.54],[118.24,28.66],[118.16,28.76],[118.02,28.84],[118.05,28.88],[118.06,28.91]],
+    // 轨道：两点直连，最短距离
+    rail:[[117.97,28.45],[118.06,28.91]] },
+  { from:'九江', to:'庐山', mode:'旅游', roadMin:60, railMin:20,
+    roadNote:'公交或中巴沿盘山公路', railNote:'环庐山单轨旅游专线直接上山',
+    road:[[116.00,29.71],[116.07,29.68],[116.11,29.63],[116.05,29.60],[115.98,29.64],
+          [115.92,29.66],[115.87,29.62],[115.93,29.59],[116.00,29.57],[115.96,29.62],
+          [115.90,29.60],[115.86,29.57],[115.85,29.55]],
+    rail:[[116.00,29.71],[115.85,29.55]] },
+  // —— 依《以轨代巴》方案 3.3：大觉山支线 ——
+  { from:'南昌', to:'大觉山', mode:'旅游', roadMin:150, railMin:65,
+    roadNote:'福银高速至抚州再换景区车，末段山路', railNote:'昌抚通勤线至抚州换乘大觉山单轨支线',
+    road:[[115.89,28.68],[116.05,28.45],[116.36,27.95],[116.60,27.98],[116.76,27.92],
+          [116.95,27.80],[117.07,27.70],[117.12,27.74],[117.06,27.79],[117.03,27.78]],
+    rail:[[115.89,28.68],[116.36,27.95],[117.07,27.70],[117.03,27.78]] },
+  // —— 依《以轨代巴》方案 3.4：梅岭红轨 ——
+  { from:'南昌', to:'梅岭', mode:'旅游', roadMin:60, railMin:25,
+    roadNote:'自驾或公交走盘山公路，弯多', railNote:'梅岭"红轨"沿七彩路高架直达',
+    road:[[115.89,28.68],[115.84,28.72],[115.80,28.76],[115.76,28.73],[115.72,28.70],
+          [115.68,28.73],[115.70,28.77],[115.74,28.81],[115.72,28.80]],
+    rail:[[115.89,28.68],[115.78,28.70],[115.74,28.72],[115.72,28.80]] }
+];
+
+// 爬坡技术借鉴来源（方案 5.4：每条线路需展示其爬坡技术借鉴）
+var CMP_TECH = {
+  '南昌-九江':   '标准轮轨制式（昌九走廊地形平缓，无需齿轨）',
+  '南昌-抚州':   '标准轮轨；局部大坡度段借鉴重庆跨座式单轨（60‰，转弯半径100m）',
+  '南昌-庐山':   '通勤段标准轮轨 + 环庐山跨座式单轨；超60‰陡坡段加装齿轨驱动模块',
+  '南昌-三清山': '高铁 + 赣东北旅游环线；三清山段采用米轨+齿轨（120‰）',
+  '上饶-三清山': '米轨+齿轨双制式，借鉴四川都四山地轨道交通（120‰，齿轨段40km/h）',
+  '九江-庐山':   '跨座式单轨 + 齿轨驱动，借鉴重庆单轨与都四齿轨转向架',
+  '南昌-大觉山': '铰接式转向架+齿轨，借鉴大觉山"悬崖动车"（13.14km，日运量2.5万人次）',
+  '南昌-梅岭':   '轮轨为主 + 齿轨组合，借鉴景区齿轨小火车（坡度15%，造价约950万/列）'
+};
+
+
+
+// —— 绘制双线 + 启动赛跑 ——
+
+
+
+
+
+
+
+
+
+// 面板初始化放在这里执行：此时 COMPARE_ROUTES 等数据已全部定义
+initOptimizePanel();
+
+// ---------- 等 ECharts 就绪后再加载地图 ----------
+// ★ 修复"地图数据加载失败"误报 ★
+// 页面顶部的 <script src="lib/echarts.min.js"> 若加载失败（如未部署 lib 目录），
+// onerror 会动态插入 CDN 兜底脚本 —— 那是【异步】加载的。
+// 若此处直接 loadGeo()，init() 执行到 echarts.registerMap 时 echarts 尚未定义，
+// 抛出的异常会被 .catch(showErr) 捕获，于是误报成"地图数据加载失败"。
+// 因此这里先轮询等待 ECharts 真正可用，再开始加载地图。
+(function waitEchartsThenLoadGeo(){
+  var tries = 0;
+  (function poll(){
+    if (window.echarts && window.echarts.registerMap) { loadGeo(); return; }
+    if (++tries > 300) {            // 最多等 30 秒
+      console.error('[赣鄱智轨] ECharts 加载超时：请检查 lib/echarts.min.js 是否已部署，或网络能否访问 cdn.jsdelivr.net');
+      showErr();
+      return;
+    }
+    setTimeout(poll, 100);
+  })();
+})();
+console.log('[赣鄱智轨] 校赛演示版就绪：零AK，ECharts-GL 渲染');
+
+// ---------- 挂载 L3 智能体决策面板 ----------
+// 决策面板与地图渲染彼此独立：ECharts 加载失败时地图打不开，
+// 但决策面板仍应正常显示（它只依赖 data/agent_decision.json）。
+(function mountDecisionPanel(){
+  if (!window.GanpoDecisionPanel) {
+    console.warn('[赣鄱智轨] js/agent-decision.js 未加载，智能体决策面板不可用；' +
+                 '下方 4 张卡片为规则镜像原型，已如实标注。');
+    return;
+  }
+  window.GanpoDecisionPanel.mount('gdp-root');
+  // 决策文档就绪后重绘一次应急覆盖物：风险段与改线路径改为取自文档
+  // （由真实拓扑与瓶颈站推出），而不是页面里写死的常量。
+  window.addEventListener('gdp:ready', function(){ if (emergencyOn) activateEmergency(true); });
+  window.addEventListener('gdp:offline', function(ev){
+    console.warn('[赣鄱智轨] 决策面板离线：' + (ev.detail || ''));
+  });
+})();
+</script>
+</body>
+</html>
