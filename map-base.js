@@ -25,14 +25,14 @@
     }
   }
 
-  // 线路版小点图标（站点用小点代替，10px，与白线路明确区分）
-  function smallDot(color) {
+  // 站点圆点图标（2026-10-10 恢复原始 18px 大圆点样式；统一着色 #00d4ff）
+  function dotIcon(color) {
     var svg =
-      '<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10">' +
-      '<circle cx="5" cy="5" r="3.2" fill="' + color + '" stroke="#ffffff" stroke-width="1.2"/>' +
+      '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18">' +
+      '<circle cx="9" cy="9" r="6" fill="' + color + '" stroke="#ffffff" stroke-width="2"/>' +
       '</svg>';
     try {
-      return new BMapGL.Icon('data:image/svg+xml;base64,' + btoa(svg), new BMapGL.Size(10, 10));
+      return new BMapGL.Icon('data:image/svg+xml;base64,' + btoa(svg), new BMapGL.Size(18, 18));
     } catch (e) {
       return null;
     }
@@ -373,7 +373,7 @@
         // ① 小圆点（点击弹流量详情；一次性 addOverlay 常驻，显隐用 show/hide）
         var mk = null;
         try {
-          var sic = smallDot('#00d4ff');
+          var sic = dotIcon('#00d4ff');
           mk = sic ? new BMapGL.Marker(spt, { icon: sic }) : new BMapGL.Marker(spt);
         } catch (e) { mk = null; }
         if (mk) {
@@ -418,6 +418,37 @@
     });
 
 
+
+    // —— 齿轨爬坡段（依《以轨代巴》方案 5.2）：橙色标记 + 闪烁 + 点击弹技术参数 ——
+    // 2026-10-10 恢复（用户要求加回齿轨爬坡闪烁效果；制式分段已移除，无需压暗协调）
+    var slopePls = [];
+    (C.SLOPE_SEGMENTS || []).forEach(function (sg) {
+      var pl = new BMapGL.Polyline(
+        sg.coords.map(function (c) { return new BMapGL.Point(c[0], c[1]); }),
+        { strokeColor: '#ff8800', strokeWeight: 5, strokeOpacity: 0.95 }
+      );
+      map.addOverlay(pl);
+      slopePls.push(pl);
+      pl.addEventListener('click', function () {
+        var iw = new BMapGL.InfoWindow(slopeInfoHTML(sg), { width: 300 });
+        map.openInfoWindow(iw, new BMapGL.Point(sg.coords[0][0], sg.coords[0][1]));
+      });
+      // 段中点标注名称
+      var mid = sg.coords[Math.floor(sg.coords.length / 2)];
+      var lb = makeLabel('\u2699 ' + sg.name, new BMapGL.Point(mid[0], mid[1]), '#ff8800');
+      if (lb) map.addOverlay(lb);
+    });
+    // 闪烁：1s 一次透明度脉动
+    if (window._slopeBlinkTimer) clearInterval(window._slopeBlinkTimer);
+    window._slopePls = slopePls;
+    window._slopeBlinkPaused = false;
+    var slopeBright = true;
+    window._slopeBlinkTimer = setInterval(function () {
+      slopeBright = !slopeBright;
+      slopePls.forEach(function (p) {
+        try { p.setStrokeOpacity(slopeBright ? 0.95 : 0.22); } catch (e) {}
+      });
+    }, 1000);
 
     // —— 原大巴通行动画：线路版已移除（不显示其他图案）——
 
