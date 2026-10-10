@@ -1,0 +1,1566 @@
+{
+  "scenario": "holiday",
+  "unit": "人次/日",
+  "source_note": "real=True 为公开统计（见 real_anchors）；real=False 为本项目仿真推演，锚定昌九城际36.3%上座率、大觉山单日2.5万、5A景区年客流。",
+  "real_anchors": [
+    {
+      "name": "昌九城际上座率",
+      "value": "36.3%",
+      "detail": "核定运能496863人次/年,实际客流180217人次/年,平均上座率36.3%;上座率超50%仅7列(占26.9%)",
+      "source": "方案文本引用公开统计",
+      "real": true
+    },
+    {
+      "name": "大觉山悬崖动车单日最高",
+      "value": "2.5万人次",
+      "detail": "13.14公里,铰接+齿轨,单列载客56人;2025年五一超5万,4月日均破1.2万",
+      "source": "方案文本引用",
+      "real": true
+    },
+    {
+      "name": "庐山景区年客流",
+      "value": "145.07万人次(2025)",
+      "source": "方案文本引用",
+      "real": true
+    },
+    {
+      "name": "庐山西海年客流",
+      "value": "1251.13万人次(2025)",
+      "source": "方案文本引用",
+      "real": true
+    },
+    {
+      "name": "滕王阁年客流",
+      "value": "1887.71万人次(2025)",
+      "source": "方案文本引用",
+      "real": true
+    },
+    {
+      "name": "井冈山年客流",
+      "value": "850万人次(2025)",
+      "source": "方案文本引用",
+      "real": true
+    },
+    {
+      "name": "三清山国庆客流",
+      "value": "121.94万人次",
+      "source": "方案文本引用",
+      "real": true
+    }
+  ],
+  "stations": [
+    {
+      "name": "南昌站",
+      "lng": 115.89,
+      "lat": 28.68,
+      "type": "commuter",
+      "flow": 21000,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "永修站",
+      "lng": 115.98,
+      "lat": 29.05,
+      "type": "commuter",
+      "flow": 4500,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "共青城站",
+      "lng": 115.99,
+      "lat": 29.32,
+      "type": "commuter",
+      "flow": 3000,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "九江站",
+      "lng": 116.0,
+      "lat": 29.71,
+      "type": "commuter",
+      "flow": 14250,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "进贤站",
+      "lng": 116.05,
+      "lat": 28.45,
+      "type": "commuter",
+      "flow": 2250,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "抚州站",
+      "lng": 116.36,
+      "lat": 27.95,
+      "type": "commuter",
+      "flow": 6000,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "上饶站",
+      "lng": 117.97,
+      "lat": 28.45,
+      "type": "tourism",
+      "flow": 31200,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "婺源站",
+      "lng": 117.86,
+      "lat": 29.25,
+      "type": "tourism",
+      "flow": 23400,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "三清山站",
+      "lng": 118.06,
+      "lat": 28.91,
+      "type": "tourism",
+      "flow": 18200,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "龙虎山站",
+      "lng": 116.96,
+      "lat": 28.1,
+      "type": "tourism",
+      "flow": 13000,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "庐山站",
+      "lng": 115.85,
+      "lat": 29.55,
+      "type": "tourism",
+      "flow": 39000,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "庐山西海站",
+      "lng": 115.55,
+      "lat": 29.24,
+      "type": "tourism",
+      "flow": 20800,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "丰城站",
+      "lng": 115.77,
+      "lat": 28.16,
+      "type": "commuter",
+      "flow": 3000,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "樟树站",
+      "lng": 115.55,
+      "lat": 28.06,
+      "type": "commuter",
+      "flow": 2250,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "新余站",
+      "lng": 114.93,
+      "lat": 27.81,
+      "type": "commuter",
+      "flow": 4500,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "宜春站",
+      "lng": 114.42,
+      "lat": 27.8,
+      "type": "commuter",
+      "flow": 5250,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "萍乡站",
+      "lng": 113.85,
+      "lat": 27.62,
+      "type": "commuter",
+      "flow": 5250,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "吉安站",
+      "lng": 114.99,
+      "lat": 27.11,
+      "type": "commuter",
+      "flow": 6750,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "兴国站",
+      "lng": 115.36,
+      "lat": 26.34,
+      "type": "commuter",
+      "flow": 1875,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "赣州站",
+      "lng": 114.94,
+      "lat": 25.83,
+      "type": "commuter",
+      "flow": 11250,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "鹰潭站",
+      "lng": 117.07,
+      "lat": 28.26,
+      "type": "commuter",
+      "flow": 5250,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "景德镇站",
+      "lng": 117.18,
+      "lat": 29.27,
+      "type": "commuter",
+      "flow": 4500,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "井冈山站",
+      "lng": 114.18,
+      "lat": 26.75,
+      "type": "tourism",
+      "flow": 15600,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "明月山站",
+      "lng": 114.28,
+      "lat": 27.72,
+      "type": "tourism",
+      "flow": 13000,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "安源站",
+      "lng": 113.87,
+      "lat": 27.63,
+      "type": "tourism",
+      "flow": 7800,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "瑞金站",
+      "lng": 116.03,
+      "lat": 25.88,
+      "type": "tourism",
+      "flow": 10400,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "龙南站",
+      "lng": 114.79,
+      "lat": 24.91,
+      "type": "tourism",
+      "flow": 7800,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "瑶里站",
+      "lng": 117.58,
+      "lat": 29.42,
+      "type": "tourism",
+      "flow": 5200,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "龟峰站",
+      "lng": 117.41,
+      "lat": 28.32,
+      "type": "tourism",
+      "flow": 9100,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "上清古镇站",
+      "lng": 116.97,
+      "lat": 27.97,
+      "type": "tourism",
+      "flow": 7800,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "资溪站",
+      "lng": 117.07,
+      "lat": 27.7,
+      "type": "tourism",
+      "flow": 5200,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "大觉山站",
+      "lng": 117.03,
+      "lat": 27.78,
+      "type": "tourism",
+      "flow": 15600,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "湾里站",
+      "lng": 115.74,
+      "lat": 28.72,
+      "type": "tourism",
+      "flow": 10400,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    },
+    {
+      "name": "梅岭站",
+      "lng": 115.72,
+      "lat": 28.8,
+      "type": "tourism",
+      "flow": 7800,
+      "real": false,
+      "anchor": "基础值取方案文本示例 dailyFlow；乘子锚定昌九城际36.3%上座率与5A客流"
+    }
+  ],
+  "segments": [
+    {
+      "line": "昌九通勤线",
+      "type": "commuter",
+      "from": "南昌站",
+      "to": "永修站",
+      "flow": 12750,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "昌九通勤线",
+      "type": "commuter",
+      "from": "永修站",
+      "to": "共青城站",
+      "flow": 3750,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "昌九通勤线",
+      "type": "commuter",
+      "from": "共青城站",
+      "to": "九江站",
+      "flow": 8625,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "昌抚通勤线",
+      "type": "commuter",
+      "from": "南昌站",
+      "to": "进贤站",
+      "flow": 11625,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "昌抚通勤线",
+      "type": "commuter",
+      "from": "进贤站",
+      "to": "抚州站",
+      "flow": 4125,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "赣东北旅游环线",
+      "type": "tourism",
+      "from": "上饶站",
+      "to": "婺源站",
+      "flow": 27300,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "赣东北旅游环线",
+      "type": "tourism",
+      "from": "婺源站",
+      "to": "三清山站",
+      "flow": 20800,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "赣东北旅游环线",
+      "type": "tourism",
+      "from": "三清山站",
+      "to": "龙虎山站",
+      "flow": 15600,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "赣东北旅游环线",
+      "type": "tourism",
+      "from": "龙虎山站",
+      "to": "上饶站",
+      "flow": 22100,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "环庐山旅游线",
+      "type": "tourism",
+      "from": "九江站",
+      "to": "庐山站",
+      "flow": 26625,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "环庐山旅游线",
+      "type": "tourism",
+      "from": "庐山站",
+      "to": "庐山西海站",
+      "flow": 29900,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "环庐山旅游线",
+      "type": "tourism",
+      "from": "庐山西海站",
+      "to": "九江站",
+      "flow": 17525,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "沪昆通勤线",
+      "type": "commuter",
+      "from": "南昌站",
+      "to": "丰城站",
+      "flow": 12000,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "沪昆通勤线",
+      "type": "commuter",
+      "from": "丰城站",
+      "to": "樟树站",
+      "flow": 2625,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "沪昆通勤线",
+      "type": "commuter",
+      "from": "樟树站",
+      "to": "新余站",
+      "flow": 3375,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "沪昆通勤线",
+      "type": "commuter",
+      "from": "新余站",
+      "to": "宜春站",
+      "flow": 4875,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "沪昆通勤线",
+      "type": "commuter",
+      "from": "宜春站",
+      "to": "萍乡站",
+      "flow": 5250,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "京九通勤线",
+      "type": "commuter",
+      "from": "南昌站",
+      "to": "吉安站",
+      "flow": 13875,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "京九通勤线",
+      "type": "commuter",
+      "from": "吉安站",
+      "to": "兴国站",
+      "flow": 4312,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "京九通勤线",
+      "type": "commuter",
+      "from": "兴国站",
+      "to": "赣州站",
+      "flow": 6562,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "皖赣通勤线",
+      "type": "commuter",
+      "from": "南昌站",
+      "to": "鹰潭站",
+      "flow": 13125,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "皖赣通勤线",
+      "type": "commuter",
+      "from": "鹰潭站",
+      "to": "景德镇站",
+      "flow": 4875,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "赣西红色旅游线",
+      "type": "tourism",
+      "from": "吉安站",
+      "to": "井冈山站",
+      "flow": 11175,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "赣西红色旅游线",
+      "type": "tourism",
+      "from": "井冈山站",
+      "to": "明月山站",
+      "flow": 14300,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "赣西红色旅游线",
+      "type": "tourism",
+      "from": "明月山站",
+      "to": "安源站",
+      "flow": 10400,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "赣西红色旅游线",
+      "type": "tourism",
+      "from": "安源站",
+      "to": "吉安站",
+      "flow": 7275,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "赣南客家旅游线",
+      "type": "tourism",
+      "from": "赣州站",
+      "to": "瑞金站",
+      "flow": 10825,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "赣南客家旅游线",
+      "type": "tourism",
+      "from": "瑞金站",
+      "to": "龙南站",
+      "flow": 9100,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "赣南客家旅游线",
+      "type": "tourism",
+      "from": "龙南站",
+      "to": "赣州站",
+      "flow": 9525,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "赣东古韵旅游线",
+      "type": "tourism",
+      "from": "景德镇站",
+      "to": "瑶里站",
+      "flow": 4850,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "赣东古韵旅游线",
+      "type": "tourism",
+      "from": "瑶里站",
+      "to": "龟峰站",
+      "flow": 7150,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "赣东古韵旅游线",
+      "type": "tourism",
+      "from": "龟峰站",
+      "to": "上清古镇站",
+      "flow": 8450,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "赣东古韵旅游线",
+      "type": "tourism",
+      "from": "上清古镇站",
+      "to": "景德镇站",
+      "flow": 6150,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "大觉山旅游支线",
+      "type": "tourism",
+      "from": "抚州站",
+      "to": "资溪站",
+      "flow": 5600,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "大觉山旅游支线",
+      "type": "tourism",
+      "from": "资溪站",
+      "to": "大觉山站",
+      "flow": 10400,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "梅岭红轨旅游线",
+      "type": "tourism",
+      "from": "南昌站",
+      "to": "湾里站",
+      "flow": 15700,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    },
+    {
+      "line": "梅岭红轨旅游线",
+      "type": "tourism",
+      "from": "湾里站",
+      "to": "梅岭站",
+      "flow": 9100,
+      "real": false,
+      "anchor": "段流量由两端站点仿真流量均值近似"
+    }
+  ],
+  "heatmap_points": [
+    {
+      "lng": 115.89,
+      "lat": 28.68,
+      "count": 21000,
+      "simulated": true
+    },
+    {
+      "lng": 115.98,
+      "lat": 29.05,
+      "count": 4500,
+      "simulated": true
+    },
+    {
+      "lng": 115.99,
+      "lat": 29.32,
+      "count": 3000,
+      "simulated": true
+    },
+    {
+      "lng": 116.0,
+      "lat": 29.71,
+      "count": 14250,
+      "simulated": true
+    },
+    {
+      "lng": 116.05,
+      "lat": 28.45,
+      "count": 2250,
+      "simulated": true
+    },
+    {
+      "lng": 116.36,
+      "lat": 27.95,
+      "count": 6000,
+      "simulated": true
+    },
+    {
+      "lng": 117.97,
+      "lat": 28.45,
+      "count": 31200,
+      "simulated": true
+    },
+    {
+      "lng": 117.86,
+      "lat": 29.25,
+      "count": 23400,
+      "simulated": true
+    },
+    {
+      "lng": 118.06,
+      "lat": 28.91,
+      "count": 18200,
+      "simulated": true
+    },
+    {
+      "lng": 116.96,
+      "lat": 28.1,
+      "count": 13000,
+      "simulated": true
+    },
+    {
+      "lng": 115.85,
+      "lat": 29.55,
+      "count": 39000,
+      "simulated": true
+    },
+    {
+      "lng": 115.55,
+      "lat": 29.24,
+      "count": 20800,
+      "simulated": true
+    },
+    {
+      "lng": 115.77,
+      "lat": 28.16,
+      "count": 3000,
+      "simulated": true
+    },
+    {
+      "lng": 115.55,
+      "lat": 28.06,
+      "count": 2250,
+      "simulated": true
+    },
+    {
+      "lng": 114.93,
+      "lat": 27.81,
+      "count": 4500,
+      "simulated": true
+    },
+    {
+      "lng": 114.42,
+      "lat": 27.8,
+      "count": 5250,
+      "simulated": true
+    },
+    {
+      "lng": 113.85,
+      "lat": 27.62,
+      "count": 5250,
+      "simulated": true
+    },
+    {
+      "lng": 114.99,
+      "lat": 27.11,
+      "count": 6750,
+      "simulated": true
+    },
+    {
+      "lng": 115.36,
+      "lat": 26.34,
+      "count": 1875,
+      "simulated": true
+    },
+    {
+      "lng": 114.94,
+      "lat": 25.83,
+      "count": 11250,
+      "simulated": true
+    },
+    {
+      "lng": 117.07,
+      "lat": 28.26,
+      "count": 5250,
+      "simulated": true
+    },
+    {
+      "lng": 117.18,
+      "lat": 29.27,
+      "count": 4500,
+      "simulated": true
+    },
+    {
+      "lng": 114.18,
+      "lat": 26.75,
+      "count": 15600,
+      "simulated": true
+    },
+    {
+      "lng": 114.28,
+      "lat": 27.72,
+      "count": 13000,
+      "simulated": true
+    },
+    {
+      "lng": 113.87,
+      "lat": 27.63,
+      "count": 7800,
+      "simulated": true
+    },
+    {
+      "lng": 116.03,
+      "lat": 25.88,
+      "count": 10400,
+      "simulated": true
+    },
+    {
+      "lng": 114.79,
+      "lat": 24.91,
+      "count": 7800,
+      "simulated": true
+    },
+    {
+      "lng": 117.58,
+      "lat": 29.42,
+      "count": 5200,
+      "simulated": true
+    },
+    {
+      "lng": 117.41,
+      "lat": 28.32,
+      "count": 9100,
+      "simulated": true
+    },
+    {
+      "lng": 116.97,
+      "lat": 27.97,
+      "count": 7800,
+      "simulated": true
+    },
+    {
+      "lng": 117.07,
+      "lat": 27.7,
+      "count": 5200,
+      "simulated": true
+    },
+    {
+      "lng": 117.03,
+      "lat": 27.78,
+      "count": 15600,
+      "simulated": true
+    },
+    {
+      "lng": 115.74,
+      "lat": 28.72,
+      "count": 10400,
+      "simulated": true
+    },
+    {
+      "lng": 115.72,
+      "lat": 28.8,
+      "count": 7800,
+      "simulated": true
+    },
+    {
+      "lng": 115.9125,
+      "lat": 28.7725,
+      "count": 6375,
+      "simulated": true
+    },
+    {
+      "lng": 115.935,
+      "lat": 28.865,
+      "count": 6375,
+      "simulated": true
+    },
+    {
+      "lng": 115.9575,
+      "lat": 28.9575,
+      "count": 6375,
+      "simulated": true
+    },
+    {
+      "lng": 115.9825,
+      "lat": 29.1175,
+      "count": 1875,
+      "simulated": true
+    },
+    {
+      "lng": 115.985,
+      "lat": 29.185,
+      "count": 1875,
+      "simulated": true
+    },
+    {
+      "lng": 115.9875,
+      "lat": 29.2525,
+      "count": 1875,
+      "simulated": true
+    },
+    {
+      "lng": 115.5625,
+      "lat": 29.2075,
+      "count": 4312,
+      "simulated": true
+    },
+    {
+      "lng": 115.565,
+      "lat": 29.305,
+      "count": 4312,
+      "simulated": true
+    },
+    {
+      "lng": 115.9975,
+      "lat": 29.6125,
+      "count": 4312,
+      "simulated": true
+    },
+    {
+      "lng": 115.93,
+      "lat": 28.6225,
+      "count": 5812,
+      "simulated": true
+    },
+    {
+      "lng": 115.97,
+      "lat": 28.565,
+      "count": 5812,
+      "simulated": true
+    },
+    {
+      "lng": 116.01,
+      "lat": 28.5075,
+      "count": 5812,
+      "simulated": true
+    },
+    {
+      "lng": 116.1275,
+      "lat": 28.325,
+      "count": 2062,
+      "simulated": true
+    },
+    {
+      "lng": 116.205,
+      "lat": 28.2,
+      "count": 2062,
+      "simulated": true
+    },
+    {
+      "lng": 116.2825,
+      "lat": 28.075,
+      "count": 2062,
+      "simulated": true
+    },
+    {
+      "lng": 117.9425,
+      "lat": 28.65,
+      "count": 13650,
+      "simulated": true
+    },
+    {
+      "lng": 117.915,
+      "lat": 28.85,
+      "count": 13650,
+      "simulated": true
+    },
+    {
+      "lng": 117.8875,
+      "lat": 29.05,
+      "count": 13650,
+      "simulated": true
+    },
+    {
+      "lng": 117.7,
+      "lat": 29.145,
+      "count": 10400,
+      "simulated": true
+    },
+    {
+      "lng": 117.54,
+      "lat": 29.04,
+      "count": 10400,
+      "simulated": true
+    },
+    {
+      "lng": 118.22,
+      "lat": 29.015,
+      "count": 10400,
+      "simulated": true
+    },
+    {
+      "lng": 117.985,
+      "lat": 28.765,
+      "count": 7800,
+      "simulated": true
+    },
+    {
+      "lng": 117.07,
+      "lat": 28.54,
+      "count": 7800,
+      "simulated": true
+    },
+    {
+      "lng": 116.995,
+      "lat": 28.395,
+      "count": 7800,
+      "simulated": true
+    },
+    {
+      "lng": 117.1825,
+      "lat": 28.3,
+      "count": 11050,
+      "simulated": true
+    },
+    {
+      "lng": 117.415,
+      "lat": 28.32,
+      "count": 11050,
+      "simulated": true
+    },
+    {
+      "lng": 117.7075,
+      "lat": 28.4,
+      "count": 11050,
+      "simulated": true
+    },
+    {
+      "lng": 115.9625,
+      "lat": 29.67,
+      "count": 13312,
+      "simulated": true
+    },
+    {
+      "lng": 115.925,
+      "lat": 29.63,
+      "count": 13312,
+      "simulated": true
+    },
+    {
+      "lng": 115.8875,
+      "lat": 29.59,
+      "count": 13312,
+      "simulated": true
+    },
+    {
+      "lng": 115.8825,
+      "lat": 29.525,
+      "count": 14950,
+      "simulated": true
+    },
+    {
+      "lng": 115.485,
+      "lat": 29.29,
+      "count": 14950,
+      "simulated": true
+    },
+    {
+      "lng": 115.5175,
+      "lat": 29.265,
+      "count": 14950,
+      "simulated": true
+    },
+    {
+      "lng": 115.555,
+      "lat": 29.305,
+      "count": 8762,
+      "simulated": true
+    },
+    {
+      "lng": 115.56,
+      "lat": 29.37,
+      "count": 8762,
+      "simulated": true
+    },
+    {
+      "lng": 115.995,
+      "lat": 29.645,
+      "count": 8762,
+      "simulated": true
+    },
+    {
+      "lng": 115.86,
+      "lat": 28.55,
+      "count": 6000,
+      "simulated": true
+    },
+    {
+      "lng": 115.83,
+      "lat": 28.42,
+      "count": 6000,
+      "simulated": true
+    },
+    {
+      "lng": 115.8,
+      "lat": 28.29,
+      "count": 6000,
+      "simulated": true
+    },
+    {
+      "lng": 115.715,
+      "lat": 28.135,
+      "count": 1312,
+      "simulated": true
+    },
+    {
+      "lng": 115.66,
+      "lat": 28.11,
+      "count": 1312,
+      "simulated": true
+    },
+    {
+      "lng": 115.605,
+      "lat": 28.085,
+      "count": 1312,
+      "simulated": true
+    },
+    {
+      "lng": 115.395,
+      "lat": 27.9975,
+      "count": 1687,
+      "simulated": true
+    },
+    {
+      "lng": 115.24,
+      "lat": 27.935,
+      "count": 1687,
+      "simulated": true
+    },
+    {
+      "lng": 115.085,
+      "lat": 27.8725,
+      "count": 1687,
+      "simulated": true
+    },
+    {
+      "lng": 114.8025,
+      "lat": 27.8075,
+      "count": 2437,
+      "simulated": true
+    },
+    {
+      "lng": 114.675,
+      "lat": 27.805,
+      "count": 2437,
+      "simulated": true
+    },
+    {
+      "lng": 114.5475,
+      "lat": 27.8025,
+      "count": 2437,
+      "simulated": true
+    },
+    {
+      "lng": 114.2775,
+      "lat": 27.755,
+      "count": 2625,
+      "simulated": true
+    },
+    {
+      "lng": 114.135,
+      "lat": 27.71,
+      "count": 2625,
+      "simulated": true
+    },
+    {
+      "lng": 113.9925,
+      "lat": 27.665,
+      "count": 2625,
+      "simulated": true
+    },
+    {
+      "lng": 115.665,
+      "lat": 28.2875,
+      "count": 6937,
+      "simulated": true
+    },
+    {
+      "lng": 115.44,
+      "lat": 27.895,
+      "count": 6937,
+      "simulated": true
+    },
+    {
+      "lng": 115.215,
+      "lat": 27.5025,
+      "count": 6937,
+      "simulated": true
+    },
+    {
+      "lng": 115.0825,
+      "lat": 26.9175,
+      "count": 2156,
+      "simulated": true
+    },
+    {
+      "lng": 115.175,
+      "lat": 26.725,
+      "count": 2156,
+      "simulated": true
+    },
+    {
+      "lng": 115.2675,
+      "lat": 26.5325,
+      "count": 2156,
+      "simulated": true
+    },
+    {
+      "lng": 115.255,
+      "lat": 26.2125,
+      "count": 3281,
+      "simulated": true
+    },
+    {
+      "lng": 115.15,
+      "lat": 26.085,
+      "count": 3281,
+      "simulated": true
+    },
+    {
+      "lng": 115.045,
+      "lat": 25.9575,
+      "count": 3281,
+      "simulated": true
+    },
+    {
+      "lng": 116.185,
+      "lat": 28.575,
+      "count": 6562,
+      "simulated": true
+    },
+    {
+      "lng": 116.48,
+      "lat": 28.47,
+      "count": 6562,
+      "simulated": true
+    },
+    {
+      "lng": 116.815,
+      "lat": 28.215,
+      "count": 6562,
+      "simulated": true
+    },
+    {
+      "lng": 117.0975,
+      "lat": 28.5125,
+      "count": 2437,
+      "simulated": true
+    },
+    {
+      "lng": 117.965,
+      "lat": 28.845,
+      "count": 2437,
+      "simulated": true
+    },
+    {
+      "lng": 117.9925,
+      "lat": 29.0975,
+      "count": 2437,
+      "simulated": true
+    },
+    {
+      "lng": 114.7875,
+      "lat": 27.02,
+      "count": 5587,
+      "simulated": true
+    },
+    {
+      "lng": 114.585,
+      "lat": 26.93,
+      "count": 5587,
+      "simulated": true
+    },
+    {
+      "lng": 114.3825,
+      "lat": 26.84,
+      "count": 5587,
+      "simulated": true
+    },
+    {
+      "lng": 114.205,
+      "lat": 26.9925,
+      "count": 7150,
+      "simulated": true
+    },
+    {
+      "lng": 114.23,
+      "lat": 27.235,
+      "count": 7150,
+      "simulated": true
+    },
+    {
+      "lng": 114.255,
+      "lat": 27.4775,
+      "count": 7150,
+      "simulated": true
+    },
+    {
+      "lng": 114.1775,
+      "lat": 27.6975,
+      "count": 5200,
+      "simulated": true
+    },
+    {
+      "lng": 114.075,
+      "lat": 27.675,
+      "count": 5200,
+      "simulated": true
+    },
+    {
+      "lng": 113.9725,
+      "lat": 27.6525,
+      "count": 5200,
+      "simulated": true
+    },
+    {
+      "lng": 114.15,
+      "lat": 27.5,
+      "count": 3637,
+      "simulated": true
+    },
+    {
+      "lng": 114.43,
+      "lat": 27.37,
+      "count": 3637,
+      "simulated": true
+    },
+    {
+      "lng": 114.71,
+      "lat": 27.24,
+      "count": 3637,
+      "simulated": true
+    },
+    {
+      "lng": 115.2125,
+      "lat": 25.8425,
+      "count": 5412,
+      "simulated": true
+    },
+    {
+      "lng": 115.485,
+      "lat": 25.855,
+      "count": 5412,
+      "simulated": true
+    },
+    {
+      "lng": 115.7575,
+      "lat": 25.8675,
+      "count": 5412,
+      "simulated": true
+    },
+    {
+      "lng": 115.72,
+      "lat": 25.6375,
+      "count": 4550,
+      "simulated": true
+    },
+    {
+      "lng": 115.41,
+      "lat": 25.395,
+      "count": 4550,
+      "simulated": true
+    },
+    {
+      "lng": 115.1,
+      "lat": 25.1525,
+      "count": 4550,
+      "simulated": true
+    },
+    {
+      "lng": 114.8275,
+      "lat": 25.14,
+      "count": 4762,
+      "simulated": true
+    },
+    {
+      "lng": 114.865,
+      "lat": 25.37,
+      "count": 4762,
+      "simulated": true
+    },
+    {
+      "lng": 114.9025,
+      "lat": 25.6,
+      "count": 4762,
+      "simulated": true
+    },
+    {
+      "lng": 117.28,
+      "lat": 29.3075,
+      "count": 2425,
+      "simulated": true
+    },
+    {
+      "lng": 117.38,
+      "lat": 29.345,
+      "count": 2425,
+      "simulated": true
+    },
+    {
+      "lng": 117.48,
+      "lat": 29.3825,
+      "count": 2425,
+      "simulated": true
+    },
+    {
+      "lng": 117.545,
+      "lat": 29.1525,
+      "count": 3575,
+      "simulated": true
+    },
+    {
+      "lng": 118.35,
+      "lat": 28.965,
+      "count": 3575,
+      "simulated": true
+    },
+    {
+      "lng": 117.445,
+      "lat": 28.5875,
+      "count": 3575,
+      "simulated": true
+    },
+    {
+      "lng": 117.2925,
+      "lat": 28.225,
+      "count": 4225,
+      "simulated": true
+    },
+    {
+      "lng": 117.205,
+      "lat": 28.16,
+      "count": 4225,
+      "simulated": true
+    },
+    {
+      "lng": 117.0875,
+      "lat": 28.065,
+      "count": 4225,
+      "simulated": true
+    },
+    {
+      "lng": 117.0225,
+      "lat": 28.295,
+      "count": 3075,
+      "simulated": true
+    },
+    {
+      "lng": 117.915,
+      "lat": 28.7,
+      "count": 3075,
+      "simulated": true
+    },
+    {
+      "lng": 117.9675,
+      "lat": 29.025,
+      "count": 3075,
+      "simulated": true
+    },
+    {
+      "lng": 116.5375,
+      "lat": 27.8875,
+      "count": 2800,
+      "simulated": true
+    },
+    {
+      "lng": 116.715,
+      "lat": 27.825,
+      "count": 2800,
+      "simulated": true
+    },
+    {
+      "lng": 116.8925,
+      "lat": 27.7625,
+      "count": 2800,
+      "simulated": true
+    },
+    {
+      "lng": 117.06,
+      "lat": 27.72,
+      "count": 5200,
+      "simulated": true
+    },
+    {
+      "lng": 117.05,
+      "lat": 27.74,
+      "count": 5200,
+      "simulated": true
+    },
+    {
+      "lng": 117.04,
+      "lat": 27.76,
+      "count": 5200,
+      "simulated": true
+    },
+    {
+      "lng": 115.8525,
+      "lat": 28.69,
+      "count": 7850,
+      "simulated": true
+    },
+    {
+      "lng": 115.815,
+      "lat": 28.7,
+      "count": 7850,
+      "simulated": true
+    },
+    {
+      "lng": 115.7775,
+      "lat": 28.71,
+      "count": 7850,
+      "simulated": true
+    },
+    {
+      "lng": 115.735,
+      "lat": 28.74,
+      "count": 4550,
+      "simulated": true
+    },
+    {
+      "lng": 115.73,
+      "lat": 28.76,
+      "count": 4550,
+      "simulated": true
+    },
+    {
+      "lng": 115.725,
+      "lat": 28.78,
+      "count": 4550,
+      "simulated": true
+    }
+  ]
+}

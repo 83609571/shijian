@@ -1,0 +1,1878 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-09-22T17:07:58+08:00",
+  "engine": {
+    "mode": "local",
+    "provider": "local",
+    "model": "local-deterministic-planner",
+    "network": false,
+    "note": "未检测到 API Key，使用离线确定性规划器（协议等价替身）",
+    "sim": {
+      "engine_a": {
+        "engine": "transtar",
+        "available": false,
+        "reason": "未设置 TRANSTAR_HOME，外部引擎不可用",
+        "fallback": "engine_b"
+      },
+      "engine_b": {
+        "engine": "engine_b",
+        "available": true,
+        "label": "自研线网-场站-枢纽三层饱和度假真",
+        "deps": "纯 Python 标准库，零第三方依赖"
+      },
+      "active": "engine_b"
+    },
+    "loop": "Planner-Executor-Critic",
+    "tools_registered": 9
+  },
+  "scenario": {
+    "id": "holiday_hub_congestion",
+    "label": "节假日大客流 · 枢纽换乘拥堵治理",
+    "transport_scenario": "holiday",
+    "hub": "南昌站"
+  },
+  "problem_parsed": {
+    "user_query": "南昌站节假日大客流，换乘通道与站台拥堵，请开展仿真推演，给出可执行的分级治理方案，并说明各方案的代价。",
+    "intent": "hub_congestion_relief",
+    "sub_questions": [
+      "瓶颈定位",
+      "候选方案生成与护栏校验",
+      "方案仿真对比",
+      "多目标排序",
+      "敏感性验证"
+    ],
+    "data_credibility": {
+      "stations_total": 34,
+      "real_stat": 0,
+      "simulated": 34,
+      "with_basis": 34
+    },
+    "network": {
+      "scenario": "holiday",
+      "station_count": 34,
+      "segment_count": 37,
+      "daily_total": 362175,
+      "daily_total_wan": 36.22,
+      "by_type": {
+        "commuter": {
+          "value": 100875,
+          "wan": 10.09
+        },
+        "tourism": {
+          "value": 261300,
+          "wan": 26.13
+        }
+      }
+    }
+  },
+  "baseline": {
+    "config": {
+      "headway_min": 12.0,
+      "formation_cars": 8,
+      "limit_level": 0,
+      "demand_mult": 1.0,
+      "fleet_limit": 480,
+      "scenario": "holiday",
+      "intake_factor": 1.0,
+      "baseline_flag": true
+    },
+    "run_id": "4386ecbc11",
+    "metrics": {
+      "avg_delay_min": 13.78,
+      "max_saturation": 1.196,
+      "max_queue_persons": 211,
+      "unmet_persons_per_hour": 1054,
+      "deferred_persons_per_hour": 0,
+      "throughput_persons_per_hour": 23821,
+      "hub_saturation": 0.498,
+      "required_trains": 374,
+      "energy_kwh_per_day": 4352824.4,
+      "per_line": [
+        {
+          "line": "昌九通勤线",
+          "type": "commuter",
+          "headway_min": 12.0,
+          "length_km": 115.5,
+          "trains": 11,
+          "demand_ph": 1759,
+          "capacity_ph": 3420,
+          "saturation_section": 0.514,
+          "delay_min": 6.0,
+          "unmet_ph": 0
+        },
+        {
+          "line": "昌抚通勤线",
+          "type": "commuter",
+          "headway_min": 12.0,
+          "length_km": 93.3,
+          "trains": 9,
+          "demand_ph": 1604,
+          "capacity_ph": 3420,
+          "saturation_section": 0.469,
+          "delay_min": 6.0,
+          "unmet_ph": 0
+        },
+        {
+          "line": "赣东北旅游环线",
+          "type": "tourism",
+          "headway_min": 12.0,
+          "length_km": 343.4,
+          "trains": 58,
+          "demand_ph": 3767,
+          "capacity_ph": 3420,
+          "saturation_section": 1.102,
+          "delay_min": 26.13,
+          "unmet_ph": 347
+        },
+        {
+          "line": "环庐山旅游线",
+          "type": "tourism",
+          "headway_min": 12.0,
+          "length_km": 68.7,
+          "trains": 12,
+          "demand_ph": 4126,
+          "capacity_ph": 3420,
+          "saturation_section": 1.206,
+          "delay_min": 34.52,
+          "unmet_ph": 706
+        },
+        {
+          "line": "沪昆通勤线",
+          "type": "commuter",
+          "headway_min": 12.0,
+          "length_km": 260.0,
+          "trains": 23,
+          "demand_ph": 1656,
+          "capacity_ph": 3420,
+          "saturation_section": 0.484,
+          "delay_min": 6.0,
+          "unmet_ph": 0
+        },
+        {
+          "line": "京九通勤线",
+          "type": "commuter",
+          "headway_min": 12.0,
+          "length_km": 359.4,
+          "trains": 31,
+          "demand_ph": 1915,
+          "capacity_ph": 3420,
+          "saturation_section": 0.56,
+          "delay_min": 6.0,
+          "unmet_ph": 0
+        },
+        {
+          "line": "皖赣通勤线",
+          "type": "commuter",
+          "headway_min": 12.0,
+          "length_km": 237.3,
+          "trains": 21,
+          "demand_ph": 1811,
+          "capacity_ph": 3420,
+          "saturation_section": 0.53,
+          "delay_min": 6.0,
+          "unmet_ph": 0
+        },
+        {
+          "line": "赣西红色旅游线",
+          "type": "tourism",
+          "headway_min": 12.0,
+          "length_km": 364.4,
+          "trains": 62,
+          "demand_ph": 1973,
+          "capacity_ph": 3420,
+          "saturation_section": 0.577,
+          "delay_min": 6.0,
+          "unmet_ph": 0
+        },
+        {
+          "line": "赣南客家旅游线",
+          "type": "tourism",
+          "headway_min": 12.0,
+          "length_km": 377.4,
+          "trains": 64,
+          "demand_ph": 1494,
+          "capacity_ph": 3420,
+          "saturation_section": 0.437,
+          "delay_min": 6.0,
+          "unmet_ph": 0
+        },
+        {
+          "line": "赣东古韵旅游线",
+          "type": "tourism",
+          "headway_min": 12.0,
+          "length_km": 370.5,
+          "trains": 63,
+          "demand_ph": 1166,
+          "capacity_ph": 3420,
+          "saturation_section": 0.341,
+          "delay_min": 6.0,
+          "unmet_ph": 0
+        },
+        {
+          "line": "大觉山旅游支线",
+          "type": "tourism",
+          "headway_min": 12.0,
+          "length_km": 84.9,
+          "trains": 15,
+          "demand_ph": 1435,
+          "capacity_ph": 3420,
+          "saturation_section": 0.42,
+          "delay_min": 6.0,
+          "unmet_ph": 0
+        },
+        {
+          "line": "梅岭红轨旅游线",
+          "type": "tourism",
+          "headway_min": 12.0,
+          "length_km": 24.4,
+          "trains": 5,
+          "demand_ph": 2167,
+          "capacity_ph": 3420,
+          "saturation_section": 0.634,
+          "delay_min": 6.0,
+          "unmet_ph": 0
+        }
+      ]
+    },
+    "top_bottlenecks": [
+      {
+        "name": "庐山站",
+        "type": "tourism",
+        "arrive_ph": 5382,
+        "waiting_persons": 1076,
+        "platform_cap": 900.0,
+        "saturation_platform": 1.196,
+        "saturation_channel": 0.757,
+        "saturation": 1.196,
+        "queue_persons": 211,
+        "limited": false,
+        "deferred_persons_ph": 0,
+        "binding": "platform"
+      },
+      {
+        "name": "婺源站",
+        "type": "tourism",
+        "arrive_ph": 3229,
+        "waiting_persons": 646,
+        "platform_cap": 650.0,
+        "saturation_platform": 0.994,
+        "saturation_channel": 0.454,
+        "saturation": 0.994,
+        "queue_persons": 0,
+        "limited": false,
+        "deferred_persons_ph": 0,
+        "binding": "platform"
+      },
+      {
+        "name": "上饶站",
+        "type": "tourism",
+        "arrive_ph": 4306,
+        "waiting_persons": 861,
+        "platform_cap": 900.0,
+        "saturation_platform": 0.957,
+        "saturation_channel": 0.605,
+        "saturation": 0.957,
+        "queue_persons": 0,
+        "limited": false,
+        "deferred_persons_ph": 0,
+        "binding": "platform"
+      },
+      {
+        "name": "庐山西海站",
+        "type": "tourism",
+        "arrive_ph": 2870,
+        "waiting_persons": 574,
+        "platform_cap": 700.0,
+        "saturation_platform": 0.82,
+        "saturation_channel": 0.404,
+        "saturation": 0.82,
+        "queue_persons": 0,
+        "limited": false,
+        "deferred_persons_ph": 0,
+        "binding": "platform"
+      },
+      {
+        "name": "大觉山站",
+        "type": "tourism",
+        "arrive_ph": 2153,
+        "waiting_persons": 431,
+        "platform_cap": 550.0,
+        "saturation_platform": 0.783,
+        "saturation_channel": 0.303,
+        "saturation": 0.783,
+        "queue_persons": 0,
+        "limited": false,
+        "deferred_persons_ph": 0,
+        "binding": "platform"
+      }
+    ]
+  },
+  "plans": [
+    {
+      "id": "A",
+      "name": "供给端：在配车上限内压缩发车间隔",
+      "rationale": "不动需求端，直接把统一间隔由 12min 压到 10min。配车 447 列 ≤ 可用 480 列，在车辆资产约束内，是「不增购前提下的最优供给改善」。",
+      "config": {
+        "scenario": "holiday",
+        "headway_min": 10.0,
+        "formation_cars": 8,
+        "limit_level": 0,
+        "demand_mult": 1.0,
+        "fleet_limit": 480,
+        "baseline_flag": false
+      },
+      "effective_config": {
+        "headway_min": 10.0,
+        "formation_cars": 8,
+        "limit_level": 0,
+        "demand_mult": 1.0,
+        "fleet_limit": 480,
+        "scenario": "holiday",
+        "intake_factor": 1.0,
+        "baseline_flag": false
+      },
+      "guardrail": {
+        "passed": true,
+        "violations": [],
+        "normalized": [],
+        "gate": {
+          "passed": true,
+          "intercepted": false,
+          "violations": [],
+          "checked_values": {
+            "headway_min": 10.0,
+            "formation_cars": 8,
+            "limit_level": 0,
+            "demand_mult": 1.0
+          },
+          "applied": null
+        }
+      },
+      "run_id": "f6d474cc0c",
+      "metrics": {
+        "avg_delay_min": 7.41,
+        "max_saturation": 0.997,
+        "max_queue_persons": 0,
+        "unmet_persons_per_hour": 22,
+        "deferred_persons_per_hour": 0,
+        "throughput_persons_per_hour": 24852,
+        "hub_saturation": 0.498,
+        "required_trains": 447,
+        "energy_kwh_per_day": 5112888.7,
+        "per_line": [
+          {
+            "line": "昌九通勤线",
+            "type": "commuter",
+            "headway_min": 10.0,
+            "length_km": 115.5,
+            "trains": 13,
+            "demand_ph": 1759,
+            "capacity_ph": 4104,
+            "saturation_section": 0.429,
+            "delay_min": 5.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "昌抚通勤线",
+            "type": "commuter",
+            "headway_min": 10.0,
+            "length_km": 93.3,
+            "trains": 10,
+            "demand_ph": 1604,
+            "capacity_ph": 4104,
+            "saturation_section": 0.391,
+            "delay_min": 5.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "赣东北旅游环线",
+            "type": "tourism",
+            "headway_min": 10.0,
+            "length_km": 343.4,
+            "trains": 70,
+            "demand_ph": 3767,
+            "capacity_ph": 4104,
+            "saturation_section": 0.918,
+            "delay_min": 9.53,
+            "unmet_ph": 0
+          },
+          {
+            "line": "环庐山旅游线",
+            "type": "tourism",
+            "headway_min": 10.0,
+            "length_km": 68.7,
+            "trains": 15,
+            "demand_ph": 4126,
+            "capacity_ph": 4104,
+            "saturation_section": 1.005,
+            "delay_min": 15.36,
+            "unmet_ph": 22
+          },
+          {
+            "line": "沪昆通勤线",
+            "type": "commuter",
+            "headway_min": 10.0,
+            "length_km": 260.0,
+            "trains": 27,
+            "demand_ph": 1656,
+            "capacity_ph": 4104,
+            "saturation_section": 0.404,
+            "delay_min": 5.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "京九通勤线",
+            "type": "commuter",
+            "headway_min": 10.0,
+            "length_km": 359.4,
+            "trains": 37,
+            "demand_ph": 1915,
+            "capacity_ph": 4104,
+            "saturation_section": 0.467,
+            "delay_min": 5.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "皖赣通勤线",
+            "type": "commuter",
+            "headway_min": 10.0,
+            "length_km": 237.3,
+            "trains": 25,
+            "demand_ph": 1811,
+            "capacity_ph": 4104,
+            "saturation_section": 0.441,
+            "delay_min": 5.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "赣西红色旅游线",
+            "type": "tourism",
+            "headway_min": 10.0,
+            "length_km": 364.4,
+            "trains": 74,
+            "demand_ph": 1973,
+            "capacity_ph": 4104,
+            "saturation_section": 0.481,
+            "delay_min": 5.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "赣南客家旅游线",
+            "type": "tourism",
+            "headway_min": 10.0,
+            "length_km": 377.4,
+            "trains": 77,
+            "demand_ph": 1494,
+            "capacity_ph": 4104,
+            "saturation_section": 0.364,
+            "delay_min": 5.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "赣东古韵旅游线",
+            "type": "tourism",
+            "headway_min": 10.0,
+            "length_km": 370.5,
+            "trains": 75,
+            "demand_ph": 1166,
+            "capacity_ph": 4104,
+            "saturation_section": 0.284,
+            "delay_min": 5.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "大觉山旅游支线",
+            "type": "tourism",
+            "headway_min": 10.0,
+            "length_km": 84.9,
+            "trains": 18,
+            "demand_ph": 1435,
+            "capacity_ph": 4104,
+            "saturation_section": 0.35,
+            "delay_min": 5.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "梅岭红轨旅游线",
+            "type": "tourism",
+            "headway_min": 10.0,
+            "length_km": 24.4,
+            "trains": 6,
+            "demand_ph": 2167,
+            "capacity_ph": 4104,
+            "saturation_section": 0.528,
+            "delay_min": 5.0,
+            "unmet_ph": 0
+          }
+        ]
+      },
+      "score": {
+        "congestion": 50.6,
+        "service": 99.6,
+        "cost": 81.5,
+        "robustness": 13.0,
+        "total": 67.7,
+        "required_trains": 447,
+        "energy_kwh_per_day": 5112889
+      },
+      "delta": {
+        "站台最大饱和度": "↓16.6%（1.196 → 0.997）✓",
+        "平均延误": "↓46.2%（13.78 → 7.41）✓",
+        "最大积压": "↓100.0%（211 → 0）✓",
+        "未承运客流": "↓97.9%（1,054 → 22）✓",
+        "牵引能耗": "↑17.5%（4,352,824 → 5,112,889）⚠"
+      },
+      "sensitivity": {
+        "ok": true,
+        "plan_id": "A",
+        "cases": [
+          {
+            "case": "基准",
+            "headway_min": 10.0,
+            "demand_mult": 1.0,
+            "max_saturation": 0.997,
+            "avg_delay_min": 7.41,
+            "unmet_persons_per_hour": 22
+          },
+          {
+            "case": "客流 +20%",
+            "headway_min": 10.0,
+            "demand_mult": 1.2,
+            "max_saturation": 1.196,
+            "avg_delay_min": 11.48,
+            "unmet_persons_per_hour": 1264
+          },
+          {
+            "case": "客流 -20%",
+            "headway_min": 10.0,
+            "demand_mult": 0.8,
+            "max_saturation": 0.797,
+            "avg_delay_min": 5.0,
+            "unmet_persons_per_hour": 0
+          },
+          {
+            "case": "间隔 -2min",
+            "headway_min": 8.0,
+            "demand_mult": 1.0,
+            "max_saturation": 0.797,
+            "avg_delay_min": 4.0,
+            "unmet_persons_per_hour": 0
+          },
+          {
+            "case": "间隔 +2min",
+            "headway_min": 12.0,
+            "demand_mult": 1.0,
+            "max_saturation": 1.196,
+            "avg_delay_min": 13.78,
+            "unmet_persons_per_hour": 1054
+          },
+          {
+            "case": "客流+20% & 间隔+2min",
+            "headway_min": 12.0,
+            "demand_mult": 1.2,
+            "max_saturation": 1.435,
+            "avg_delay_min": 19.65,
+            "unmet_persons_per_hour": 2632
+          }
+        ],
+        "max_saturation_range": [
+          0.797,
+          1.435
+        ],
+        "robust": false,
+        "verdict": "推荐方案在不利扰动下仍会超饱和，建议叠加需求端管控",
+        "evidence": "6 组确定性扰动重仿真（同引擎、同数据）"
+      }
+    },
+    {
+      "id": "B",
+      "name": "需求端：三级限流 + 维持既有间隔",
+      "rationale": "不动运力，仅对超设计容量的站点实施三级限流（只出不进）。能耗与配车完全不变，代价是站外滞留 —— 这是运能受限时的次优选择。",
+      "config": {
+        "scenario": "holiday",
+        "headway_min": 12.0,
+        "formation_cars": 8,
+        "limit_level": 3,
+        "demand_mult": 1.0,
+        "fleet_limit": 480,
+        "baseline_flag": false
+      },
+      "effective_config": {
+        "headway_min": 12.0,
+        "formation_cars": 8,
+        "limit_level": 3,
+        "demand_mult": 1.0,
+        "fleet_limit": 480,
+        "scenario": "holiday",
+        "intake_factor": 0.65,
+        "baseline_flag": false
+      },
+      "guardrail": {
+        "passed": true,
+        "violations": [],
+        "normalized": [],
+        "gate": {
+          "passed": true,
+          "intercepted": false,
+          "violations": [],
+          "checked_values": {
+            "headway_min": 12.0,
+            "formation_cars": 8,
+            "limit_level": 3,
+            "demand_mult": 1.0
+          },
+          "applied": null
+        }
+      },
+      "run_id": "0842f47724",
+      "metrics": {
+        "avg_delay_min": 14.87,
+        "max_saturation": 0.82,
+        "max_queue_persons": 0,
+        "unmet_persons_per_hour": 1054,
+        "deferred_persons_per_hour": 4521,
+        "throughput_persons_per_hour": 23821,
+        "hub_saturation": 0.498,
+        "required_trains": 374,
+        "energy_kwh_per_day": 4352824.4,
+        "per_line": [
+          {
+            "line": "昌九通勤线",
+            "type": "commuter",
+            "headway_min": 12.0,
+            "length_km": 115.5,
+            "trains": 11,
+            "demand_ph": 1759,
+            "capacity_ph": 3420,
+            "saturation_section": 0.514,
+            "delay_min": 6.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "昌抚通勤线",
+            "type": "commuter",
+            "headway_min": 12.0,
+            "length_km": 93.3,
+            "trains": 9,
+            "demand_ph": 1604,
+            "capacity_ph": 3420,
+            "saturation_section": 0.469,
+            "delay_min": 6.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "赣东北旅游环线",
+            "type": "tourism",
+            "headway_min": 12.0,
+            "length_km": 343.4,
+            "trains": 58,
+            "demand_ph": 3767,
+            "capacity_ph": 3420,
+            "saturation_section": 1.102,
+            "delay_min": 26.13,
+            "unmet_ph": 347
+          },
+          {
+            "line": "环庐山旅游线",
+            "type": "tourism",
+            "headway_min": 12.0,
+            "length_km": 68.7,
+            "trains": 12,
+            "demand_ph": 4126,
+            "capacity_ph": 3420,
+            "saturation_section": 1.206,
+            "delay_min": 34.52,
+            "unmet_ph": 706
+          },
+          {
+            "line": "沪昆通勤线",
+            "type": "commuter",
+            "headway_min": 12.0,
+            "length_km": 260.0,
+            "trains": 23,
+            "demand_ph": 1656,
+            "capacity_ph": 3420,
+            "saturation_section": 0.484,
+            "delay_min": 6.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "京九通勤线",
+            "type": "commuter",
+            "headway_min": 12.0,
+            "length_km": 359.4,
+            "trains": 31,
+            "demand_ph": 1915,
+            "capacity_ph": 3420,
+            "saturation_section": 0.56,
+            "delay_min": 6.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "皖赣通勤线",
+            "type": "commuter",
+            "headway_min": 12.0,
+            "length_km": 237.3,
+            "trains": 21,
+            "demand_ph": 1811,
+            "capacity_ph": 3420,
+            "saturation_section": 0.53,
+            "delay_min": 6.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "赣西红色旅游线",
+            "type": "tourism",
+            "headway_min": 12.0,
+            "length_km": 364.4,
+            "trains": 62,
+            "demand_ph": 1973,
+            "capacity_ph": 3420,
+            "saturation_section": 0.577,
+            "delay_min": 6.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "赣南客家旅游线",
+            "type": "tourism",
+            "headway_min": 12.0,
+            "length_km": 377.4,
+            "trains": 64,
+            "demand_ph": 1494,
+            "capacity_ph": 3420,
+            "saturation_section": 0.437,
+            "delay_min": 6.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "赣东古韵旅游线",
+            "type": "tourism",
+            "headway_min": 12.0,
+            "length_km": 370.5,
+            "trains": 63,
+            "demand_ph": 1166,
+            "capacity_ph": 3420,
+            "saturation_section": 0.341,
+            "delay_min": 6.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "大觉山旅游支线",
+            "type": "tourism",
+            "headway_min": 12.0,
+            "length_km": 84.9,
+            "trains": 15,
+            "demand_ph": 1435,
+            "capacity_ph": 3420,
+            "saturation_section": 0.42,
+            "delay_min": 6.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "梅岭红轨旅游线",
+            "type": "tourism",
+            "headway_min": 12.0,
+            "length_km": 24.4,
+            "trains": 5,
+            "demand_ph": 2167,
+            "capacity_ph": 3420,
+            "saturation_section": 0.634,
+            "delay_min": 6.0,
+            "unmet_ph": 0
+          }
+        ]
+      },
+      "score": {
+        "congestion": 84.0,
+        "service": 6.4,
+        "cost": 100.0,
+        "robustness": 82.4,
+        "total": 63.8,
+        "required_trains": 374,
+        "energy_kwh_per_day": 4352824
+      },
+      "delta": {
+        "站台最大饱和度": "↓31.4%（1.196 → 0.820）✓",
+        "平均延误": "↑7.9%（13.78 → 14.87）⚠",
+        "最大积压": "↓100.0%（211 → 0）✓",
+        "未承运客流": "↑0.0%（1,054 → 1,054）⚠",
+        "牵引能耗": "↑0.0%（4,352,824 → 4,352,824）⚠"
+      },
+      "sensitivity": {
+        "ok": true,
+        "plan_id": "B",
+        "cases": [
+          {
+            "case": "基准",
+            "headway_min": 12.0,
+            "demand_mult": 1.0,
+            "max_saturation": 0.82,
+            "avg_delay_min": 14.87,
+            "unmet_persons_per_hour": 1054
+          },
+          {
+            "case": "客流 +20%",
+            "headway_min": 12.0,
+            "demand_mult": 1.2,
+            "max_saturation": 0.933,
+            "avg_delay_min": 21.83,
+            "unmet_persons_per_hour": 2632
+          },
+          {
+            "case": "客流 -20%",
+            "headway_min": 12.0,
+            "demand_mult": 0.8,
+            "max_saturation": 0.795,
+            "avg_delay_min": 8.36,
+            "unmet_persons_per_hour": 0
+          },
+          {
+            "case": "间隔 -2min",
+            "headway_min": 10.0,
+            "demand_mult": 1.0,
+            "max_saturation": 0.828,
+            "avg_delay_min": 7.78,
+            "unmet_persons_per_hour": 22
+          },
+          {
+            "case": "间隔 +2min",
+            "headway_min": 14.0,
+            "demand_mult": 1.0,
+            "max_saturation": 0.907,
+            "avg_delay_min": 23.55,
+            "unmet_persons_per_hour": 2031
+          },
+          {
+            "case": "客流+20% & 间隔+2min",
+            "headway_min": 14.0,
+            "demand_mult": 1.2,
+            "max_saturation": 1.088,
+            "avg_delay_min": 33.06,
+            "unmet_persons_per_hour": 3609
+          }
+        ],
+        "max_saturation_range": [
+          0.795,
+          1.088
+        ],
+        "robust": false,
+        "verdict": "推荐方案在不利扰动下仍会超饱和，建议叠加需求端管控",
+        "evidence": "6 组确定性扰动重仿真（同引擎、同数据）"
+      }
+    },
+    {
+      "id": "C",
+      "name": "高密度运营（未同步申请增购车辆）",
+      "rationale": "把间隔压到 8min。此处**故意不追加配车额度**，用以检验护栏能否识别「纸面间隔排不出图」这一类不可执行方案。",
+      "config": {
+        "scenario": "holiday",
+        "headway_min": 8.0,
+        "formation_cars": 8,
+        "limit_level": 1,
+        "demand_mult": 1.0,
+        "fleet_limit": 480,
+        "baseline_flag": false
+      },
+      "effective_config": {
+        "headway_min": 9.8,
+        "formation_cars": 8,
+        "limit_level": 1,
+        "demand_mult": 1.0,
+        "fleet_limit": 480,
+        "scenario": "holiday",
+        "intake_factor": 0.92,
+        "baseline_flag": false
+      },
+      "guardrail": {
+        "passed": false,
+        "violations": [
+          {
+            "id": "GR-09",
+            "name": "配车需求不得超过可用车辆数",
+            "why": "压缩发车间隔直接消耗配车（配车数 = 往返周期 / 间隔）。车辆资产不足时，纸面上漂亮的间隔排不出图，属于不可执行方案。",
+            "fix": "调大发车间隔，或申请增购车辆，或改用「区间加开 + 长短交路」提高车辆周转率。",
+            "field": "",
+            "value": {
+              "headway_min": 8.0,
+              "formation_cars": 8,
+              "limit_level": 1,
+              "demand_mult": 1.0
+            },
+            "fleet_detail": {
+              "required_trains": 556,
+              "per_line": {
+                "昌九通勤线": {
+                  "type": "commuter",
+                  "length_km": 115.5,
+                  "cycle_min": 121.5,
+                  "trains": 16
+                },
+                "昌抚通勤线": {
+                  "type": "commuter",
+                  "length_km": 93.3,
+                  "cycle_min": 99.3,
+                  "trains": 13
+                },
+                "赣东北旅游环线": {
+                  "type": "tourism",
+                  "length_km": 343.4,
+                  "cycle_min": 692.7,
+                  "trains": 87
+                },
+                "环庐山旅游线": {
+                  "type": "tourism",
+                  "length_km": 68.7,
+                  "cycle_min": 143.4,
+                  "trains": 18
+                },
+                "沪昆通勤线": {
+                  "type": "commuter",
+                  "length_km": 260.0,
+                  "cycle_min": 266.0,
+                  "trains": 34
+                },
+                "京九通勤线": {
+                  "type": "commuter",
+                  "length_km": 359.4,
+                  "cycle_min": 365.4,
+                  "trains": 46
+                },
+                "皖赣通勤线": {
+                  "type": "commuter",
+                  "length_km": 237.3,
+                  "cycle_min": 243.3,
+                  "trains": 31
+                },
+                "赣西红色旅游线": {
+                  "type": "tourism",
+                  "length_km": 364.4,
+                  "cycle_min": 734.9,
+                  "trains": 92
+                },
+                "赣南客家旅游线": {
+                  "type": "tourism",
+                  "length_km": 377.4,
+                  "cycle_min": 760.8,
+                  "trains": 96
+                },
+                "赣东古韵旅游线": {
+                  "type": "tourism",
+                  "length_km": 370.5,
+                  "cycle_min": 747.0,
+                  "trains": 94
+                },
+                "大觉山旅游支线": {
+                  "type": "tourism",
+                  "length_km": 84.9,
+                  "cycle_min": 175.8,
+                  "trains": 22
+                },
+                "梅岭红轨旅游线": {
+                  "type": "tourism",
+                  "length_km": 24.4,
+                  "cycle_min": 54.8,
+                  "trains": 7
+                }
+              },
+              "fleet_limit": 480,
+              "gap": 76,
+              "feasible": false,
+              "min_feasible_headway": 9.8
+            }
+          }
+        ],
+        "normalized": [],
+        "gate": {
+          "passed": false,
+          "intercepted": true,
+          "violations": [
+            "GR-09"
+          ],
+          "checked_values": {
+            "headway_min": 8.0,
+            "formation_cars": 8,
+            "limit_level": 1,
+            "demand_mult": 1.0
+          },
+          "applied": {
+            "intercepted": true,
+            "violations": [
+              {
+                "id": "GR-09",
+                "name": "配车需求不得超过可用车辆数",
+                "why": "压缩发车间隔直接消耗配车（配车数 = 往返周期 / 间隔）。车辆资产不足时，纸面上漂亮的间隔排不出图，属于不可执行方案。",
+                "fix": "调大发车间隔，或申请增购车辆，或改用「区间加开 + 长短交路」提高车辆周转率。"
+              }
+            ],
+            "requested": {
+              "headway_min": 8.0,
+              "formation_cars": 8,
+              "limit_level": 1,
+              "demand_mult": 1.0
+            },
+            "normalized_to": {
+              "headway_min": 8.0,
+              "formation_cars": 8,
+              "limit_level": 1,
+              "demand_mult": 1.0
+            },
+            "repaired_to": {
+              "headway_min": 9.8,
+              "formation_cars": 8,
+              "limit_level": 1,
+              "demand_mult": 1.0
+            },
+            "repair_rounds": 1,
+            "soft_clamped": []
+          }
+        }
+      },
+      "run_id": "75c9b0c808",
+      "metrics": {
+        "avg_delay_min": 6.94,
+        "max_saturation": 0.899,
+        "max_queue_persons": 0,
+        "unmet_persons_per_hour": 0,
+        "deferred_persons_per_hour": 431,
+        "throughput_persons_per_hour": 24874,
+        "hub_saturation": 0.498,
+        "required_trains": 455,
+        "energy_kwh_per_day": 5205957.8,
+        "per_line": [
+          {
+            "line": "昌九通勤线",
+            "type": "commuter",
+            "headway_min": 9.8,
+            "length_km": 115.5,
+            "trains": 13,
+            "demand_ph": 1759,
+            "capacity_ph": 4188,
+            "saturation_section": 0.42,
+            "delay_min": 4.9,
+            "unmet_ph": 0
+          },
+          {
+            "line": "昌抚通勤线",
+            "type": "commuter",
+            "headway_min": 9.8,
+            "length_km": 93.3,
+            "trains": 11,
+            "demand_ph": 1604,
+            "capacity_ph": 4188,
+            "saturation_section": 0.383,
+            "delay_min": 4.9,
+            "unmet_ph": 0
+          },
+          {
+            "line": "赣东北旅游环线",
+            "type": "tourism",
+            "headway_min": 9.8,
+            "length_km": 343.4,
+            "trains": 71,
+            "demand_ph": 3767,
+            "capacity_ph": 4188,
+            "saturation_section": 0.9,
+            "delay_min": 8.14,
+            "unmet_ph": 0
+          },
+          {
+            "line": "环庐山旅游线",
+            "type": "tourism",
+            "headway_min": 9.8,
+            "length_km": 68.7,
+            "trains": 15,
+            "demand_ph": 4126,
+            "capacity_ph": 4188,
+            "saturation_section": 0.985,
+            "delay_min": 13.74,
+            "unmet_ph": 0
+          },
+          {
+            "line": "沪昆通勤线",
+            "type": "commuter",
+            "headway_min": 9.8,
+            "length_km": 260.0,
+            "trains": 28,
+            "demand_ph": 1656,
+            "capacity_ph": 4188,
+            "saturation_section": 0.395,
+            "delay_min": 4.9,
+            "unmet_ph": 0
+          },
+          {
+            "line": "京九通勤线",
+            "type": "commuter",
+            "headway_min": 9.8,
+            "length_km": 359.4,
+            "trains": 38,
+            "demand_ph": 1915,
+            "capacity_ph": 4188,
+            "saturation_section": 0.457,
+            "delay_min": 4.9,
+            "unmet_ph": 0
+          },
+          {
+            "line": "皖赣通勤线",
+            "type": "commuter",
+            "headway_min": 9.8,
+            "length_km": 237.3,
+            "trains": 25,
+            "demand_ph": 1811,
+            "capacity_ph": 4188,
+            "saturation_section": 0.433,
+            "delay_min": 4.9,
+            "unmet_ph": 0
+          },
+          {
+            "line": "赣西红色旅游线",
+            "type": "tourism",
+            "headway_min": 9.8,
+            "length_km": 364.4,
+            "trains": 75,
+            "demand_ph": 1973,
+            "capacity_ph": 4188,
+            "saturation_section": 0.471,
+            "delay_min": 4.9,
+            "unmet_ph": 0
+          },
+          {
+            "line": "赣南客家旅游线",
+            "type": "tourism",
+            "headway_min": 9.8,
+            "length_km": 377.4,
+            "trains": 78,
+            "demand_ph": 1494,
+            "capacity_ph": 4188,
+            "saturation_section": 0.357,
+            "delay_min": 4.9,
+            "unmet_ph": 0
+          },
+          {
+            "line": "赣东古韵旅游线",
+            "type": "tourism",
+            "headway_min": 9.8,
+            "length_km": 370.5,
+            "trains": 77,
+            "demand_ph": 1166,
+            "capacity_ph": 4188,
+            "saturation_section": 0.278,
+            "delay_min": 4.9,
+            "unmet_ph": 0
+          },
+          {
+            "line": "大觉山旅游支线",
+            "type": "tourism",
+            "headway_min": 9.8,
+            "length_km": 84.9,
+            "trains": 18,
+            "demand_ph": 1435,
+            "capacity_ph": 4188,
+            "saturation_section": 0.343,
+            "delay_min": 4.9,
+            "unmet_ph": 0
+          },
+          {
+            "line": "梅岭红轨旅游线",
+            "type": "tourism",
+            "headway_min": 9.8,
+            "length_km": 24.4,
+            "trains": 6,
+            "demand_ph": 2167,
+            "capacity_ph": 4188,
+            "saturation_section": 0.517,
+            "delay_min": 4.9,
+            "unmet_ph": 0
+          }
+        ]
+      },
+      "score": {
+        "congestion": 70.2,
+        "service": 93.1,
+        "cost": 79.4,
+        "robustness": 40.4,
+        "total": 75.9,
+        "required_trains": 455,
+        "energy_kwh_per_day": 5205958
+      },
+      "delta": {
+        "站台最大饱和度": "↓24.8%（1.196 → 0.899）✓",
+        "平均延误": "↓49.6%（13.78 → 6.94）✓",
+        "最大积压": "↓100.0%（211 → 0）✓",
+        "未承运客流": "↓100.0%（1,054 → 0）✓",
+        "牵引能耗": "↑19.6%（4,352,824 → 5,205,958）⚠"
+      },
+      "sensitivity": {
+        "ok": true,
+        "plan_id": "C",
+        "cases": [
+          {
+            "case": "基准",
+            "headway_min": 9.8,
+            "demand_mult": 1.0,
+            "max_saturation": 0.899,
+            "avg_delay_min": 6.94,
+            "unmet_persons_per_hour": 0
+          },
+          {
+            "case": "客流 +20%",
+            "headway_min": 9.8,
+            "demand_mult": 1.2,
+            "max_saturation": 1.078,
+            "avg_delay_min": 10.98,
+            "unmet_persons_per_hour": 1097
+          },
+          {
+            "case": "客流 -20%",
+            "headway_min": 9.8,
+            "demand_mult": 0.8,
+            "max_saturation": 0.781,
+            "avg_delay_min": 4.9,
+            "unmet_persons_per_hour": 0
+          },
+          {
+            "case": "间隔 -2min",
+            "headway_min": 7.800000000000001,
+            "demand_mult": 1.0,
+            "max_saturation": 0.777,
+            "avg_delay_min": 3.9,
+            "unmet_persons_per_hour": 0
+          },
+          {
+            "case": "间隔 +2min",
+            "headway_min": 11.8,
+            "demand_mult": 1.0,
+            "max_saturation": 1.082,
+            "avg_delay_min": 13.31,
+            "unmet_persons_per_hour": 938
+          },
+          {
+            "case": "客流+20% & 间隔+2min",
+            "headway_min": 11.8,
+            "demand_mult": 1.2,
+            "max_saturation": 1.298,
+            "avg_delay_min": 19.09,
+            "unmet_persons_per_hour": 2516
+          }
+        ],
+        "max_saturation_range": [
+          0.777,
+          1.298
+        ],
+        "robust": false,
+        "verdict": "推荐方案在不利扰动下仍会超饱和，建议叠加需求端管控",
+        "evidence": "6 组确定性扰动重仿真（同引擎、同数据）"
+      }
+    },
+    {
+      "id": "D",
+      "name": "强化档：增购车辆 + 8min 高密度运营",
+      "rationale": "护栏 GR-09 表明 8min 间隔需配车 556 列 > 现有 480 列。本方案显式申请增购至 600 列（+120 列），使高密度运营成为可执行方案；代价计入资源代价分，由 Critic 与其余方案统一比较。",
+      "config": {
+        "scenario": "holiday",
+        "headway_min": 8.0,
+        "formation_cars": 8,
+        "limit_level": 1,
+        "demand_mult": 1.0,
+        "fleet_limit": 600,
+        "baseline_flag": false
+      },
+      "effective_config": {
+        "headway_min": 8.0,
+        "formation_cars": 8,
+        "limit_level": 1,
+        "demand_mult": 1.0,
+        "fleet_limit": 600,
+        "scenario": "holiday",
+        "intake_factor": 0.92,
+        "baseline_flag": false
+      },
+      "guardrail": {
+        "passed": true,
+        "violations": [],
+        "normalized": [],
+        "gate": {
+          "passed": true,
+          "intercepted": false,
+          "violations": [],
+          "checked_values": {
+            "headway_min": 8.0,
+            "formation_cars": 8,
+            "limit_level": 1,
+            "demand_mult": 1.0
+          },
+          "applied": null
+        }
+      },
+      "run_id": "cb15f7f7f5",
+      "metrics": {
+        "avg_delay_min": 4.0,
+        "max_saturation": 0.797,
+        "max_queue_persons": 0,
+        "unmet_persons_per_hour": 0,
+        "deferred_persons_per_hour": 0,
+        "throughput_persons_per_hour": 24874,
+        "hub_saturation": 0.498,
+        "required_trains": 556,
+        "energy_kwh_per_day": 6252985.2,
+        "per_line": [
+          {
+            "line": "昌九通勤线",
+            "type": "commuter",
+            "headway_min": 8.0,
+            "length_km": 115.5,
+            "trains": 16,
+            "demand_ph": 1759,
+            "capacity_ph": 5130,
+            "saturation_section": 0.343,
+            "delay_min": 4.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "昌抚通勤线",
+            "type": "commuter",
+            "headway_min": 8.0,
+            "length_km": 93.3,
+            "trains": 13,
+            "demand_ph": 1604,
+            "capacity_ph": 5130,
+            "saturation_section": 0.313,
+            "delay_min": 4.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "赣东北旅游环线",
+            "type": "tourism",
+            "headway_min": 8.0,
+            "length_km": 343.4,
+            "trains": 87,
+            "demand_ph": 3767,
+            "capacity_ph": 5130,
+            "saturation_section": 0.734,
+            "delay_min": 4.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "环庐山旅游线",
+            "type": "tourism",
+            "headway_min": 8.0,
+            "length_km": 68.7,
+            "trains": 18,
+            "demand_ph": 4126,
+            "capacity_ph": 5130,
+            "saturation_section": 0.804,
+            "delay_min": 4.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "沪昆通勤线",
+            "type": "commuter",
+            "headway_min": 8.0,
+            "length_km": 260.0,
+            "trains": 34,
+            "demand_ph": 1656,
+            "capacity_ph": 5130,
+            "saturation_section": 0.323,
+            "delay_min": 4.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "京九通勤线",
+            "type": "commuter",
+            "headway_min": 8.0,
+            "length_km": 359.4,
+            "trains": 46,
+            "demand_ph": 1915,
+            "capacity_ph": 5130,
+            "saturation_section": 0.373,
+            "delay_min": 4.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "皖赣通勤线",
+            "type": "commuter",
+            "headway_min": 8.0,
+            "length_km": 237.3,
+            "trains": 31,
+            "demand_ph": 1811,
+            "capacity_ph": 5130,
+            "saturation_section": 0.353,
+            "delay_min": 4.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "赣西红色旅游线",
+            "type": "tourism",
+            "headway_min": 8.0,
+            "length_km": 364.4,
+            "trains": 92,
+            "demand_ph": 1973,
+            "capacity_ph": 5130,
+            "saturation_section": 0.385,
+            "delay_min": 4.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "赣南客家旅游线",
+            "type": "tourism",
+            "headway_min": 8.0,
+            "length_km": 377.4,
+            "trains": 96,
+            "demand_ph": 1494,
+            "capacity_ph": 5130,
+            "saturation_section": 0.291,
+            "delay_min": 4.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "赣东古韵旅游线",
+            "type": "tourism",
+            "headway_min": 8.0,
+            "length_km": 370.5,
+            "trains": 94,
+            "demand_ph": 1166,
+            "capacity_ph": 5130,
+            "saturation_section": 0.227,
+            "delay_min": 4.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "大觉山旅游支线",
+            "type": "tourism",
+            "headway_min": 8.0,
+            "length_km": 84.9,
+            "trains": 22,
+            "demand_ph": 1435,
+            "capacity_ph": 5130,
+            "saturation_section": 0.28,
+            "delay_min": 4.0,
+            "unmet_ph": 0
+          },
+          {
+            "line": "梅岭红轨旅游线",
+            "type": "tourism",
+            "headway_min": 8.0,
+            "length_km": 24.4,
+            "trains": 7,
+            "demand_ph": 2167,
+            "capacity_ph": 5130,
+            "saturation_section": 0.422,
+            "delay_min": 4.0,
+            "unmet_ph": 0
+          }
+        ]
+      },
+      "score": {
+        "congestion": 87.1,
+        "service": 100.0,
+        "cost": 53.8,
+        "robustness": 80.0,
+        "total": 83.6,
+        "required_trains": 556,
+        "energy_kwh_per_day": 6252985
+      },
+      "delta": {
+        "站台最大饱和度": "↓33.4%（1.196 → 0.797）✓",
+        "平均延误": "↓71.0%（13.78 → 4.00）✓",
+        "最大积压": "↓100.0%（211 → 0）✓",
+        "未承运客流": "↓100.0%（1,054 → 0）✓",
+        "牵引能耗": "↑43.7%（4,352,824 → 6,252,985）⚠"
+      },
+      "sensitivity": {
+        "ok": true,
+        "plan_id": "D",
+        "cases": [
+          {
+            "case": "基准",
+            "headway_min": 8.0,
+            "demand_mult": 1.0,
+            "max_saturation": 0.797,
+            "avg_delay_min": 4.0,
+            "unmet_persons_per_hour": 0
+          },
+          {
+            "case": "客流 +20%",
+            "headway_min": 8.0,
+            "demand_mult": 1.2,
+            "max_saturation": 0.88,
+            "avg_delay_min": 5.34,
+            "unmet_persons_per_hour": 0
+          },
+          {
+            "case": "客流 -20%",
+            "headway_min": 8.0,
+            "demand_mult": 0.8,
+            "max_saturation": 0.638,
+            "avg_delay_min": 4.0,
+            "unmet_persons_per_hour": 0
+          },
+          {
+            "case": "间隔 -2min",
+            "headway_min": 6.0,
+            "demand_mult": 1.0,
+            "max_saturation": 0.757,
+            "avg_delay_min": 3.0,
+            "unmet_persons_per_hour": 0
+          },
+          {
+            "case": "间隔 +2min",
+            "headway_min": 10.0,
+            "demand_mult": 1.0,
+            "max_saturation": 0.917,
+            "avg_delay_min": 7.49,
+            "unmet_persons_per_hour": 22
+          },
+          {
+            "case": "客流+20% & 间隔+2min",
+            "headway_min": 10.0,
+            "demand_mult": 1.2,
+            "max_saturation": 1.1,
+            "avg_delay_min": 11.69,
+            "unmet_persons_per_hour": 1264
+          }
+        ],
+        "max_saturation_range": [
+          0.638,
+          1.1
+        ],
+        "robust": false,
+        "verdict": "推荐方案在不利扰动下仍会超饱和，建议叠加需求端管控",
+        "evidence": "6 组确定性扰动重仿真（同引擎、同数据）"
+      }
+    }
+  ],
+  "recommended": "D",
+  "agents": [
+    {
+      "id": "warning",
+      "name": "灾害与拥堵预警智能体",
+      "rt": "≤3 秒",
+      "act": "庐山站站台饱和度 **1.196**，判定**大客流橙色预警**",
+      "extra": "瓶颈环节：站台容量 · 最大积压 211 人"
+    },
+    {
+      "id": "maint",
+      "name": "运力配置智能体",
+      "rt": "≤5 秒",
+      "act": "全网编组统一 **8 辆**，按线路属性差异化发车间隔（基准通勤 8min / 旅游 15min）",
+      "extra": "牵引能耗 6252985.2 kWh/日（基准 4352824.4）"
+    },
+    {
+      "id": "rescue",
+      "name": "应急联动智能体",
+      "rt": "≤5 秒",
+      "act": "执行**方案 D**：强化档：增购车辆 + 8min 高密度运营；限流 **1 级**，发车间隔 **8.0 min**",
+      "extra": "三级限流时强制配套 ≥6 辆编组疏运（护栏 GR-05）"
+    },
+    {
+      "id": "flow",
+      "name": "客流预测智能体",
+      "rt": "≤10 秒",
+      "act": "治理后最大饱和度 **0.797**（基准 1.196），平均延误 **4.0 min**",
+      "extra": "扰动稳健性：推荐方案在不利扰动下仍会超饱和，建议叠加需求端管控"
+    }
+  ],
+  "risk_segments": [
+    [
+      [
+        115.85,
+        29.55
+      ],
+      [
+        115.55,
+        29.24
+      ]
+    ],
+    [
+      [
+        117.97,
+        28.45
+      ],
+      [
+        117.86,
+        29.25
+      ]
+    ]
+  ],
+  "reroute": [
+    [
+      118.06,
+      28.91
+    ],
+    [
+      117.97,
+      28.45
+    ],
+    [
+      116.96,
+      28.1
+    ]
+  ],
+  "trace": {
+    "path": "20260922T170758_holiday_local_trace.json",
+    "steps": 37,
+    "tool_calls": 23,
+    "tools_used": [
+      "config_simulation_param",
+      "export_report_markdown",
+      "generate_candidate_plan",
+      "get_engine_status",
+      "guardrail_validate",
+      "query_data_anchor",
+      "read_sim_result",
+      "run_simulation",
+      "sensitivity_scan"
+    ],
+    "failed_calls": 0,
+    "llm_calls": 0,
+    "critic_verdicts": [
+      "continue",
+      "evaluate",
+      "retry",
+      "continue",
+      "evaluate",
+      "evaluate"
+    ],
+    "duration_ms": 28,
+    "critic_history": [
+      {
+        "kind": "critic",
+        "actor": "critic",
+        "verdict": "continue",
+        "scores": {
+          "A": {
+            "congestion": 50.6,
+            "service": 99.6,
+            "cost": 81.5,
+            "robustness": 60.0,
+            "total": 72.4,
+            "required_trains": 447,
+            "energy_kwh_per_day": 5112889
+          },
+          "B": {
+            "congestion": 84.0,
+            "service": 6.4,
+            "cost": 100.0,
+            "robustness": 60.0,
+            "total": 61.5,
+            "required_trains": 374,
+            "energy_kwh_per_day": 4352824
+          },
+          "C": {
+            "congestion": 70.2,
+            "service": 93.1,
+            "cost": 79.4,
+            "robustness": 60.0,
+            "total": 77.9,
+            "required_trains": 455,
+            "energy_kwh_per_day": 5205958
+          }
+        },
+        "reason": "尚有 3 个方案未做敏感性扫描（A/B/C），本轮继续补齐",
+        "seq": 16,
+        "ts": "2026-09-22T17:07:58+08:00",
+        "t_ms": 20
+      },
+      {
+        "kind": "critic",
+        "actor": "critic",
+        "verdict": "evaluate",
+        "scores": {
+          "A": {
+            "congestion": 50.6,
+            "service": 99.6,
+            "cost": 81.5,
+            "robustness": 13.0,
+            "total": 67.7,
+            "required_trains": 447,
+            "energy_kwh_per_day": 5112889
+          },
+          "B": {
+            "congestion": 84.0,
+            "service": 6.4,
+            "cost": 100.0,
+            "robustness": 82.4,
+            "total": 63.8,
+            "required_trains": 374,
+            "energy_kwh_per_day": 4352824
+          },
+          "C": {
+            "congestion": 70.2,
+            "service": 93.1,
+            "cost": 79.4,
+            "robustness": 40.4,
+            "total": 75.9,
+            "required_trains": 455,
+            "energy_kwh_per_day": 5205958
+          }
+        },
+        "reason": "推荐 C（总分 75.9）；护栏拦截-已修正；敏感性已完成（3 个方案）",
+        "seq": 24,
+        "ts": "2026-09-22T17:07:58+08:00",
+        "t_ms": 23
+      },
+      {
+        "kind": "critic",
+        "actor": "critic",
+        "verdict": "retry",
+        "scores": {
+          "round": 3,
+          "new_plans": [
+            "D"
+          ],
+          "reasons": [
+            "最优方案 C 的参数触发护栏拦截（C 是经修正后才跑通的，不能作为直接推荐）"
+          ],
+          "best": "C",
+          "best_total": 75.9,
+          "best_congestion": 70.2
+        },
+        "reason": "最优方案 C 的参数触发护栏拦截（C 是经修正后才跑通的，不能作为直接推荐）；生成强化档方案 D 重入仿真",
+        "seq": 25,
+        "ts": "2026-09-22T17:07:58+08:00",
+        "t_ms": 23
+      },
+      {
+        "kind": "critic",
+        "actor": "critic",
+        "verdict": "continue",
+        "scores": {
+          "A": {
+            "congestion": 50.6,
+            "service": 99.6,
+            "cost": 81.5,
+            "robustness": 13.0,
+            "total": 67.7,
+            "required_trains": 447,
+            "energy_kwh_per_day": 5112889
+          },
+          "B": {
+            "congestion": 84.0,
+            "service": 6.4,
+            "cost": 100.0,
+            "robustness": 82.4,
+            "total": 63.8,
+            "required_trains": 374,
+            "energy_kwh_per_day": 4352824
+          },
+          "C": {
+            "congestion": 70.2,
+            "service": 93.1,
+            "cost": 79.4,
+            "robustness": 40.4,
+            "total": 75.9,
+            "required_trains": 455,
+            "energy_kwh_per_day": 5205958
+          },
+          "D": {
+            "congestion": 87.1,
+            "service": 100.0,
+            "cost": 53.8,
+            "robustness": 60.0,
+            "total": 81.6,
+            "required_trains": 556,
+            "energy_kwh_per_day": 6252985
+          }
+        },
+        "reason": "尚有 1 个方案未做敏感性扫描（D），本轮继续补齐",
+        "seq": 29,
+        "ts": "2026-09-22T17:07:58+08:00",
+        "t_ms": 26
+      },
+      {
+        "kind": "critic",
+        "actor": "critic",
+        "verdict": "evaluate",
+        "scores": {
+          "A": {
+            "congestion": 50.6,
+            "service": 99.6,
+            "cost": 81.5,
+            "robustness": 13.0,
+            "total": 67.7,
+            "required_trains": 447,
+            "energy_kwh_per_day": 5112889
+          },
+          "B": {
+            "congestion": 84.0,
+            "service": 6.4,
+            "cost": 100.0,
+            "robustness": 82.4,
+            "total": 63.8,
+            "required_trains": 374,
+            "energy_kwh_per_day": 4352824
+          },
+          "C": {
+            "congestion": 70.2,
+            "service": 93.1,
+            "cost": 79.4,
+            "robustness": 40.4,
+            "total": 75.9,
+            "required_trains": 455,
+            "energy_kwh_per_day": 5205958
+          },
+          "D": {
+            "congestion": 87.1,
+            "service": 100.0,
+            "cost": 53.8,
+            "robustness": 80.0,
+            "total": 83.6,
+            "required_trains": 556,
+            "energy_kwh_per_day": 6252985
+          }
+        },
+        "reason": "推荐 D（总分 83.6）；护栏通过；敏感性已完成（4 个方案）",
+        "seq": 33,
+        "ts": "2026-09-22T17:07:58+08:00",
+        "t_ms": 27
+      },
+      {
+        "kind": "critic",
+        "actor": "critic",
+        "verdict": "evaluate",
+        "scores": {
+          "A": {
+            "congestion": 50.6,
+            "service": 99.6,
+            "cost": 81.5,
+            "robustness": 13.0,
+            "total": 67.7,
+            "required_trains": 447,
+            "energy_kwh_per_day": 5112889
+          },
+          "B": {
+            "congestion": 84.0,
+            "service": 6.4,
+            "cost": 100.0,
+            "robustness": 82.4,
+            "total": 63.8,
+            "required_trains": 374,
+            "energy_kwh_per_day": 4352824
+          },
+          "C": {
+            "congestion": 70.2,
+            "service": 93.1,
+            "cost": 79.4,
+            "robustness": 40.4,
+            "total": 75.9,
+            "required_trains": 455,
+            "energy_kwh_per_day": 5205958
+          },
+          "D": {
+            "congestion": 87.1,
+            "service": 100.0,
+            "cost": 53.8,
+            "robustness": 80.0,
+            "total": 83.6,
+            "required_trains": 556,
+            "energy_kwh_per_day": 6252985
+          }
+        },
+        "reason": "推荐 D（总分 83.6）；护栏通过；敏感性已完成（4 个方案）",
+        "seq": 36,
+        "ts": "2026-09-22T17:07:58+08:00",
+        "t_ms": 28
+      }
+    ]
+  },
+  "narration": "1）问题定位：基准（未治理）状态下全网最紧约束为 庐山站（饱和度 1.196，瓶颈环节：站台容量）；全网站台最大饱和度 1.196，最大积压 211 人，平均延误 13.78 分钟。\n2）方案生成：按「供给端加密 / 需求端限流 / 增购扩容」三类范式生成候选参数，全部先经 9 条确定性护栏校验再仿真 —— 越界参数不允许直接下发，由护栏给出修正路径后执行，trace 中同时保留请求值与修正值。\n3）方案取舍：推荐方案 D「强化档：增购车辆 + 8min 高密度运营」，执行参数为发车间隔 8.0 min、编组 8 辆、限流 1 级。治理后站台最大饱和度 0.797，平均延误 4.0 分钟，断面未承运 0 人/小时，限流站外滞留 0 人/小时。\n4）目标权衡：限流能压住站台集聚，但会把压力转为「站外滞留」；加密能同时改善拥堵与延误，但直接消耗配车并推高牵引能耗。多目标打分（拥堵缓解 0.4 / 服务水平 0.3 / 资源代价 0.2 / 稳健性 0.1）正是把这一取舍显式化，而不是靠专家直觉拍板。\n5）数据可信度（主动披露局限）：全网 34 个站点中 0 个直接采用公开统计口径，其余 34 个为**仿真推演值**，推演过程锚定 7 条公开统计数据（昌九城际上座率、大觉山悬崖动车单日最高、庐山景区年客流、庐山西海年客流），逐站推演依据见 `data/flow_*.json` 的 anchor 字段。本报告不主张这些站点的数值等同于实测，34 个站点均标注了推演依据以便复核。"
+}

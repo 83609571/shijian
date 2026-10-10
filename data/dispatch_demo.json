@@ -1,0 +1,200 @@
+{
+  "description": "赣鄱智轨规则驱动调度智能体——4个演示场景输出",
+  "agents": [
+    "通勤调度智能体",
+    "旅游调度智能体",
+    "应急联动智能体"
+  ],
+  "scenarios": [
+    {
+      "scenario": {
+        "time_label": "workday_peak",
+        "scenic_flow": "mid",
+        "alert": "none"
+      },
+      "commuter_agent": {
+        "name": "通勤调度智能体",
+        "headway_min": 8,
+        "formation": "8辆大编组（高峰满负荷）",
+        "reason": "工作日早高峰昌九走廊通勤客流集中，参考昌九城际核定运能496863人次/年、上座率36.3%，公交化后唤醒富余运力。"
+      },
+      "tourism_agent": {
+        "name": "旅游调度智能体",
+        "headway_min": 12,
+        "formation": "6辆中等编组",
+        "reason": "景区预约客流mid；旅游客流中等，维持标准服务。"
+      },
+      "emergency_agent": {
+        "name": "应急联动智能体",
+        "status": "正常运行",
+        "strategy": "无告警，三层智能体按既定计划运行。",
+        "reroute": null,
+        "reason": "—"
+      },
+      "real_anchors": [
+        {
+          "name": "昌九城际上座率",
+          "value": "36.3%",
+          "detail": "核定运能496863人次/年,实际180217人次/年",
+          "real": true
+        },
+        {
+          "name": "大觉山悬崖动车",
+          "value": "13.14km/单列56人/日最高2.5万人次",
+          "real": true
+        }
+      ],
+      "source_note": "规则驱动演示原型；reason 字段引用项目真实数据/案例（昌九36.3%上座率、大觉山单轨、广东铁投平台）。",
+      "scenario_key": "scenario_1_weekday_peak",
+      "scenario_label": "工作日早高峰通勤"
+    },
+    {
+      "scenario": {
+        "time_label": "weekend_holiday",
+        "scenic_flow": "high",
+        "alert": "none"
+      },
+      "commuter_agent": {
+        "name": "通勤调度智能体",
+        "headway_min": 12,
+        "formation": "6辆中等编组",
+        "reason": "周末节假日通勤需求下降但仍有出行；景区预约高，通勤层适度让出运力。"
+      },
+      "tourism_agent": {
+        "name": "旅游调度智能体",
+        "headway_min": 4,
+        "formation": "8辆最大编组+加密班次",
+        "reason": "景区预约客流high；节假日旅游环线客流飙升，参考大觉山单轨日最高2.5万人次，加密发车。"
+      },
+      "emergency_agent": {
+        "name": "应急联动智能体",
+        "status": "正常运行",
+        "strategy": "无告警，三层智能体按既定计划运行。",
+        "reroute": null,
+        "reason": "—"
+      },
+      "real_anchors": [
+        {
+          "name": "昌九城际上座率",
+          "value": "36.3%",
+          "detail": "核定运能496863人次/年,实际180217人次/年",
+          "real": true
+        },
+        {
+          "name": "大觉山悬崖动车",
+          "value": "13.14km/单列56人/日最高2.5万人次",
+          "real": true
+        }
+      ],
+      "source_note": "规则驱动演示原型；reason 字段引用项目真实数据/案例（昌九36.3%上座率、大觉山单轨、广东铁投平台）。",
+      "scenario_key": "scenario_2_weekend_tourism",
+      "scenario_label": "周末节假日旅游"
+    },
+    {
+      "scenario": {
+        "time_label": "workday_off",
+        "scenic_flow": "low",
+        "alert": "none"
+      },
+      "commuter_agent": {
+        "name": "通勤调度智能体",
+        "headway_min": 15,
+        "formation": "4辆标准编组",
+        "reason": "工作日平峰客流回落，缩短编组控成本，保留发车密度。"
+      },
+      "tourism_agent": {
+        "name": "旅游调度智能体",
+        "headway_min": 20,
+        "formation": "4辆小编组",
+        "reason": "景区预约客流low；客流稀疏，拉长间隔降本。"
+      },
+      "emergency_agent": {
+        "name": "应急联动智能体",
+        "status": "正常运行",
+        "strategy": "无告警，三层智能体按既定计划运行。",
+        "reroute": null,
+        "reason": "—"
+      },
+      "real_anchors": [
+        {
+          "name": "昌九城际上座率",
+          "value": "36.3%",
+          "detail": "核定运能496863人次/年,实际180217人次/年",
+          "real": true
+        },
+        {
+          "name": "大觉山悬崖动车",
+          "value": "13.14km/单列56人/日最高2.5万人次",
+          "real": true
+        }
+      ],
+      "source_note": "规则驱动演示原型；reason 字段引用项目真实数据/案例（昌九36.3%上座率、大觉山单轨、广东铁投平台）。",
+      "scenario_key": "scenario_3_offpeak",
+      "scenario_label": "工作日平峰"
+    },
+    {
+      "scenario": {
+        "time_label": "weekend_holiday",
+        "scenic_flow": "high",
+        "alert": "slope_risk"
+      },
+      "commuter_agent": {
+        "name": "通勤调度智能体",
+        "headway_min": 12,
+        "formation": "6辆中等编组",
+        "reason": "周末节假日通勤需求下降但仍有出行；景区预约高，通勤层适度让出运力。"
+      },
+      "tourism_agent": {
+        "name": "旅游调度智能体",
+        "headway_min": 4,
+        "formation": "8辆最大编组+加密班次",
+        "reason": "景区预约客流high；节假日旅游环线客流飙升，参考大觉山单轨日最高2.5万人次，加密发车。"
+      },
+      "emergency_agent": {
+        "name": "应急联动智能体",
+        "status": "边坡风险告警",
+        "strategy": "①风险区段限速通过；②启动跨座式单轨旅游环线绕行；③通勤层加开疏运列车接驳滞留旅客；④推送预警信息至调度中心。",
+        "reroute": {
+          "affected_line": "赣东北旅游环线",
+          "affected_section": "三清山站→龙虎山站",
+          "detour_stops": [
+            "三清山站",
+            "上饶站",
+            "龙虎山站"
+          ],
+          "detour": [
+            [
+              118.06,
+              28.91
+            ],
+            [
+              117.97,
+              28.45
+            ],
+            [
+              116.96,
+              28.1
+            ]
+          ]
+        },
+        "reason": "三清山—龙虎山区段突发边坡预警，参考广东铁投平台按预警等级精准推送防控指令的做法，自动生成绕行经上饶换乘的虚线改线方案。"
+      },
+      "real_anchors": [
+        {
+          "name": "昌九城际上座率",
+          "value": "36.3%",
+          "detail": "核定运能496863人次/年,实际180217人次/年",
+          "real": true
+        },
+        {
+          "name": "大觉山悬崖动车",
+          "value": "13.14km/单列56人/日最高2.5万人次",
+          "real": true
+        }
+      ],
+      "source_note": "规则驱动演示原型；reason 字段引用项目真实数据/案例（昌九36.3%上座率、大觉山单轨、广东铁投平台）。",
+      "scenario_key": "scenario_4_emergency",
+      "scenario_label": "节假日旅游+边坡应急"
+    }
+  ]
+}
