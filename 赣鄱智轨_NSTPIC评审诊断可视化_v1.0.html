@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>赣鄱智轨 · NSTPIC 评审诊断与晋级冲奖规划</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+  :root{
+    --bg:#0f172a; --panel:#16213a; --panel2:#1e2a45; --line:#2a3a5c;
+    --txt:#e2e8f0; --sub:#94a3b8; --accent:#38bdf8; --green:#34d399; --amber:#fbbf24; --red:#f87171;
+    --orange:#fb923c; --slate:#64748b;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;line-height:1.6;}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 24px 60px;}
+  header.hero{border-left:5px solid var(--accent);padding:6px 0 6px 20px;margin-bottom:26px;}
+  header.hero h1{font-size:26px;font-weight:700;letter-spacing:.5px;}
+  header.hero .sub{color:var(--sub);font-size:13px;margin-top:6px;}
+  .badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}
+  .badge{font-size:12px;padding:5px 12px;border-radius:20px;background:var(--panel2);border:1px solid var(--line);color:var(--sub);}
+  .badge b{color:var(--txt);font-weight:600;}
+  .grid{display:grid;gap:18px;}
+  .g2{grid-template-columns:1fr 1fr;}
+  .g3{grid-template-columns:1.2fr 1fr 1fr;}
+  @media(max-width:900px){.g2,.g3{grid-template-columns:1fr;}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px 20px;}
+  .card h2{font-size:16px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+  .card h2 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;}
+  .chartbox{width:100%;}
+  .chartbox.h420{height:360px;}
+  .chartbox.h300{height:300px;}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+  @media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr);}}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;}
+  .kpi .label{font-size:12px;color:var(--sub);}
+  .kpi .val{font-size:26px;font-weight:800;margin-top:4px;}
+  .kpi .note{font-size:11px;color:var(--sub);margin-top:6px;}
+  .kpi .val.g{color:var(--green);}.kpi .val.a{color:var(--amber);}.kpi .val.r{color:var(--red);}.kpi .val.b{color:var(--accent);}
+  .timeline{margin-top:8px;}
+  .tl-item{display:flex;gap:16px;padding:12px 0;border-bottom:1px dashed var(--line);}
+  .tl-item:last-child{border-bottom:none;}
+  .tl-tag{flex:0 0 150px;font-weight:700;font-size:14px;color:var(--accent);}
+  .tl-tag small{display:block;color:var(--sub);font-weight:400;font-size:11px;}
+  .tl-body{flex:1;}
+  .tl-body .t{font-weight:600;font-size:14px;}
+  .tl-body .d{font-size:12.5px;color:var(--sub);margin-top:2px;}
+  .ph{margin:26px 0 10px;font-size:18px;font-weight:800;border-left:4px solid var(--green);padding-left:12px;}
+  .ph.p2{border-color:var(--accent);}
+  .table{width:100%;border-collapse:collapse;font-size:13px;}
+  .table th{background:var(--panel2);color:var(--sub);font-weight:600;text-align:left;padding:9px 12px;font-size:12px;}
+  .table td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;}
+  .tag{display:inline-block;padding:2px 9px;border-radius:6px;font-size:11px;font-weight:600;}
+  .tag.done{background:rgba(52,211,153,.15);color:var(--green);}
+  .tag.half{background:rgba(251,191,36,.15);color:var(--amber);}
+  .tag.blank{background:rgba(248,113,113,.15);color:var(--red);}
+  .star{color:var(--amber);letter-spacing:1px;}
+  .foot{margin-top:30px;font-size:11.5px;color:var(--slate);border-top:1px solid var(--line);padding-top:14px;}
+  .verdict{background:linear-gradient(135deg,#0e7490,#155e75);border:none;color:#f0fdff;}
+  .verdict .big{font-size:16px;font-weight:700;line-height:1.7;}
+  .verdict .big em{color:#bae6fd;font-style:normal;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1>赣鄱智轨 · 仿真主题 — NSTPIC 评审诊断与晋级冲奖规划</h1>
+    <div class="sub">对标：第一届大学生交通运输实践创新大赛（官网 www.nstpic.net）· 评审视角：轨道交通专业专家 · 2026-10-11</div>
+    <div class="badges">
+      <span class="badge">当前日期 <b>2026-10-11</b></span>
+      <span class="badge">报送电子说明文档 <b style="color:#f87171;">10-15 前（仅4天）</b></span>
+      <span class="badge">公布决赛名单 <b>11 上旬</b></span>
+      <span class="badge">决赛答辩 <b>11-20/21</b></span>
+      <span class="badge">四维评审 <b>创新性·实用性·完整性·展示表现</b></span>
+    </div>
+  </header>
+
+  <div class="kpis">
+    <div class="kpi"><div class="label">技术成熟度</div><div class="val b">★★★★★</div><div class="note">智能体链路 37步/23工具/0失败，Critic 自动推荐方案D(83.6分)</div></div>
+    <div class="kpi"><div class="label">四维自评总分</div><div class="val a">68 / 100</div><div class="note">创新85·实用55·完整75·展示78</div></div>
+    <div class="kpi"><div class="label">距晋级线</div><div class="val g">≈ 已达标</div><div class="note">晋级线约72，技术硬实力第一梯队</div></div>
+    <div class="kpi"><div class="label">距国奖线</div><div class="val r">−20 分</div><div class="note">缺口90%集中：实用性(−30)+申报材料(−15)</div></div>
+  </div>
+
+  <div class="grid g3">
+    <div class="card"><h2><span class="dot" style="background:var(--accent)"></span>四维评审差距雷达</h2>
+      <div class="chartbox h420" id="radar"></div></div>
+    <div class="card"><h2><span class="dot" style="background:var(--amber)"></span>模块状态（已完成/半成品/空白）</h2>
+      <div class="chartbox h420" id="module"></div></div>
+    <div class="card"><h2><span class="dot" style="background:var(--green)"></span>六层架构完成度</h2>
+      <div class="chartbox h420" id="layers"></div></div>
+  </div>
+
+  <div class="ph">项目全目录分层诊断</div>
+  <div class="grid g2">
+    <div class="card">
+      <h2><span class="dot" style="background:var(--green)"></span>已完成（硬核技术本体）</h2>
+      <table class="table">
+        <tr><th>层/资产</th><th>内容</th><th>状态</th></tr>
+        <tr><td>L0 演示层</td><td>BMapGL+ECharts 前端六模块，线路精简版 28/28 实测通过</td><td><span class="tag done">★★★★★</span></td></tr>
+        <tr><td>L3 智能体层</td><td>Planner-Executor-Critic 闭环 + 9 护栏 + 9 工具 + 四档 LLM</td><td><span class="tag done">★★★★★</span></td></tr>
+        <tr><td>L4 决策层</td><td>基准 vs A/B/C/D + 敏感性 + 多目标打分(0.4/0.3/0.2/0.1)</td><td><span class="tag done">★★★★</span></td></tr>
+        <tr><td>L5 交付层</td><td>治理报告 + trace 证据链 + 决策文档自动落盘</td><td><span class="tag done">★★★★</span></td></tr>
+        <tr><td>软资产</td><td>答辩问答库10问 · 整改工单25条 · 演示脚本A/B · 接入评估</td><td><span class="tag done">★★★★</span></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2><span class="dot" style="background:var(--red)"></span>半成品与空白（决定奖项）</h2>
+      <table class="table">
+        <tr><th>项</th><th>现状</th><th>状态</th></tr>
+        <tr><td>L1 数据真实性</td><td>34 站 0 个真实口径，全为仿真推演（已披露）</td><td><span class="tag half">★★</span></td></tr>
+        <tr><td>L2 专业仿真引擎</td><td>TranStar 未接入；自研三层饱和度假真生效</td><td><span class="tag half">★★</span></td></tr>
+        <tr><td>LLM 真机接入</td><td>DS4.1/GLM 仅"评估"，未实测产出对比证据</td><td><span class="tag half">★★</span></td></tr>
+        <tr><td>申报书/说明书/论文</td><td>整改工单规划中，未产出</td><td><span class="tag blank">空白</span></td></tr>
+        <tr><td>演示视频</td><td>W-24 规划，未产出</td><td><span class="tag blank">空白</span></td></tr>
+        <tr><td>落地意向函/运营实证</td><td>W-16 规划，未落地；无企业背书</td><td><span class="tag blank">空白</span></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="ph">国奖项目共性对照</div>
+  <div class="card">
+    <table class="table">
+      <tr><th>国奖共性（历届一等奖提炼）</th><th>本项目对标</th><th>判定</th></tr>
+      <tr><td>锚定真实工程痛点、小切口深做实</td><td>切口"南昌站节假日枢纽拥堵"聚焦，但叙事扩成全省 12 走廊</td><td><span class="tag half">需收拢</span></td></tr>
+      <tr><td>可命名的算法/技术突破点</td><td>智能体闭环+护栏为工程机制，缺"XX 算法"式技术名片</td><td><span class="tag half">需提炼</span></td></tr>
+      <tr><td>完整"感知-规划-执行"可演示闭环</td><td>强：Planner→Executor→Critic→报告全链路现场可跑</td><td><span class="tag done">✅ 优势</span></td></tr>
+      <tr><td>真实数据实证 + 对照/消融实验</td><td>数据全仿真；敏感性有、缺对照消融</td><td><span class="tag blank">⚠️ 硬缺口</span></td></tr>
+      <tr><td>落地场景与产业/运营验证</td><td>无运营实证、无企业意向、TranStar 未接</td><td><span class="tag blank">⚠️ 硬缺口</span></td></tr>
+      <tr><td>答辩"一句话讲清价值"</td><td>问答库完备，缺浓缩式卖点叙事</td><td><span class="tag half">需打磨</span></td></tr>
+    </table>
+  </div>
+
+  <div class="ph p2">分层落地优化方案</div>
+  <div class="card verdict">
+    <div class="big">唯一推荐：<em>4 天内（10/11–10/15）死磕 S-01~S-09，把已完成的硬技术包装成能过初筛的申报件、先保晋级入场券；11 月决赛前 + 下一届，以「南昌站枢纽拥堵治理智能体」小切口为主线，按六大方向把真实数据实证、落地验证、可命名算法、双评委话术补齐，用「实用性 + 实证」冲国奖。</em></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h2><span class="dot" style="background:var(--green)"></span>短期晋级整改（10/15 前）</h2>
+      <table class="table">
+        <tr><th>#</th><th>动作</th><th>方向</th><th>成本</th></tr>
+        <tr><td>S-01</td><td>24h 内发首发性确认邮件</td><td>合规</td><td>0.5h</td></tr>
+        <tr><td>S-02</td><td>突击《作品申报书》≤6页，单点叙事</td><td>申报</td><td>1d</td></tr>
+        <tr><td>S-03</td><td>突击《作品说明书》含图</td><td>申报</td><td>1d</td></tr>
+        <tr><td>S-04</td><td>录操作/演示视频 3-5 分钟</td><td>展示</td><td>0.5d</td></tr>
+        <tr><td>S-05</td><td>数据合规自查 + real 口径统一</td><td>完整</td><td>0.5d</td></tr>
+        <tr><td>S-06</td><td>经济测算终版复核</td><td>完整</td><td>2h</td></tr>
+        <tr><td>S-07</td><td>复现清单 + 运行说明</td><td>完整</td><td>0.5d</td></tr>
+        <tr><td>S-08</td><td>前端双入口最终演示检查</td><td>展示</td><td>0.5d</td></tr>
+        <tr><td>S-09</td><td>提交包逐项自检</td><td>合规</td><td>0.5h</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2><span class="dot" style="background:var(--accent)"></span>中长期国奖升级（六大方向）</h2>
+      <table class="table">
+        <tr><th>方向</th><th>核心动作</th><th>对应维度</th></tr>
+        <tr><td>技术创新</td><td>护栏机制算法化命名 + 补对照/消融实验 + LLM 真机对比</td><td>创新性</td></tr>
+        <tr><td>成果佐证</td><td>数据锚点 7→20 条 + 敏感性置信区间 + 运营方意见函</td><td>实用/完整</td></tr>
+        <tr><td>申报材料</td><td>研究报告 + 申报书 + 说明书 + 提交包结构化</td><td>完整性</td></tr>
+        <tr><td>逻辑重构</td><td>"南昌站枢纽治理"单点主线 + 问题-方法-验证闭环</td><td>展示表现</td></tr>
+        <tr><td>应用价值</td><td>枢纽/景区/旺季三落地方向 + 对接物博会产业基因</td><td>实用性</td></tr>
+        <tr><td>答辩打磨</td><td>一句话卖点 + 双评委话术 + 产业四问 + 双套演示</td><td>展示表现</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="ph">执行路线图（P0–P4）</div>
+  <div class="card">
+    <div class="timeline">
+      <div class="tl-item"><div class="tl-tag">P0 冲刺<small>10/11–10/15</small></div><div class="tl-body"><div class="t">电子说明文档提交成功</div><div class="d">S-01~S-09：首发性邮件→申报书→说明书→视频→合规自检。保住晋级入场券。</div></div></div>
+      <div class="tl-item"><div class="tl-tag">P1 初评后<small>10 月下旬</small></div><div class="tl-body"><div class="t">材料深化</div><div class="d">补研究报告、复现清单、数据锚点扩容（7→15+）。</div></div></div>
+      <div class="tl-item"><div class="tl-tag">P2 决赛前<small>11 上旬–11/19</small></div><div class="tl-body"><div class="t">答辩材料就绪</div><div class="d">一句话卖点、双评委话术、双套演示、问答库扩容、消融实验。</div></div></div>
+      <div class="tl-item"><div class="tl-tag">P3 决赛<small>11/20–21</small></div><div class="tl-body"><div class="t">现场展示+答辩冲奖</div><div class="d">公开展示不翻车 + 产业对接话术，背靠物博会。</div></div></div>
+      <div class="tl-item"><div class="tl-tag">P4 下一届<small>本届后–下届</small></div><div class="tl-body"><div class="t">国奖级项目成型</div><div class="d">消融实验、真实数据、TranStar、运营实证、算法命名、可命名的技术名片。</div></div></div>
+    </div>
+  </div>
+
+  <div class="foot">本报告基于官网 www.nstpic.net 公示赛制与历届国奖项目共性特征构建；技术现状来自对项目工作目录实际探查与离线运行验证。四维自评分为专家诊断口径，非官方评分。</div>
+</div>
+
+<script>
+  var accent='#38bdf8', green='#34d399', amber='#fbbf24', red='#f87171', sub='#94a3b8', line='#2a3a5c';
+
+  // 雷达：四维现状 vs 晋级 vs 国奖
+  var radar = echarts.init(document.getElementById('radar'));
+  radar.setOption({
+    tooltip:{trigger:'item',renderMode:'richText',confine:true},
+    legend:{top:6,textStyle:{color:sub,fontSize:11},data:['现状自评','晋级线','国奖线']},
+    radar:{
+      indicator:[
+        {name:'创新性',max:100},{name:'实用性',max:100},
+        {name:'完整性',max:100},{name:'展示表现',max:100}
+      ],
+      center:['50%','54%'],radius:'62%',
+      axisName:{color:sub,fontSize:11},
+      splitArea:{areaStyle:{color:['rgba(42,58,92,.15)','rgba(42,58,92,.05)']}},
+      splitLine:{lineStyle:{color:line}},
+      axisLine:{lineStyle:{color:line}}
+    },
+    series:[{type:'radar',data:[
+      {value:[85,55,75,78],name:'现状自评',areaStyle:{opacity:.35},lineStyle:{width:2,color:accent},itemStyle:{color:accent}},
+      {value:[75,70,78,80],name:'晋级线',lineStyle:{width:2,color:amber,type:'dashed'},itemStyle:{color:amber}},
+      {value:[92,88,90,90],name:'国奖线',lineStyle:{width:2,color:green,type:'dashed'},itemStyle:{color:green}}
+    ]}]
+  });
+
+  // 模块状态横向条形：已完成/半成品/空白
+  var mod = echarts.init(document.getElementById('module'));
+  mod.setOption({
+    grid:{left:120,right:30,top:20,bottom:30,containLabel:true},
+    tooltip:{trigger:'axis',triggerOn:'click',renderMode:'richText',confine:true},
+    xAxis:{type:'value',max:5,axisLabel:{color:sub,fontSize:10},splitLine:{lineStyle:{color:line}}},
+    yAxis:{type:'category',data:['演示视频','意向函/实证','申报书/论文','LLM真机','专业引擎','数据真实性','trace证据','交付层','决策层','智能体','前端','护栏'],axisLabel:{color:'#cbd5e1',fontSize:11}},
+    series:[{
+      type:'bar',data:[
+        {value:0,itemStyle:{color:red}},{value:1,itemStyle:{color:red}},
+        {value:2,itemStyle:{color:red}},{value:2,itemStyle:{color:amber}},
+        {value:2,itemStyle:{color:amber}},{value:2,itemStyle:{color:amber}},
+        {value:4,itemStyle:{color:green}},{value:4,itemStyle:{color:green}},
+        {value:4,itemStyle:{color:green}},{value:5,itemStyle:{color:green}},
+        {value:5,itemStyle:{color:green}},{value:5,itemStyle:{color:green}}
+      ],
+      label:{show:true,position:'right',color:'#e2e8f0',fontSize:10,
+        formatter:function(p){var v=p.value;return v===0?'空白':v<=2?('半成品 '+v+'★'):('已完成 '+v+'★');}}
+    }],
+    graphic:[{type:'text',left:8,top:8,style:{text:'绿=已完成 · 黄=半成品 · 红=空白',fill:sub,fontSize:11}}]
+  });
+
+  // 六层架构完成度
+  var lay = echarts.init(document.getElementById('layers'));
+  lay.setOption({
+    tooltip:{trigger:'axis',triggerOn:'click',renderMode:'richText',confine:true},
+    legend:{top:6,textStyle:{color:sub,fontSize:11},data:['完成度']},
+    grid:{left:45,right:20,top:40,bottom:40,containLabel:true},
+    xAxis:{type:'category',data:['L0 演示','L1 数据','L2 仿真','L3 智能体','L4 决策','L5 交付'],axisLabel:{color:'#cbd5e1',fontSize:11},axisLine:{lineStyle:{color:line}}},
+    yAxis:{type:'value',max:5,axisLabel:{color:sub,fontSize:10},splitLine:{lineStyle:{color:line}}},
+    series:[{type:'bar',data:[
+      {value:5,name:'完成度',itemStyle:{color:green}},
+      {value:3,itemStyle:{color:amber}},
+      {value:3,itemStyle:{color:amber}},
+      {value:5,itemStyle:{color:green}},
+      {value:4,itemStyle:{color:green}},
+      {value:4,itemStyle:{color:green}}
+    ],label:{show:true,position:'top',color:'#e2e8f0',fontSize:11,formatter:'{c}★'},barWidth:'48%'}],
+    graphic:[{type:'text',left:8,top:8,style:{text:'L1 数据与 L2 专业仿真 = 短板所在',fill:amber,fontSize:11}}]
+  });
+
+  window.addEventListener('resize',function(){radar.resize();mod.resize();lay.resize();});
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+# ===== 密钥与本地配置（绝不提交）=====
+js/local-ak.js
+
+# ===== 内部工作文档（参赛/开源包不含）=====
+_规划/
+交接文档*.md
+*评审诊断*.md
+*.zip
+.claude/
+_codebuddy/
+
+# ===== 过程产物（按需保留）=====
+output/trace/
+output/_t/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db

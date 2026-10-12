@@ -1,0 +1,491 @@
+{
+  "scenario": "weekday",
+  "hub": "南昌站",
+  "plan_config": {
+    "scenario": "weekday",
+    "headway_min": 8.0,
+    "formation_cars": 8,
+    "limit_level": 1,
+    "demand_mult": 1.0
+  },
+  "nets": [
+    "4G",
+    "5G",
+    "5G-A"
+  ],
+  "events": [
+    "train_fault",
+    "landslide",
+    "foreign_object",
+    "crowd_surge"
+  ],
+  "matrix": {
+    "train_fault": {
+      "4G": {
+        "r_total_s": 303.3,
+        "r_total_min": 5.055,
+        "n_rounds": 2,
+        "reliability": 0.98,
+        "impact_window_min": 30.05,
+        "recovery_min": 30.27,
+        "affected_persons": 1112,
+        "delay_per_person_min": 15.24,
+        "passenger_delay_person_min": 16952,
+        "r_breakdown": {
+          "sense_s": 120.0,
+          "comm_s": 0.15,
+          "compute_s": 1.5,
+          "execute_s": 60.0
+        }
+      },
+      "5G": {
+        "r_total_s": 81.225,
+        "r_total_min": 1.354,
+        "n_rounds": 1,
+        "reliability": 0.999,
+        "impact_window_min": 26.35,
+        "recovery_min": 26.54,
+        "affected_persons": 975,
+        "delay_per_person_min": 13.37,
+        "passenger_delay_person_min": 13034,
+        "r_breakdown": {
+          "sense_s": 20.0,
+          "comm_s": 0.025,
+          "compute_s": 1.2,
+          "execute_s": 60.0
+        }
+      },
+      "5G-A": {
+        "r_total_s": 62.105,
+        "r_total_min": 1.035,
+        "n_rounds": 1,
+        "reliability": 0.99999,
+        "impact_window_min": 26.04,
+        "recovery_min": 26.22,
+        "affected_persons": 963,
+        "delay_per_person_min": 13.21,
+        "passenger_delay_person_min": 12721,
+        "r_breakdown": {
+          "sense_s": 2.0,
+          "comm_s": 0.005,
+          "compute_s": 0.1,
+          "execute_s": 60.0
+        }
+      }
+    },
+    "landslide": {
+      "4G": {
+        "r_total_s": 303.3,
+        "r_total_min": 5.055,
+        "n_rounds": 2,
+        "reliability": 0.98,
+        "impact_window_min": 50.05,
+        "recovery_min": 50.42,
+        "affected_persons": 1852,
+        "delay_per_person_min": 25.39,
+        "passenger_delay_person_min": 47020,
+        "r_breakdown": {
+          "sense_s": 120.0,
+          "comm_s": 0.15,
+          "compute_s": 1.5,
+          "execute_s": 60.0
+        }
+      },
+      "5G": {
+        "r_total_s": 81.225,
+        "r_total_min": 1.354,
+        "n_rounds": 1,
+        "reliability": 0.999,
+        "impact_window_min": 46.35,
+        "recovery_min": 46.69,
+        "affected_persons": 1715,
+        "delay_per_person_min": 23.51,
+        "passenger_delay_person_min": 40324,
+        "r_breakdown": {
+          "sense_s": 20.0,
+          "comm_s": 0.025,
+          "compute_s": 1.2,
+          "execute_s": 60.0
+        }
+      },
+      "5G-A": {
+        "r_total_s": 62.105,
+        "r_total_min": 1.035,
+        "n_rounds": 1,
+        "reliability": 0.99999,
+        "impact_window_min": 46.04,
+        "recovery_min": 46.37,
+        "affected_persons": 1703,
+        "delay_per_person_min": 23.35,
+        "passenger_delay_person_min": 39771,
+        "r_breakdown": {
+          "sense_s": 2.0,
+          "comm_s": 0.005,
+          "compute_s": 0.1,
+          "execute_s": 60.0
+        }
+      }
+    },
+    "foreign_object": {
+      "4G": {
+        "r_total_s": 303.3,
+        "r_total_min": 5.055,
+        "n_rounds": 2,
+        "reliability": 0.98,
+        "impact_window_min": 20.05,
+        "recovery_min": 20.2,
+        "affected_persons": 742,
+        "delay_per_person_min": 10.17,
+        "passenger_delay_person_min": 7548,
+        "r_breakdown": {
+          "sense_s": 120.0,
+          "comm_s": 0.15,
+          "compute_s": 1.5,
+          "execute_s": 60.0
+        }
+      },
+      "5G": {
+        "r_total_s": 81.225,
+        "r_total_min": 1.354,
+        "n_rounds": 1,
+        "reliability": 0.999,
+        "impact_window_min": 16.35,
+        "recovery_min": 16.47,
+        "affected_persons": 605,
+        "delay_per_person_min": 8.29,
+        "passenger_delay_person_min": 5019,
+        "r_breakdown": {
+          "sense_s": 20.0,
+          "comm_s": 0.025,
+          "compute_s": 1.2,
+          "execute_s": 60.0
+        }
+      },
+      "5G-A": {
+        "r_total_s": 62.105,
+        "r_total_min": 1.035,
+        "n_rounds": 1,
+        "reliability": 0.99999,
+        "impact_window_min": 16.04,
+        "recovery_min": 16.15,
+        "affected_persons": 593,
+        "delay_per_person_min": 8.13,
+        "passenger_delay_person_min": 4825,
+        "r_breakdown": {
+          "sense_s": 2.0,
+          "comm_s": 0.005,
+          "compute_s": 0.1,
+          "execute_s": 60.0
+        }
+      }
+    },
+    "crowd_surge": {
+      "4G": {
+        "r_total_s": 303.3,
+        "r_total_min": 5.055,
+        "n_rounds": 2,
+        "reliability": 0.98,
+        "impact_window_min": 5.06,
+        "recovery_min": 5.07,
+        "affected_persons": 187,
+        "delay_per_person_min": 2.55,
+        "passenger_delay_person_min": 476,
+        "r_breakdown": {
+          "sense_s": 120.0,
+          "comm_s": 0.15,
+          "compute_s": 1.5,
+          "execute_s": 60.0
+        }
+      },
+      "5G": {
+        "r_total_s": 81.225,
+        "r_total_min": 1.354,
+        "n_rounds": 1,
+        "reliability": 0.999,
+        "impact_window_min": 1.35,
+        "recovery_min": 1.36,
+        "affected_persons": 50,
+        "delay_per_person_min": 0.68,
+        "passenger_delay_person_min": 34,
+        "r_breakdown": {
+          "sense_s": 20.0,
+          "comm_s": 0.025,
+          "compute_s": 1.2,
+          "execute_s": 60.0
+        }
+      },
+      "5G-A": {
+        "r_total_s": 62.105,
+        "r_total_min": 1.035,
+        "n_rounds": 1,
+        "reliability": 0.99999,
+        "impact_window_min": 1.04,
+        "recovery_min": 1.04,
+        "affected_persons": 38,
+        "delay_per_person_min": 0.52,
+        "passenger_delay_person_min": 20,
+        "r_breakdown": {
+          "sense_s": 2.0,
+          "comm_s": 0.005,
+          "compute_s": 0.1,
+          "execute_s": 60.0
+        }
+      }
+    }
+  },
+  "gains": {
+    "train_fault": {
+      "net_5G_to_5GA": {
+        "delta_recovery_min": 0.32,
+        "delta_affected": 12,
+        "delta_person_min": 313
+      },
+      "net_4G_to_5GA": {
+        "delta_recovery_min": 4.05,
+        "delta_affected": 149,
+        "delta_person_min": 4231
+      }
+    },
+    "landslide": {
+      "net_5G_to_5GA": {
+        "delta_recovery_min": 0.32,
+        "delta_affected": 12,
+        "delta_person_min": 553
+      },
+      "net_4G_to_5GA": {
+        "delta_recovery_min": 4.05,
+        "delta_affected": 149,
+        "delta_person_min": 7249
+      }
+    },
+    "foreign_object": {
+      "net_5G_to_5GA": {
+        "delta_recovery_min": 0.32,
+        "delta_affected": 12,
+        "delta_person_min": 194
+      },
+      "net_4G_to_5GA": {
+        "delta_recovery_min": 4.05,
+        "delta_affected": 149,
+        "delta_person_min": 2723
+      }
+    },
+    "crowd_surge": {
+      "net_5G_to_5GA": {
+        "delta_recovery_min": 0.32,
+        "delta_affected": 12,
+        "delta_person_min": 14
+      },
+      "net_4G_to_5GA": {
+        "delta_recovery_min": 4.03,
+        "delta_affected": 149,
+        "delta_person_min": 456
+      }
+    }
+  },
+  "capability_matrix": {
+    "4G": {
+      "label": "4G 既有公网（人工巡检上报）",
+      "reliability": 0.98,
+      "compute_at": "中心云",
+      "train_fault": {
+        "chain_s": 121.65,
+        "total_s": 303.3,
+        "total_min": 5.055
+      },
+      "landslide": {
+        "chain_s": 121.65,
+        "total_s": 303.3,
+        "total_min": 5.055
+      },
+      "foreign_object": {
+        "chain_s": 121.65,
+        "total_s": 303.3,
+        "total_min": 5.055
+      },
+      "crowd_surge": {
+        "chain_s": 121.65,
+        "total_s": 303.3,
+        "total_min": 5.055
+      }
+    },
+    "5G": {
+      "label": "5G 沿线覆盖 + 网络切片",
+      "reliability": 0.999,
+      "compute_at": "中心云",
+      "train_fault": {
+        "chain_s": 21.225,
+        "total_s": 81.225,
+        "total_min": 1.354
+      },
+      "landslide": {
+        "chain_s": 21.225,
+        "total_s": 81.225,
+        "total_min": 1.354
+      },
+      "foreign_object": {
+        "chain_s": 21.225,
+        "total_s": 81.225,
+        "total_min": 1.354
+      },
+      "crowd_surge": {
+        "chain_s": 21.225,
+        "total_s": 81.225,
+        "total_min": 1.354
+      }
+    },
+    "5G-A": {
+      "label": "5G-A 确定性承载 + 通感一体 + MEC 边缘智能",
+      "reliability": 0.99999,
+      "compute_at": "沿线MEC边缘",
+      "train_fault": {
+        "chain_s": 2.105,
+        "total_s": 62.105,
+        "total_min": 1.035
+      },
+      "landslide": {
+        "chain_s": 2.105,
+        "total_s": 62.105,
+        "total_min": 1.035
+      },
+      "foreign_object": {
+        "chain_s": 2.105,
+        "total_s": 62.105,
+        "total_min": 1.035
+      },
+      "crowd_surge": {
+        "chain_s": 2.105,
+        "total_s": 62.105,
+        "total_min": 1.035
+      }
+    }
+  },
+  "steady_state": {
+    "demand_ph": 2220,
+    "capacity_ph": 5130,
+    "capacity_surplus_ph": 5130
+  },
+  "event_line": "京九通勤线",
+  "model_params": {
+    "r_formula": "R = (T_sense + T_comm + T_compute) × n_rounds + T_execute",
+    "net_profiles": {
+      "4G": {
+        "sense_s": 120.0,
+        "comm_ms": 150.0,
+        "compute_ms": 1500.0,
+        "jitter_ms": 30.0,
+        "packet_loss": 0.005,
+        "n_rounds": 2,
+        "reliability": 0.98,
+        "label": "4G 既有公网（人工巡检上报）",
+        "compute_at_default": "中心云"
+      },
+      "5G": {
+        "sense_s": 20.0,
+        "comm_ms": 25.0,
+        "compute_ms": 1200.0,
+        "jitter_ms": 5.0,
+        "packet_loss": 0.001,
+        "n_rounds": 1,
+        "reliability": 0.999,
+        "label": "5G 沿线覆盖 + 网络切片",
+        "compute_at_default": "中心云"
+      },
+      "5G-A": {
+        "sense_s": 2.0,
+        "comm_ms": 5.0,
+        "compute_ms": 100.0,
+        "jitter_ms": 0.5,
+        "packet_loss": 1e-05,
+        "n_rounds": 1,
+        "reliability": 0.99999,
+        "label": "5G-A 确定性承载 + 通感一体 + MEC 边缘智能",
+        "compute_at_default": "沿线MEC边缘"
+      }
+    },
+    "slices": {
+      "tourism": {
+        "label": "旅游切片",
+        "priority": 1,
+        "preempt": false,
+        "comm_factor": 1.2
+      },
+      "commuter": {
+        "label": "通勤切片",
+        "priority": 2,
+        "preempt": false,
+        "comm_factor": 1.0
+      },
+      "emergency": {
+        "label": "应急专用切片",
+        "priority": 3,
+        "preempt": true,
+        "comm_factor": 0.8
+      }
+    },
+    "mec_nodes": {
+      "center": {
+        "name": "中心云（跨区域）",
+        "compute_ms": 1200.0
+      },
+      "nanchang": {
+        "name": "南昌 MEC",
+        "compute_ms": 100.0
+      },
+      "jiujiang": {
+        "name": "九江 MEC",
+        "compute_ms": 110.0
+      },
+      "shangrao": {
+        "name": "上饶 MEC",
+        "compute_ms": 110.0
+      }
+    },
+    "incidents": {
+      "train_fault": {
+        "name": "列车故障",
+        "t_execute_s": 60.0,
+        "t_physical_min": 25.0,
+        "severity": 1.0
+      },
+      "landslide": {
+        "name": "暴雨边坡",
+        "t_execute_s": 60.0,
+        "t_physical_min": 45.0,
+        "severity": 1.0
+      },
+      "foreign_object": {
+        "name": "异物侵限",
+        "t_execute_s": 60.0,
+        "t_physical_min": 15.0,
+        "severity": 1.0
+      },
+      "crowd_surge": {
+        "name": "大客流积压",
+        "t_execute_s": 60.0,
+        "t_physical_min": 0.0,
+        "severity": 0.35
+      }
+    },
+    "weak_degradation": {
+      "4G": {
+        "comm_factor": 3.0,
+        "reliability": 0.9
+      },
+      "5G": {
+        "comm_factor": 1.5,
+        "reliability": 0.995
+      },
+      "5G-A": {
+        "comm_factor": 1.3,
+        "reliability": 0.998
+      },
+      "5G-A+ai": {
+        "comm_factor": 1.1,
+        "reliability": 0.9999
+      }
+    }
+  },
+  "r_formula": "R = (T_sense + T_comm + T_compute) × n_rounds + T_execute",
+  "conclusion": "同一治理方案、同一事件下，网络档位从 4G 升到 5G-A 使应急响应链路R 从分钟级压到秒级，旅客延误总量下降约 25%（列车故障口径）——通信能力是仿真的自变量而非展示层名词；物理处置时间（救援/清障）通信无法替代，模型诚实区分了这两部分。"
+}

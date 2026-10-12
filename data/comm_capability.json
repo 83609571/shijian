@@ -1,0 +1,674 @@
+{
+  "schema_version": "1.0",
+  "unit": "R 链路=秒 / 恢复=分钟 / 客流=人",
+  "source_note": "real=True 为公开标准与案例锚点；NET_PROFILES 档位数值为仿真推演，锚定 3GPP TR 38.913 URLLC（0.5ms 空口）、R19 ISAC 立项、5G-A 确定性网络白皮书量级与高铁 5G 公开案例。通信层为能力档案+链路时序模型，不做电磁级仿真。",
+  "comm_anchors": [
+    {
+      "name": "3GPP URLLC 空口时延目标",
+      "value": "上行/下行各 0.5ms",
+      "detail": "3GPP TR 38.913 定义 URLLC 用户面时延目标（UL 0.5ms / DL 0.5ms）；并在 1ms 内以 99.999% 可靠性传输 32 字节分组",
+      "source": "3GPP TR 38.913（5G 需求研究）",
+      "real": true
+    },
+    {
+      "name": "3GPP R19 通感一体化立项",
+      "value": "ISAC 研究项目(2022 立项)",
+      "detail": "3GPP Rel-19 通过「通感一体化（ISAC）」研究立项，含信道建模研究；基站具备对沿线目标（列车/异物/边坡）的直接感知能力成为标准方向",
+      "source": "3GPP RAN Rel-19 立项公开信息",
+      "real": true
+    },
+    {
+      "name": "铁路移动通信 5G-R 演进",
+      "value": "GSM-R → 5G-R(行业公开规划)",
+      "detail": "国铁推动铁路专用移动通信从 GSM-R 向 5G-R 演进，承载列控/调度等安全业务（引用时建议以最新官方白皮书核实）",
+      "source": "铁路行业公开规划",
+      "real": true
+    },
+    {
+      "name": "5G-A 确定性网络公开白皮书口径",
+      "value": "毫秒级有界时延@99.999%（白皮书口径）",
+      "detail": "5G-A/5.5G 确定性网络以「有界低时延 + 高可靠」为核心公开宣传口径（如 20ms 内@99.999% 级别承诺，毫秒级抖动上界）；本层档位数值以其为量级锚点并留工程余量，引用时建议核实原文",
+      "source": "设备商/运营商 5G-A 白皮书公开宣传口径",
+      "real": true
+    },
+    {
+      "name": "高铁 5G 沿线覆盖公开案例",
+      "value": "350km/h 全线 5G 覆盖(2019 京张)",
+      "detail": "京张高铁实现时速 350 公里下全线 5G 覆盖，为高速铁路 5G 车地通信公开案例；本层「通勤干线 5G 档位」以此类公开案例为量级锚点",
+      "source": "公开报道（运营商/设备商发布）",
+      "real": true
+    }
+  ],
+  "net_profiles": {
+    "4G": {
+      "sense_s": 120.0,
+      "comm_ms": 150.0,
+      "compute_ms": 1500.0,
+      "jitter_ms": 30.0,
+      "packet_loss": 0.005,
+      "n_rounds": 2,
+      "reliability": 0.98,
+      "compute_at": "中心云",
+      "label": "4G 既有公网（人工巡检上报）",
+      "note": "感知靠人工/定时巡检；指令走公网；推理在中心云；下发前需人工二次确认（n_rounds=2）",
+      "basis": "感知 120s=人工发现口径；传输 150ms=公网均值含重传；推演值 real=False"
+    },
+    "5G": {
+      "sense_s": 20.0,
+      "comm_ms": 25.0,
+      "compute_ms": 1200.0,
+      "jitter_ms": 5.0,
+      "packet_loss": 0.001,
+      "n_rounds": 1,
+      "reliability": 0.999,
+      "compute_at": "中心云",
+      "label": "5G 沿线覆盖 + 网络切片",
+      "note": "轨旁传感/视频回传发现异常；网络切片承载调度指令；单轮自动闭环",
+      "basis": "锚定高铁 5G 公开案例量级；传输 25ms 含回传与处理余量；推演值 real=False"
+    },
+    "5G-A": {
+      "sense_s": 2.0,
+      "comm_ms": 5.0,
+      "compute_ms": 100.0,
+      "jitter_ms": 0.5,
+      "packet_loss": 1e-05,
+      "n_rounds": 1,
+      "reliability": 0.99999,
+      "compute_at": "沿线MEC边缘",
+      "label": "5G-A 确定性承载 + 通感一体 + MEC 边缘智能",
+      "note": "ISAC 基站直接感知沿线目标（秒级发现）；确定性承载下发指令（毫秒级、99.999%）；智能体推理下沉到沿线 MEC 边缘节点",
+      "basis": "感知/传输锚定 3GPP URLLC 0.5ms 空口、R19 ISAC 立项与 5G-A 确定性网络白皮书量级并留工程余量；计算 100ms=MEC 就近推理；推演值 real=False"
+    }
+  },
+  "slice_profiles": {
+    "tourism": {
+      "priority": 1,
+      "label": "旅游切片",
+      "preempt": false,
+      "comm_factor": 1.2,
+      "note": "尽力而为 + 基础保障，可被高优先级切片挤占资源"
+    },
+    "commuter": {
+      "priority": 2,
+      "label": "通勤切片",
+      "preempt": false,
+      "comm_factor": 1.0,
+      "note": "保障通勤调度指令，中等优先级"
+    },
+    "emergency": {
+      "priority": 3,
+      "label": "应急专用切片",
+      "preempt": true,
+      "comm_factor": 0.8,
+      "note": "最高优先级，可抢占通勤/旅游切片资源，保障应急指令优先传输"
+    }
+  },
+  "mec_nodes": {
+    "center": {
+      "name": "中心云（跨区域）",
+      "compute_ms": 1200.0,
+      "covers": "全网（经骨干网回传）"
+    },
+    "nanchang": {
+      "name": "南昌 MEC",
+      "compute_ms": 100.0,
+      "covers": [
+        "昌九通勤线",
+        "昌抚通勤线",
+        "沪昆通勤线",
+        "京九通勤线",
+        "皖赣通勤线",
+        "梅岭红轨旅游线",
+        "环庐山旅游线",
+        "赣西红色旅游线",
+        "赣南客家旅游线"
+      ]
+    },
+    "jiujiang": {
+      "name": "九江 MEC",
+      "compute_ms": 110.0,
+      "covers": [
+        "昌九通勤线",
+        "环庐山旅游线",
+        "赣东北旅游环线"
+      ]
+    },
+    "shangrao": {
+      "name": "上饶 MEC",
+      "compute_ms": 110.0,
+      "covers": [
+        "沪昆通勤线",
+        "赣东北旅游环线",
+        "大觉山旅游支线",
+        "赣东古韵旅游线"
+      ]
+    }
+  },
+  "weak_spots": [
+    {
+      "id": "ws_ne",
+      "corridor": "赣东北旅游环线",
+      "type": "山区连续弯道",
+      "share_of_line": 0.35
+    },
+    {
+      "id": "ws_ml",
+      "corridor": "梅岭红轨旅游线",
+      "type": "山区",
+      "share_of_line": 0.4
+    },
+    {
+      "id": "ws_djs",
+      "corridor": "大觉山旅游支线",
+      "type": "山区峡谷",
+      "share_of_line": 0.3
+    }
+  ],
+  "weak_degradation": {
+    "4G": {
+      "comm_factor": 3.0,
+      "sense_factor": 2.0,
+      "reliability": 0.9,
+      "note": "弱覆盖 + 公网尽力而为：时延恶化 3 倍、可靠性降至 0.90"
+    },
+    "5G": {
+      "comm_factor": 1.5,
+      "sense_factor": 1.2,
+      "reliability": 0.995,
+      "note": "切片保障部分缓解弱覆盖影响"
+    },
+    "5G-A": {
+      "comm_factor": 1.3,
+      "sense_factor": 1.0,
+      "reliability": 0.998,
+      "note": "确定性承载基线（无 AI 空口增强）"
+    },
+    "5G-A+ai": {
+      "comm_factor": 1.1,
+      "sense_factor": 1.0,
+      "reliability": 0.9999,
+      "note": "AI 空口波束赋形 + 链路自适应：弱覆盖段能力恢复至接近标称"
+    }
+  },
+  "scenario_groups": [
+    {
+      "id": "control_4g",
+      "label": "对照组 · 4G/传统铁路通信",
+      "net": "4G",
+      "slice": null,
+      "mec": null,
+      "isac": false,
+      "ai_air": false
+    },
+    {
+      "id": "a_5ga_det",
+      "label": "实验组A · 5G-A 确定性网络",
+      "net": "5G-A",
+      "slice": "emergency",
+      "mec": "nanchang",
+      "isac": false,
+      "ai_air": false
+    },
+    {
+      "id": "b_5ga_isac",
+      "label": "实验组B · 5G-A + ISAC 通感",
+      "net": "5G-A",
+      "slice": "emergency",
+      "mec": "nanchang",
+      "isac": true,
+      "ai_air": false
+    },
+    {
+      "id": "c_5ga_ai_air",
+      "label": "实验组C · 5G-A + AI 空口",
+      "net": "5G-A",
+      "slice": "emergency",
+      "mec": "nanchang",
+      "isac": false,
+      "ai_air": true
+    }
+  ],
+  "incident_types": {
+    "train_fault": {
+      "name": "列车故障",
+      "t_execute_s": 60.0,
+      "t_physical_min": 25.0,
+      "severity": 1.0,
+      "desc": "区间列车故障迫停，需扣停邻线列车并组织救援（救援清出 ~25min，通信无法替代）"
+    },
+    "landslide": {
+      "name": "暴雨边坡",
+      "t_execute_s": 60.0,
+      "t_physical_min": 45.0,
+      "severity": 1.0,
+      "desc": "暴雨引发边坡风险，需封锁区间并巡检确认（检查处置 ~45min）"
+    },
+    "foreign_object": {
+      "name": "异物侵限",
+      "t_execute_s": 60.0,
+      "t_physical_min": 15.0,
+      "severity": 1.0,
+      "desc": "沿线异物侵限，需限速/扣停并现场清除（处置 ~15min）"
+    },
+    "crowd_surge": {
+      "name": "大客流积压",
+      "t_execute_s": 60.0,
+      "t_physical_min": 0.0,
+      "severity": 0.35,
+      "desc": "枢纽/站台客流积压超阈值，需下发限流/加开指令（滚动调控，通信档位决定单次调控闭环周期）"
+    }
+  },
+  "comm_resources": {
+    "昌九通勤线": {
+      "net": "5G",
+      "upgrade_candidate": true,
+      "note": "通勤干线，锚定高铁 5G 公开案例量级；5G-A 确定性承载升级候选试点",
+      "real": false
+    },
+    "昌抚通勤线": {
+      "net": "5G",
+      "upgrade_candidate": false,
+      "real": false
+    },
+    "沪昆通勤线": {
+      "net": "5G",
+      "upgrade_candidate": false,
+      "real": false
+    },
+    "京九通勤线": {
+      "net": "5G",
+      "upgrade_candidate": false,
+      "real": false
+    },
+    "皖赣通勤线": {
+      "net": "5G",
+      "upgrade_candidate": false,
+      "real": false
+    },
+    "环庐山旅游线": {
+      "net": "5G",
+      "upgrade_candidate": false,
+      "real": false
+    },
+    "赣东北旅游环线": {
+      "net": "4G",
+      "upgrade_candidate": true,
+      "note": "跨景区山区段落覆盖偏弱（推演口径），5G-A 通感一体升级候选",
+      "real": false
+    },
+    "大觉山旅游支线": {
+      "net": "4G",
+      "upgrade_candidate": true,
+      "real": false
+    },
+    "梅岭红轨旅游线": {
+      "net": "4G",
+      "upgrade_candidate": false,
+      "real": false
+    },
+    "赣西红色旅游线": {
+      "net": "4G",
+      "upgrade_candidate": false,
+      "real": false
+    },
+    "赣南客家旅游线": {
+      "net": "4G",
+      "upgrade_candidate": false,
+      "real": false
+    },
+    "赣东古韵旅游线": {
+      "net": "4G",
+      "upgrade_candidate": false,
+      "real": false
+    }
+  },
+  "capability_matrix": {
+    "4G": {
+      "label": "4G 既有公网（人工巡检上报）",
+      "reliability": 0.98,
+      "compute_at": "中心云",
+      "train_fault": {
+        "chain_s": 121.65,
+        "total_s": 303.3,
+        "total_min": 5.055
+      },
+      "landslide": {
+        "chain_s": 121.65,
+        "total_s": 303.3,
+        "total_min": 5.055
+      },
+      "foreign_object": {
+        "chain_s": 121.65,
+        "total_s": 303.3,
+        "total_min": 5.055
+      },
+      "crowd_surge": {
+        "chain_s": 121.65,
+        "total_s": 303.3,
+        "total_min": 5.055
+      }
+    },
+    "5G": {
+      "label": "5G 沿线覆盖 + 网络切片",
+      "reliability": 0.999,
+      "compute_at": "中心云",
+      "train_fault": {
+        "chain_s": 21.225,
+        "total_s": 81.225,
+        "total_min": 1.354
+      },
+      "landslide": {
+        "chain_s": 21.225,
+        "total_s": 81.225,
+        "total_min": 1.354
+      },
+      "foreign_object": {
+        "chain_s": 21.225,
+        "total_s": 81.225,
+        "total_min": 1.354
+      },
+      "crowd_surge": {
+        "chain_s": 21.225,
+        "total_s": 81.225,
+        "total_min": 1.354
+      }
+    },
+    "5G-A": {
+      "label": "5G-A 确定性承载 + 通感一体 + MEC 边缘智能",
+      "reliability": 0.99999,
+      "compute_at": "沿线MEC边缘",
+      "train_fault": {
+        "chain_s": 2.105,
+        "total_s": 62.105,
+        "total_min": 1.035
+      },
+      "landslide": {
+        "chain_s": 2.105,
+        "total_s": 62.105,
+        "total_min": 1.035
+      },
+      "foreign_object": {
+        "chain_s": 2.105,
+        "total_s": 62.105,
+        "total_min": 1.035
+      },
+      "crowd_surge": {
+        "chain_s": 2.105,
+        "total_s": 62.105,
+        "total_min": 1.035
+      }
+    }
+  },
+  "isac_comparison": {
+    "segments": 37,
+    "dedicated": {
+      "name": "专用传感网（GNSS 位移站 + 雨量计 + 倾角计 + DTU 回传）",
+      "points": 37,
+      "backhaul_links": 37,
+      "sense_s": 20.0,
+      "capex_index": 1.0,
+      "note": "每断面独立组合传感 + 独立回传链路（DTU/专网），点状覆盖、逐点维护"
+    },
+    "isac": {
+      "name": "ISAC 基站感知（5G-A 基站兼做雷达，感知与通信同源）",
+      "points": 0,
+      "backhaul_links": 0,
+      "sense_s": 1.0,
+      "capex_index": 0.35,
+      "note": "复用沿线通信基站的感知能力（软件升级 + 算力板卡边际投入），与通信同源回传、随覆盖连续感知，无独立回传链路"
+    },
+    "deltas": {
+      "sense_speedup": 20.0,
+      "capex_ratio": 0.35
+    },
+    "basis": "相对成本系数为推演假设（real=False，可替换为实际招标价）；ISAC 能力锚定 3GPP R19 ISAC 立项（real=True）；感知时延为推演口径。",
+    "conclusion": "ISAC 以 ~35% 的相对成本系数实现 20 倍感知提速与连续覆盖 —— 通感算智一体化替代专用传感器是可量化验证的降本路径。"
+  },
+  "weak_coverage": {
+    "event": "train_fault",
+    "weak_spots": [
+      {
+        "id": "ws_ne",
+        "corridor": "赣东北旅游环线",
+        "type": "山区连续弯道",
+        "share_of_line": 0.35,
+        "nets": {
+          "4G": {
+            "sense_s": 240.0,
+            "comm_s": 0.45,
+            "r_total_s": 543.9,
+            "reliability": 0.9,
+            "success_rate": 0.731025,
+            "note": "弱覆盖 + 公网尽力而为：时延恶化 3 倍、可靠性降至 0.90"
+          },
+          "5G": {
+            "sense_s": 24.0,
+            "comm_s": 0.0375,
+            "r_total_s": 85.24,
+            "reliability": 0.995,
+            "success_rate": 0.98505,
+            "note": "切片保障部分缓解弱覆盖影响"
+          },
+          "5G-A": {
+            "sense_s": 2.0,
+            "comm_s": 0.0065,
+            "r_total_s": 62.11,
+            "reliability": 0.998,
+            "success_rate": 0.9979,
+            "note": "确定性承载基线（无 AI 空口增强）"
+          },
+          "5G-A+ai": {
+            "sense_s": 2.0,
+            "comm_s": 0.0055,
+            "r_total_s": 62.11,
+            "reliability": 0.9999,
+            "success_rate": 0.9998,
+            "note": "AI 空口波束赋形 + 链路自适应：弱覆盖段能力恢复至接近标称"
+          }
+        }
+      },
+      {
+        "id": "ws_ml",
+        "corridor": "梅岭红轨旅游线",
+        "type": "山区",
+        "share_of_line": 0.4,
+        "nets": {
+          "4G": {
+            "sense_s": 240.0,
+            "comm_s": 0.45,
+            "r_total_s": 543.9,
+            "reliability": 0.9,
+            "success_rate": 0.731025,
+            "note": "弱覆盖 + 公网尽力而为：时延恶化 3 倍、可靠性降至 0.90"
+          },
+          "5G": {
+            "sense_s": 24.0,
+            "comm_s": 0.0375,
+            "r_total_s": 85.24,
+            "reliability": 0.995,
+            "success_rate": 0.98505,
+            "note": "切片保障部分缓解弱覆盖影响"
+          },
+          "5G-A": {
+            "sense_s": 2.0,
+            "comm_s": 0.0065,
+            "r_total_s": 62.11,
+            "reliability": 0.998,
+            "success_rate": 0.9979,
+            "note": "确定性承载基线（无 AI 空口增强）"
+          },
+          "5G-A+ai": {
+            "sense_s": 2.0,
+            "comm_s": 0.0055,
+            "r_total_s": 62.11,
+            "reliability": 0.9999,
+            "success_rate": 0.9998,
+            "note": "AI 空口波束赋形 + 链路自适应：弱覆盖段能力恢复至接近标称"
+          }
+        }
+      },
+      {
+        "id": "ws_djs",
+        "corridor": "大觉山旅游支线",
+        "type": "山区峡谷",
+        "share_of_line": 0.3,
+        "nets": {
+          "4G": {
+            "sense_s": 240.0,
+            "comm_s": 0.45,
+            "r_total_s": 543.9,
+            "reliability": 0.9,
+            "success_rate": 0.731025,
+            "note": "弱覆盖 + 公网尽力而为：时延恶化 3 倍、可靠性降至 0.90"
+          },
+          "5G": {
+            "sense_s": 24.0,
+            "comm_s": 0.0375,
+            "r_total_s": 85.24,
+            "reliability": 0.995,
+            "success_rate": 0.98505,
+            "note": "切片保障部分缓解弱覆盖影响"
+          },
+          "5G-A": {
+            "sense_s": 2.0,
+            "comm_s": 0.0065,
+            "r_total_s": 62.11,
+            "reliability": 0.998,
+            "success_rate": 0.9979,
+            "note": "确定性承载基线（无 AI 空口增强）"
+          },
+          "5G-A+ai": {
+            "sense_s": 2.0,
+            "comm_s": 0.0055,
+            "r_total_s": 62.11,
+            "reliability": 0.9999,
+            "success_rate": 0.9998,
+            "note": "AI 空口波束赋形 + 链路自适应：弱覆盖段能力恢复至接近标称"
+          }
+        }
+      }
+    ],
+    "conclusion": "山区/隧道弱覆盖段：4G 成功率降至 ~73%，AI 空口增强的 5G-A 维持在 99.98% 以上 —— AI 空口是弱覆盖场景下指令可靠性的关键。",
+    "basis": "弱覆盖段占比与降级因子为推演口径（real=False），锚定公网/切片/确定性承载的公开量级差。"
+  },
+  "model_params": {
+    "r_formula": "R = (T_sense + T_comm + T_compute) × n_rounds + T_execute",
+    "net_profiles": {
+      "4G": {
+        "sense_s": 120.0,
+        "comm_ms": 150.0,
+        "compute_ms": 1500.0,
+        "jitter_ms": 30.0,
+        "packet_loss": 0.005,
+        "n_rounds": 2,
+        "reliability": 0.98,
+        "label": "4G 既有公网（人工巡检上报）",
+        "compute_at_default": "中心云"
+      },
+      "5G": {
+        "sense_s": 20.0,
+        "comm_ms": 25.0,
+        "compute_ms": 1200.0,
+        "jitter_ms": 5.0,
+        "packet_loss": 0.001,
+        "n_rounds": 1,
+        "reliability": 0.999,
+        "label": "5G 沿线覆盖 + 网络切片",
+        "compute_at_default": "中心云"
+      },
+      "5G-A": {
+        "sense_s": 2.0,
+        "comm_ms": 5.0,
+        "compute_ms": 100.0,
+        "jitter_ms": 0.5,
+        "packet_loss": 1e-05,
+        "n_rounds": 1,
+        "reliability": 0.99999,
+        "label": "5G-A 确定性承载 + 通感一体 + MEC 边缘智能",
+        "compute_at_default": "沿线MEC边缘"
+      }
+    },
+    "slices": {
+      "tourism": {
+        "label": "旅游切片",
+        "priority": 1,
+        "preempt": false,
+        "comm_factor": 1.2
+      },
+      "commuter": {
+        "label": "通勤切片",
+        "priority": 2,
+        "preempt": false,
+        "comm_factor": 1.0
+      },
+      "emergency": {
+        "label": "应急专用切片",
+        "priority": 3,
+        "preempt": true,
+        "comm_factor": 0.8
+      }
+    },
+    "mec_nodes": {
+      "center": {
+        "name": "中心云（跨区域）",
+        "compute_ms": 1200.0
+      },
+      "nanchang": {
+        "name": "南昌 MEC",
+        "compute_ms": 100.0
+      },
+      "jiujiang": {
+        "name": "九江 MEC",
+        "compute_ms": 110.0
+      },
+      "shangrao": {
+        "name": "上饶 MEC",
+        "compute_ms": 110.0
+      }
+    },
+    "incidents": {
+      "train_fault": {
+        "name": "列车故障",
+        "t_execute_s": 60.0,
+        "t_physical_min": 25.0,
+        "severity": 1.0
+      },
+      "landslide": {
+        "name": "暴雨边坡",
+        "t_execute_s": 60.0,
+        "t_physical_min": 45.0,
+        "severity": 1.0
+      },
+      "foreign_object": {
+        "name": "异物侵限",
+        "t_execute_s": 60.0,
+        "t_physical_min": 15.0,
+        "severity": 1.0
+      },
+      "crowd_surge": {
+        "name": "大客流积压",
+        "t_execute_s": 60.0,
+        "t_physical_min": 0.0,
+        "severity": 0.35
+      }
+    },
+    "weak_degradation": {
+      "4G": {
+        "comm_factor": 3.0,
+        "reliability": 0.9
+      },
+      "5G": {
+        "comm_factor": 1.5,
+        "reliability": 0.995
+      },
+      "5G-A": {
+        "comm_factor": 1.3,
+        "reliability": 0.998
+      },
+      "5G-A+ai": {
+        "comm_factor": 1.1,
+        "reliability": 0.9999
+      }
+    }
+  }
+}

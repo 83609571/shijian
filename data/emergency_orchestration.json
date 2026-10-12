@@ -1,0 +1,1268 @@
+{
+  "schema": "emergency_orchestration v1.0",
+  "engine": "comm_layer + engine_b 口径（全确定性）",
+  "agents": [
+    {
+      "agent": "灾害预警智能体",
+      "budget_s": 3.0,
+      "duty": "多源数据融合判定风险等级，标记风险区段，推送预警"
+    },
+    {
+      "agent": "维保调度智能体",
+      "budget_s": 5.0,
+      "duty": "生成限速指令、派发维保工单、远程复位尝试、备用车预案"
+    },
+    {
+      "agent": "应急联动智能体",
+      "budget_s": 5.0,
+      "duty": "改线绕行、加开列车、应急接驳、信息发布"
+    },
+    {
+      "agent": "客流预测智能体",
+      "budget_s": 10.0,
+      "duty": "预测改线后客流变化，动态调整发车间隔与编组"
+    }
+  ],
+  "risk_levels": [
+    {
+      "level": "黄色",
+      "displacement": "0.6mm/d",
+      "rain": "降雨持续",
+      "action": "加密巡检，准备限速"
+    },
+    {
+      "level": "橙色",
+      "displacement": "1.0mm/d",
+      "rain": "降雨超阈值",
+      "action": "限速20km/h，改线准备"
+    },
+    {
+      "level": "红色",
+      "displacement": "突破历史极值",
+      "rain": "极端降雨",
+      "action": "区段停运，全线疏散"
+    }
+  ],
+  "total_response_budget_s": 23.0,
+  "manual_baseline_min": 120.0,
+  "scenes": [
+    {
+      "scene_id": "landslide",
+      "scene_name": "暴雨边坡滑坡",
+      "trigger": "三清山—婺源区间连续降雨超阈值，ISAC 基站感知位移速率突破红色阈值",
+      "risk": "红色",
+      "event": "landslide",
+      "hub": "婺源站",
+      "risk_levels": [
+        {
+          "level": "黄色",
+          "displacement": "0.6mm/d",
+          "rain": "降雨持续",
+          "action": "加密巡检，准备限速"
+        },
+        {
+          "level": "橙色",
+          "displacement": "1.0mm/d",
+          "rain": "降雨超阈值",
+          "action": "限速20km/h，改线准备"
+        },
+        {
+          "level": "红色",
+          "displacement": "突破历史极值",
+          "rain": "极端降雨",
+          "action": "区段停运，全线疏散"
+        }
+      ],
+      "forecast": {
+        "scenario": "holiday",
+        "daily_total": 362175,
+        "next_1h_total": 43461,
+        "next_2h_total": 80403,
+        "top5": [
+          {
+            "name": "庐山站",
+            "flow": 39000,
+            "next_1h": 4680
+          },
+          {
+            "name": "上饶站",
+            "flow": 31200,
+            "next_1h": 3744
+          },
+          {
+            "name": "婺源站",
+            "flow": 23400,
+            "next_1h": 2808
+          },
+          {
+            "name": "南昌站",
+            "flow": 21000,
+            "next_1h": 2520
+          },
+          {
+            "name": "庐山西海站",
+            "flow": 20800,
+            "next_1h": 2496
+          }
+        ],
+        "method": "站点基础流量×场景乘子；段流量=两端站点均值；峰值小时占比 12%；预测在 MEC 边缘运行，结果毫秒级同步调度中心",
+        "multipliers": {
+          "weekday": {
+            "commuter": 1.0,
+            "tourism": 0.45
+          },
+          "holiday": {
+            "commuter": 0.75,
+            "tourism": 2.6
+          }
+        }
+      },
+      "timeline": {
+        "net": "5G-A",
+        "net_label": "5G-A 确定性承载 + 通感一体 + MEC 边缘智能",
+        "slice": "emergency",
+        "slice_label": "应急专用切片",
+        "mec": "shangrao",
+        "compute_at": "上饶 MEC",
+        "isac": true,
+        "sense_s": 1.0,
+        "t0_label": "ISAC 通感直感",
+        "stages": [
+          {
+            "seq": 1,
+            "agent": "灾害预警智能体",
+            "duty": "多源数据融合判定风险等级，标记风险区段，推送预警",
+            "decision_budget_s": 3.0,
+            "comm_s": 0.004,
+            "stage_s": 3.004,
+            "start_s": 1.0,
+            "end_s": 4.004
+          },
+          {
+            "seq": 2,
+            "agent": "维保调度智能体",
+            "duty": "生成限速指令、派发维保工单、远程复位尝试、备用车预案",
+            "decision_budget_s": 5.0,
+            "comm_s": 0.004,
+            "stage_s": 5.004,
+            "start_s": 4.004,
+            "end_s": 9.008
+          },
+          {
+            "seq": 3,
+            "agent": "应急联动智能体",
+            "duty": "改线绕行、加开列车、应急接驳、信息发布",
+            "decision_budget_s": 5.0,
+            "comm_s": 0.004,
+            "stage_s": 5.004,
+            "start_s": 9.008,
+            "end_s": 14.012
+          },
+          {
+            "seq": 4,
+            "agent": "客流预测智能体",
+            "duty": "预测改线后客流变化，动态调整发车间隔与编组",
+            "decision_budget_s": 10.0,
+            "comm_s": 0.004,
+            "stage_s": 10.004,
+            "start_s": 14.012,
+            "end_s": 24.016
+          }
+        ],
+        "total_s": 24.02,
+        "formula": "总响应 = T0感知 + Σ(决策预算(×人工确认轮次) + 中心云计算(仅4G) + 网络传输)"
+      },
+      "timeline_control_4g": {
+        "net": "4G",
+        "net_label": "4G 既有公网（人工巡检上报）",
+        "slice": null,
+        "slice_label": null,
+        "mec": null,
+        "compute_at": "中心云",
+        "isac": false,
+        "sense_s": 120.0,
+        "t0_label": "人工巡检上报",
+        "stages": [
+          {
+            "seq": 1,
+            "agent": "灾害预警智能体",
+            "duty": "多源数据融合判定风险等级，标记风险区段，推送预警",
+            "decision_budget_s": 6.0,
+            "comm_s": 0.15,
+            "stage_s": 7.65,
+            "start_s": 120.0,
+            "end_s": 127.65
+          },
+          {
+            "seq": 2,
+            "agent": "维保调度智能体",
+            "duty": "生成限速指令、派发维保工单、远程复位尝试、备用车预案",
+            "decision_budget_s": 10.0,
+            "comm_s": 0.15,
+            "stage_s": 11.65,
+            "start_s": 127.65,
+            "end_s": 139.3
+          },
+          {
+            "seq": 3,
+            "agent": "应急联动智能体",
+            "duty": "改线绕行、加开列车、应急接驳、信息发布",
+            "decision_budget_s": 10.0,
+            "comm_s": 0.15,
+            "stage_s": 11.65,
+            "start_s": 139.3,
+            "end_s": 150.95
+          },
+          {
+            "seq": 4,
+            "agent": "客流预测智能体",
+            "duty": "预测改线后客流变化，动态调整发车间隔与编组",
+            "decision_budget_s": 20.0,
+            "comm_s": 0.15,
+            "stage_s": 21.65,
+            "start_s": 150.95,
+            "end_s": 172.6
+          }
+        ],
+        "total_s": 172.6,
+        "formula": "总响应 = T0感知 + Σ(决策预算(×人工确认轮次) + 中心云计算(仅4G) + 网络传输)"
+      },
+      "manual_baseline_min": 120.0,
+      "speedup_vs_manual": 299.8,
+      "steps": [
+        {
+          "agent": "灾害预警智能体",
+          "actions": [
+            "判定红色预警",
+            "标记风险区段（三清山—婺源）"
+          ]
+        },
+        {
+          "agent": "维保调度智能体",
+          "actions": [
+            "区段限速 20km/h",
+            "加密巡检",
+            "派发维保工单至最近班组"
+          ]
+        },
+        {
+          "agent": "应急联动智能体",
+          "actions": [
+            "改经婺源东站绕行",
+            "启动上饶—婺源应急接驳巴士",
+            "昌九线加开 1 列临时列车"
+          ]
+        },
+        {
+          "agent": "客流预测智能体",
+          "actions": [
+            "环线发车间隔调至 30 分钟",
+            "预测绕行站点客流转移"
+          ]
+        }
+      ],
+      "map_visual": [
+        "风险区段红色闪烁",
+        "改线路径绿色虚线",
+        "应急巴士黄色虚线",
+        "告警标签"
+      ],
+      "verify": {
+        "baseline": {
+          "net": "4G",
+          "headway_min": 12.0,
+          "recovery_min": 50.97,
+          "affected": 3143,
+          "delay_person_min": 81549
+        },
+        "handled": {
+          "net": "5G-A",
+          "slice": "emergency",
+          "headway_min": 8.0,
+          "recovery_min": 46.58,
+          "affected": 2890,
+          "delay_person_min": 68113
+        },
+        "delta": {
+          "recovery_gain_min": 4.39,
+          "affected_reduction": 253,
+          "delay_person_min_reduction": 13436
+        },
+        "note": "基线=既有间隔+走廊既有网络；处置后=方案配置+5G-A全要素（应急切片+MEC+ISAC）。全部经 comm_layer 确定性复算，可复现。"
+      }
+    },
+    {
+      "scene_id": "train_fault",
+      "scene_name": "单轨列车故障",
+      "trigger": "环庐山旅游线列车牵引逆变器过温报警，被迫区间停车",
+      "risk": "橙色",
+      "event": "train_fault",
+      "hub": "九江站",
+      "risk_levels": [
+        {
+          "level": "黄色",
+          "displacement": "0.6mm/d",
+          "rain": "降雨持续",
+          "action": "加密巡检，准备限速"
+        },
+        {
+          "level": "橙色",
+          "displacement": "1.0mm/d",
+          "rain": "降雨超阈值",
+          "action": "限速20km/h，改线准备"
+        },
+        {
+          "level": "红色",
+          "displacement": "突破历史极值",
+          "rain": "极端降雨",
+          "action": "区段停运，全线疏散"
+        }
+      ],
+      "forecast": {
+        "scenario": "holiday",
+        "daily_total": 362175,
+        "next_1h_total": 43461,
+        "next_2h_total": 80403,
+        "top5": [
+          {
+            "name": "庐山站",
+            "flow": 39000,
+            "next_1h": 4680
+          },
+          {
+            "name": "上饶站",
+            "flow": 31200,
+            "next_1h": 3744
+          },
+          {
+            "name": "婺源站",
+            "flow": 23400,
+            "next_1h": 2808
+          },
+          {
+            "name": "南昌站",
+            "flow": 21000,
+            "next_1h": 2520
+          },
+          {
+            "name": "庐山西海站",
+            "flow": 20800,
+            "next_1h": 2496
+          }
+        ],
+        "method": "站点基础流量×场景乘子；段流量=两端站点均值；峰值小时占比 12%；预测在 MEC 边缘运行，结果毫秒级同步调度中心",
+        "multipliers": {
+          "weekday": {
+            "commuter": 1.0,
+            "tourism": 0.45
+          },
+          "holiday": {
+            "commuter": 0.75,
+            "tourism": 2.6
+          }
+        }
+      },
+      "timeline": {
+        "net": "5G-A",
+        "net_label": "5G-A 确定性承载 + 通感一体 + MEC 边缘智能",
+        "slice": "emergency",
+        "slice_label": "应急专用切片",
+        "mec": "jiujiang",
+        "compute_at": "九江 MEC",
+        "isac": false,
+        "sense_s": 2.0,
+        "t0_label": "轨旁传感/视频回传",
+        "stages": [
+          {
+            "seq": 1,
+            "agent": "灾害预警智能体",
+            "duty": "多源数据融合判定风险等级，标记风险区段，推送预警",
+            "decision_budget_s": 3.0,
+            "comm_s": 0.004,
+            "stage_s": 3.004,
+            "start_s": 2.0,
+            "end_s": 5.004
+          },
+          {
+            "seq": 2,
+            "agent": "维保调度智能体",
+            "duty": "生成限速指令、派发维保工单、远程复位尝试、备用车预案",
+            "decision_budget_s": 5.0,
+            "comm_s": 0.004,
+            "stage_s": 5.004,
+            "start_s": 5.004,
+            "end_s": 10.008
+          },
+          {
+            "seq": 3,
+            "agent": "应急联动智能体",
+            "duty": "改线绕行、加开列车、应急接驳、信息发布",
+            "decision_budget_s": 5.0,
+            "comm_s": 0.004,
+            "stage_s": 5.004,
+            "start_s": 10.008,
+            "end_s": 15.012
+          },
+          {
+            "seq": 4,
+            "agent": "客流预测智能体",
+            "duty": "预测改线后客流变化，动态调整发车间隔与编组",
+            "decision_budget_s": 10.0,
+            "comm_s": 0.004,
+            "stage_s": 10.004,
+            "start_s": 15.012,
+            "end_s": 25.016
+          }
+        ],
+        "total_s": 25.02,
+        "formula": "总响应 = T0感知 + Σ(决策预算(×人工确认轮次) + 中心云计算(仅4G) + 网络传输)"
+      },
+      "timeline_control_4g": {
+        "net": "4G",
+        "net_label": "4G 既有公网（人工巡检上报）",
+        "slice": null,
+        "slice_label": null,
+        "mec": null,
+        "compute_at": "中心云",
+        "isac": false,
+        "sense_s": 120.0,
+        "t0_label": "人工巡检上报",
+        "stages": [
+          {
+            "seq": 1,
+            "agent": "灾害预警智能体",
+            "duty": "多源数据融合判定风险等级，标记风险区段，推送预警",
+            "decision_budget_s": 6.0,
+            "comm_s": 0.15,
+            "stage_s": 7.65,
+            "start_s": 120.0,
+            "end_s": 127.65
+          },
+          {
+            "seq": 2,
+            "agent": "维保调度智能体",
+            "duty": "生成限速指令、派发维保工单、远程复位尝试、备用车预案",
+            "decision_budget_s": 10.0,
+            "comm_s": 0.15,
+            "stage_s": 11.65,
+            "start_s": 127.65,
+            "end_s": 139.3
+          },
+          {
+            "seq": 3,
+            "agent": "应急联动智能体",
+            "duty": "改线绕行、加开列车、应急接驳、信息发布",
+            "decision_budget_s": 10.0,
+            "comm_s": 0.15,
+            "stage_s": 11.65,
+            "start_s": 139.3,
+            "end_s": 150.95
+          },
+          {
+            "seq": 4,
+            "agent": "客流预测智能体",
+            "duty": "预测改线后客流变化，动态调整发车间隔与编组",
+            "decision_budget_s": 20.0,
+            "comm_s": 0.15,
+            "stage_s": 21.65,
+            "start_s": 150.95,
+            "end_s": 172.6
+          }
+        ],
+        "total_s": 172.6,
+        "formula": "总响应 = T0感知 + Σ(决策预算(×人工确认轮次) + 中心云计算(仅4G) + 网络传输)"
+      },
+      "manual_baseline_min": 120.0,
+      "speedup_vs_manual": 287.8,
+      "steps": [
+        {
+          "agent": "灾害预警智能体",
+          "actions": [
+            "车辆状态监测自动报警确认",
+            "标记故障区段"
+          ]
+        },
+        {
+          "agent": "维保调度智能体",
+          "actions": [
+            "远程复位尝试",
+            "失败→九江站调派备用单轨连挂救援",
+            "工单派发最近维修班组"
+          ]
+        },
+        {
+          "agent": "应急联动智能体",
+          "actions": [
+            "昌九通勤线加开临时列车接驳",
+            "车载广播/APP 推送告知"
+          ]
+        },
+        {
+          "agent": "客流预测智能体",
+          "actions": [
+            "调整环庐山线后续间隔防积压"
+          ]
+        }
+      ],
+      "map_visual": [
+        "故障区段红色闪烁",
+        "故障车图标",
+        "备用列车蓝色轨迹",
+        "推送通知角标"
+      ],
+      "verify": {
+        "baseline": {
+          "net": "5G",
+          "headway_min": 12.0,
+          "recovery_min": 26.88,
+          "affected": 1812,
+          "delay_person_min": 24841
+        },
+        "handled": {
+          "net": "5G-A",
+          "slice": "emergency",
+          "headway_min": 8.0,
+          "recovery_min": 26.38,
+          "affected": 1790,
+          "delay_person_min": 23932
+        },
+        "delta": {
+          "recovery_gain_min": 0.5,
+          "affected_reduction": 22,
+          "delay_person_min_reduction": 909
+        },
+        "note": "基线=既有间隔+走廊既有网络；处置后=方案配置+5G-A全要素（应急切片+MEC+ISAC）。全部经 comm_layer 确定性复算，可复现。"
+      }
+    },
+    {
+      "scene_id": "crowd_surge",
+      "scene_name": "节假日大客流",
+      "trigger": "三清山景区预约量突破最大承载量，上饶站站台候车超设计容量 120%",
+      "risk": "橙色",
+      "event": "crowd_surge",
+      "hub": "上饶站",
+      "risk_levels": [
+        {
+          "level": "黄色",
+          "displacement": "0.6mm/d",
+          "rain": "降雨持续",
+          "action": "加密巡检，准备限速"
+        },
+        {
+          "level": "橙色",
+          "displacement": "1.0mm/d",
+          "rain": "降雨超阈值",
+          "action": "限速20km/h，改线准备"
+        },
+        {
+          "level": "红色",
+          "displacement": "突破历史极值",
+          "rain": "极端降雨",
+          "action": "区段停运，全线疏散"
+        }
+      ],
+      "forecast": {
+        "scenario": "holiday",
+        "daily_total": 362175,
+        "next_1h_total": 43461,
+        "next_2h_total": 80403,
+        "top5": [
+          {
+            "name": "庐山站",
+            "flow": 39000,
+            "next_1h": 4680
+          },
+          {
+            "name": "上饶站",
+            "flow": 31200,
+            "next_1h": 3744
+          },
+          {
+            "name": "婺源站",
+            "flow": 23400,
+            "next_1h": 2808
+          },
+          {
+            "name": "南昌站",
+            "flow": 21000,
+            "next_1h": 2520
+          },
+          {
+            "name": "庐山西海站",
+            "flow": 20800,
+            "next_1h": 2496
+          }
+        ],
+        "method": "站点基础流量×场景乘子；段流量=两端站点均值；峰值小时占比 12%；预测在 MEC 边缘运行，结果毫秒级同步调度中心",
+        "multipliers": {
+          "weekday": {
+            "commuter": 1.0,
+            "tourism": 0.45
+          },
+          "holiday": {
+            "commuter": 0.75,
+            "tourism": 2.6
+          }
+        }
+      },
+      "timeline": {
+        "net": "5G-A",
+        "net_label": "5G-A 确定性承载 + 通感一体 + MEC 边缘智能",
+        "slice": "tourism",
+        "slice_label": "旅游切片",
+        "mec": "shangrao",
+        "compute_at": "上饶 MEC",
+        "isac": false,
+        "sense_s": 2.0,
+        "t0_label": "轨旁传感/视频回传",
+        "stages": [
+          {
+            "seq": 1,
+            "agent": "灾害预警智能体",
+            "duty": "多源数据融合判定风险等级，标记风险区段，推送预警",
+            "decision_budget_s": 3.0,
+            "comm_s": 0.006,
+            "stage_s": 3.006,
+            "start_s": 2.0,
+            "end_s": 5.006
+          },
+          {
+            "seq": 2,
+            "agent": "维保调度智能体",
+            "duty": "生成限速指令、派发维保工单、远程复位尝试、备用车预案",
+            "decision_budget_s": 5.0,
+            "comm_s": 0.006,
+            "stage_s": 5.006,
+            "start_s": 5.006,
+            "end_s": 10.012
+          },
+          {
+            "seq": 3,
+            "agent": "应急联动智能体",
+            "duty": "改线绕行、加开列车、应急接驳、信息发布",
+            "decision_budget_s": 5.0,
+            "comm_s": 0.006,
+            "stage_s": 5.006,
+            "start_s": 10.012,
+            "end_s": 15.018
+          },
+          {
+            "seq": 4,
+            "agent": "客流预测智能体",
+            "duty": "预测改线后客流变化，动态调整发车间隔与编组",
+            "decision_budget_s": 10.0,
+            "comm_s": 0.006,
+            "stage_s": 10.006,
+            "start_s": 15.018,
+            "end_s": 25.024
+          }
+        ],
+        "total_s": 25.02,
+        "formula": "总响应 = T0感知 + Σ(决策预算(×人工确认轮次) + 中心云计算(仅4G) + 网络传输)"
+      },
+      "timeline_control_4g": {
+        "net": "4G",
+        "net_label": "4G 既有公网（人工巡检上报）",
+        "slice": null,
+        "slice_label": null,
+        "mec": null,
+        "compute_at": "中心云",
+        "isac": false,
+        "sense_s": 120.0,
+        "t0_label": "人工巡检上报",
+        "stages": [
+          {
+            "seq": 1,
+            "agent": "灾害预警智能体",
+            "duty": "多源数据融合判定风险等级，标记风险区段，推送预警",
+            "decision_budget_s": 6.0,
+            "comm_s": 0.15,
+            "stage_s": 7.65,
+            "start_s": 120.0,
+            "end_s": 127.65
+          },
+          {
+            "seq": 2,
+            "agent": "维保调度智能体",
+            "duty": "生成限速指令、派发维保工单、远程复位尝试、备用车预案",
+            "decision_budget_s": 10.0,
+            "comm_s": 0.15,
+            "stage_s": 11.65,
+            "start_s": 127.65,
+            "end_s": 139.3
+          },
+          {
+            "seq": 3,
+            "agent": "应急联动智能体",
+            "duty": "改线绕行、加开列车、应急接驳、信息发布",
+            "decision_budget_s": 10.0,
+            "comm_s": 0.15,
+            "stage_s": 11.65,
+            "start_s": 139.3,
+            "end_s": 150.95
+          },
+          {
+            "seq": 4,
+            "agent": "客流预测智能体",
+            "duty": "预测改线后客流变化，动态调整发车间隔与编组",
+            "decision_budget_s": 20.0,
+            "comm_s": 0.15,
+            "stage_s": 21.65,
+            "start_s": 150.95,
+            "end_s": 172.6
+          }
+        ],
+        "total_s": 172.6,
+        "formula": "总响应 = T0感知 + Σ(决策预算(×人工确认轮次) + 中心云计算(仅4G) + 网络传输)"
+      },
+      "manual_baseline_min": 120.0,
+      "speedup_vs_manual": 287.8,
+      "steps": [
+        {
+          "agent": "客流预测智能体",
+          "actions": [
+            "预测站台超容 120%",
+            "启动三级限流预案"
+          ]
+        },
+        {
+          "agent": "维保调度智能体",
+          "actions": [
+            "闸机限流参数下发",
+            "加派站务引导"
+          ]
+        },
+        {
+          "agent": "应急联动智能体",
+          "actions": [
+            "三清山站只出不进",
+            "引导至上饶站换乘",
+            "加开上饶→南昌/九江临时市域列车"
+          ]
+        },
+        {
+          "agent": "客流预测智能体",
+          "actions": [
+            "环线间隔 15→8 分钟",
+            "平衡换乘站运力"
+          ]
+        }
+      ],
+      "map_visual": [
+        "大客流站点红色脉冲光圈",
+        "限流标记",
+        "三级限流方案卡"
+      ],
+      "verify": {
+        "baseline": {
+          "net": "4G",
+          "headway_min": 15.0,
+          "recovery_min": 5.44,
+          "affected": 317,
+          "delay_person_min": 925
+        },
+        "handled": {
+          "net": "5G-A",
+          "slice": "tourism",
+          "headway_min": 8.0,
+          "recovery_min": 1.04,
+          "affected": 65,
+          "delay_person_min": 34
+        },
+        "delta": {
+          "recovery_gain_min": 4.4,
+          "affected_reduction": 252,
+          "delay_person_min_reduction": 891
+        },
+        "note": "基线=既有间隔+走廊既有网络；处置后=方案配置+5G-A全要素（应急切片+MEC+ISAC）。全部经 comm_layer 确定性复算，可复现。"
+      }
+    },
+    {
+      "scene_id": "extreme_rain",
+      "scene_name": "百年一遇极端降水",
+      "trigger": "连续降雨量突破历史极值，气象/雨量/位移/轨道积水四源并中",
+      "risk": "红色",
+      "event": "landslide",
+      "hub": "南昌站",
+      "risk_levels": [
+        {
+          "level": "黄色",
+          "displacement": "0.6mm/d",
+          "rain": "降雨持续",
+          "action": "加密巡检，准备限速"
+        },
+        {
+          "level": "橙色",
+          "displacement": "1.0mm/d",
+          "rain": "降雨超阈值",
+          "action": "限速20km/h，改线准备"
+        },
+        {
+          "level": "红色",
+          "displacement": "突破历史极值",
+          "rain": "极端降雨",
+          "action": "区段停运，全线疏散"
+        }
+      ],
+      "forecast": {
+        "scenario": "holiday",
+        "daily_total": 362175,
+        "next_1h_total": 43461,
+        "next_2h_total": 80403,
+        "top5": [
+          {
+            "name": "庐山站",
+            "flow": 39000,
+            "next_1h": 4680
+          },
+          {
+            "name": "上饶站",
+            "flow": 31200,
+            "next_1h": 3744
+          },
+          {
+            "name": "婺源站",
+            "flow": 23400,
+            "next_1h": 2808
+          },
+          {
+            "name": "南昌站",
+            "flow": 21000,
+            "next_1h": 2520
+          },
+          {
+            "name": "庐山西海站",
+            "flow": 20800,
+            "next_1h": 2496
+          }
+        ],
+        "method": "站点基础流量×场景乘子；段流量=两端站点均值；峰值小时占比 12%；预测在 MEC 边缘运行，结果毫秒级同步调度中心",
+        "multipliers": {
+          "weekday": {
+            "commuter": 1.0,
+            "tourism": 0.45
+          },
+          "holiday": {
+            "commuter": 0.75,
+            "tourism": 2.6
+          }
+        }
+      },
+      "timeline": {
+        "net": "5G-A",
+        "net_label": "5G-A 确定性承载 + 通感一体 + MEC 边缘智能",
+        "slice": "emergency",
+        "slice_label": "应急专用切片",
+        "mec": "nanchang",
+        "compute_at": "南昌 MEC",
+        "isac": true,
+        "sense_s": 1.0,
+        "t0_label": "ISAC 通感直感",
+        "stages": [
+          {
+            "seq": 1,
+            "agent": "灾害预警智能体",
+            "duty": "多源数据融合判定风险等级，标记风险区段，推送预警",
+            "decision_budget_s": 3.0,
+            "comm_s": 0.004,
+            "stage_s": 3.004,
+            "start_s": 1.0,
+            "end_s": 4.004
+          },
+          {
+            "seq": 2,
+            "agent": "维保调度智能体",
+            "duty": "生成限速指令、派发维保工单、远程复位尝试、备用车预案",
+            "decision_budget_s": 5.0,
+            "comm_s": 0.004,
+            "stage_s": 5.004,
+            "start_s": 4.004,
+            "end_s": 9.008
+          },
+          {
+            "seq": 3,
+            "agent": "应急联动智能体",
+            "duty": "改线绕行、加开列车、应急接驳、信息发布",
+            "decision_budget_s": 5.0,
+            "comm_s": 0.004,
+            "stage_s": 5.004,
+            "start_s": 9.008,
+            "end_s": 14.012
+          },
+          {
+            "seq": 4,
+            "agent": "客流预测智能体",
+            "duty": "预测改线后客流变化，动态调整发车间隔与编组",
+            "decision_budget_s": 10.0,
+            "comm_s": 0.004,
+            "stage_s": 10.004,
+            "start_s": 14.012,
+            "end_s": 24.016
+          }
+        ],
+        "total_s": 24.02,
+        "formula": "总响应 = T0感知 + Σ(决策预算(×人工确认轮次) + 中心云计算(仅4G) + 网络传输)"
+      },
+      "timeline_control_4g": {
+        "net": "4G",
+        "net_label": "4G 既有公网（人工巡检上报）",
+        "slice": null,
+        "slice_label": null,
+        "mec": null,
+        "compute_at": "中心云",
+        "isac": false,
+        "sense_s": 120.0,
+        "t0_label": "人工巡检上报",
+        "stages": [
+          {
+            "seq": 1,
+            "agent": "灾害预警智能体",
+            "duty": "多源数据融合判定风险等级，标记风险区段，推送预警",
+            "decision_budget_s": 6.0,
+            "comm_s": 0.15,
+            "stage_s": 7.65,
+            "start_s": 120.0,
+            "end_s": 127.65
+          },
+          {
+            "seq": 2,
+            "agent": "维保调度智能体",
+            "duty": "生成限速指令、派发维保工单、远程复位尝试、备用车预案",
+            "decision_budget_s": 10.0,
+            "comm_s": 0.15,
+            "stage_s": 11.65,
+            "start_s": 127.65,
+            "end_s": 139.3
+          },
+          {
+            "seq": 3,
+            "agent": "应急联动智能体",
+            "duty": "改线绕行、加开列车、应急接驳、信息发布",
+            "decision_budget_s": 10.0,
+            "comm_s": 0.15,
+            "stage_s": 11.65,
+            "start_s": 139.3,
+            "end_s": 150.95
+          },
+          {
+            "seq": 4,
+            "agent": "客流预测智能体",
+            "duty": "预测改线后客流变化，动态调整发车间隔与编组",
+            "decision_budget_s": 20.0,
+            "comm_s": 0.15,
+            "stage_s": 21.65,
+            "start_s": 150.95,
+            "end_s": 172.6
+          }
+        ],
+        "total_s": 172.6,
+        "formula": "总响应 = T0感知 + Σ(决策预算(×人工确认轮次) + 中心云计算(仅4G) + 网络传输)"
+      },
+      "manual_baseline_min": 120.0,
+      "speedup_vs_manual": 299.8,
+      "steps": [
+        {
+          "agent": "灾害预警智能体",
+          "actions": [
+            "接入气象预警/降雨量/边坡位移/轨道积水四类数据源",
+            "判定红色预警"
+          ]
+        },
+        {
+          "agent": "维保调度智能体",
+          "actions": [
+            "全线停运指令",
+            "排水系统检查",
+            "设备防护挡板加装"
+          ]
+        },
+        {
+          "agent": "应急联动智能体",
+          "actions": [
+            "旅客疏散组织",
+            "应急接驳巴士待命",
+            "通勤层加开临时列车转运滞留"
+          ]
+        },
+        {
+          "agent": "客流预测智能体",
+          "actions": [
+            "预测客流骤降与滞留峰值",
+            "运力集中疏散通道"
+          ]
+        }
+      ],
+      "map_visual": [
+        "全线红色高亮",
+        "停运标记",
+        "疏散路径绿色箭头"
+      ],
+      "verify": {
+        "baseline": {
+          "net": "4G",
+          "headway_min": 12.0,
+          "recovery_min": 50.58,
+          "affected": 1807,
+          "delay_person_min": 46192
+        },
+        "handled": {
+          "net": "5G-A",
+          "slice": "emergency",
+          "headway_min": 15.0,
+          "recovery_min": 46.63,
+          "affected": 1662,
+          "delay_person_min": 39244
+        },
+        "delta": {
+          "recovery_gain_min": 3.95,
+          "affected_reduction": 145,
+          "delay_person_min_reduction": 6948
+        },
+        "note": "基线=既有间隔+走廊既有网络；处置后=方案配置+5G-A全要素（应急切片+MEC+ISAC）。全部经 comm_layer 确定性复算，可复现。"
+      }
+    },
+    {
+      "scene_id": "transfer_bottleneck",
+      "scene_name": "南昌站换乘瓶颈",
+      "trigger": "节假日换乘量 2,800→11,550 人次，通道超设计通行能力",
+      "risk": "橙色",
+      "event": "crowd_surge",
+      "hub": "南昌站",
+      "risk_levels": [
+        {
+          "level": "黄色",
+          "displacement": "0.6mm/d",
+          "rain": "降雨持续",
+          "action": "加密巡检，准备限速"
+        },
+        {
+          "level": "橙色",
+          "displacement": "1.0mm/d",
+          "rain": "降雨超阈值",
+          "action": "限速20km/h，改线准备"
+        },
+        {
+          "level": "红色",
+          "displacement": "突破历史极值",
+          "rain": "极端降雨",
+          "action": "区段停运，全线疏散"
+        }
+      ],
+      "forecast": {
+        "scenario": "holiday",
+        "daily_total": 362175,
+        "next_1h_total": 43461,
+        "next_2h_total": 80403,
+        "top5": [
+          {
+            "name": "庐山站",
+            "flow": 39000,
+            "next_1h": 4680
+          },
+          {
+            "name": "上饶站",
+            "flow": 31200,
+            "next_1h": 3744
+          },
+          {
+            "name": "婺源站",
+            "flow": 23400,
+            "next_1h": 2808
+          },
+          {
+            "name": "南昌站",
+            "flow": 21000,
+            "next_1h": 2520
+          },
+          {
+            "name": "庐山西海站",
+            "flow": 20800,
+            "next_1h": 2496
+          }
+        ],
+        "method": "站点基础流量×场景乘子；段流量=两端站点均值；峰值小时占比 12%；预测在 MEC 边缘运行，结果毫秒级同步调度中心",
+        "multipliers": {
+          "weekday": {
+            "commuter": 1.0,
+            "tourism": 0.45
+          },
+          "holiday": {
+            "commuter": 0.75,
+            "tourism": 2.6
+          }
+        }
+      },
+      "timeline": {
+        "net": "5G-A",
+        "net_label": "5G-A 确定性承载 + 通感一体 + MEC 边缘智能",
+        "slice": "emergency",
+        "slice_label": "应急专用切片",
+        "mec": "nanchang",
+        "compute_at": "南昌 MEC",
+        "isac": false,
+        "sense_s": 2.0,
+        "t0_label": "轨旁传感/视频回传",
+        "stages": [
+          {
+            "seq": 1,
+            "agent": "灾害预警智能体",
+            "duty": "多源数据融合判定风险等级，标记风险区段，推送预警",
+            "decision_budget_s": 3.0,
+            "comm_s": 0.004,
+            "stage_s": 3.004,
+            "start_s": 2.0,
+            "end_s": 5.004
+          },
+          {
+            "seq": 2,
+            "agent": "维保调度智能体",
+            "duty": "生成限速指令、派发维保工单、远程复位尝试、备用车预案",
+            "decision_budget_s": 5.0,
+            "comm_s": 0.004,
+            "stage_s": 5.004,
+            "start_s": 5.004,
+            "end_s": 10.008
+          },
+          {
+            "seq": 3,
+            "agent": "应急联动智能体",
+            "duty": "改线绕行、加开列车、应急接驳、信息发布",
+            "decision_budget_s": 5.0,
+            "comm_s": 0.004,
+            "stage_s": 5.004,
+            "start_s": 10.008,
+            "end_s": 15.012
+          },
+          {
+            "seq": 4,
+            "agent": "客流预测智能体",
+            "duty": "预测改线后客流变化，动态调整发车间隔与编组",
+            "decision_budget_s": 10.0,
+            "comm_s": 0.004,
+            "stage_s": 10.004,
+            "start_s": 15.012,
+            "end_s": 25.016
+          }
+        ],
+        "total_s": 25.02,
+        "formula": "总响应 = T0感知 + Σ(决策预算(×人工确认轮次) + 中心云计算(仅4G) + 网络传输)"
+      },
+      "timeline_control_4g": {
+        "net": "4G",
+        "net_label": "4G 既有公网（人工巡检上报）",
+        "slice": null,
+        "slice_label": null,
+        "mec": null,
+        "compute_at": "中心云",
+        "isac": false,
+        "sense_s": 120.0,
+        "t0_label": "人工巡检上报",
+        "stages": [
+          {
+            "seq": 1,
+            "agent": "灾害预警智能体",
+            "duty": "多源数据融合判定风险等级，标记风险区段，推送预警",
+            "decision_budget_s": 6.0,
+            "comm_s": 0.15,
+            "stage_s": 7.65,
+            "start_s": 120.0,
+            "end_s": 127.65
+          },
+          {
+            "seq": 2,
+            "agent": "维保调度智能体",
+            "duty": "生成限速指令、派发维保工单、远程复位尝试、备用车预案",
+            "decision_budget_s": 10.0,
+            "comm_s": 0.15,
+            "stage_s": 11.65,
+            "start_s": 127.65,
+            "end_s": 139.3
+          },
+          {
+            "seq": 3,
+            "agent": "应急联动智能体",
+            "duty": "改线绕行、加开列车、应急接驳、信息发布",
+            "decision_budget_s": 10.0,
+            "comm_s": 0.15,
+            "stage_s": 11.65,
+            "start_s": 139.3,
+            "end_s": 150.95
+          },
+          {
+            "seq": 4,
+            "agent": "客流预测智能体",
+            "duty": "预测改线后客流变化，动态调整发车间隔与编组",
+            "decision_budget_s": 20.0,
+            "comm_s": 0.15,
+            "stage_s": 21.65,
+            "start_s": 150.95,
+            "end_s": 172.6
+          }
+        ],
+        "total_s": 172.6,
+        "formula": "总响应 = T0感知 + Σ(决策预算(×人工确认轮次) + 中心云计算(仅4G) + 网络传输)"
+      },
+      "manual_baseline_min": 120.0,
+      "speedup_vs_manual": 287.8,
+      "steps": [
+        {
+          "agent": "客流预测智能体",
+          "actions": [
+            "预测换乘量超通道设计容量",
+            "输出最优限流建议"
+          ]
+        },
+        {
+          "agent": "维保调度智能体",
+          "actions": [
+            "楼扶梯组的应急检修待命"
+          ]
+        },
+        {
+          "agent": "应急联动智能体",
+          "actions": [
+            "加开疏运列车",
+            "通道限流",
+            "启动备用通道"
+          ]
+        },
+        {
+          "agent": "客流预测智能体",
+          "actions": [
+            "单轨间隔 15→8 分钟",
+            "验证通道拥挤度回落"
+          ]
+        }
+      ],
+      "map_visual": [
+        "换乘通道热力红色高亮",
+        "限流栏杆图标",
+        "疏运列车轨迹"
+      ],
+      "verify": {
+        "baseline": {
+          "net": "4G",
+          "headway_min": 15.0,
+          "recovery_min": 5.1,
+          "affected": 183,
+          "delay_person_min": 470
+        },
+        "handled": {
+          "net": "5G-A",
+          "slice": "emergency",
+          "headway_min": 8.0,
+          "recovery_min": 1.04,
+          "affected": 37,
+          "delay_person_min": 19
+        },
+        "delta": {
+          "recovery_gain_min": 4.06,
+          "affected_reduction": 146,
+          "delay_person_min_reduction": 451
+        },
+        "note": "基线=既有间隔+走廊既有网络；处置后=方案配置+5G-A全要素（应急切片+MEC+ISAC）。全部经 comm_layer 确定性复算，可复现。"
+      }
+    }
+  ],
+  "conclusion": "客流走向提前预判，事故触发秒级响应，四类智能体协同处置，仿真引擎全程验证：5G-A 全要素下总响应 ≈24.02~25.02s（决策预算 23.0s + 感知与传输），较人工调度 120min 快约两个数量级。"
+}

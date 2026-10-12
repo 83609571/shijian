@@ -1,0 +1,256 @@
+{
+  "scenario": "holiday",
+  "hub": "南昌站",
+  "strategy": {
+    "baseline": {
+      "name": "基准（未治理）",
+      "config": {
+        "headway_min": 12.0,
+        "formation_cars": 8,
+        "limit_level": 0,
+        "demand_mult": 1.0
+      },
+      "metrics": {
+        "max_saturation": 1.196,
+        "avg_delay_min": 13.78,
+        "unmet_persons_per_hour": 1054,
+        "deferred_persons_per_hour": 0,
+        "required_trains": 392,
+        "energy_kwh_per_day": 4538462.5
+      },
+      "score": {
+        "congestion": 17.3,
+        "service": 83.1,
+        "cost": 100.0,
+        "robustness": 60.0,
+        "total": 57.8
+      }
+    },
+    "A": {
+      "name": "供给端压缩间隔",
+      "config": {
+        "headway_min": 10.0,
+        "formation_cars": 8,
+        "limit_level": 0,
+        "demand_mult": 1.0
+      },
+      "metrics": {
+        "max_saturation": 0.997,
+        "avg_delay_min": 7.41,
+        "unmet_persons_per_hour": 22,
+        "deferred_persons_per_hour": 0,
+        "required_trains": 467,
+        "energy_kwh_per_day": 5327216.3
+      },
+      "score": {
+        "congestion": 50.6,
+        "service": 99.6,
+        "cost": 81.7,
+        "robustness": 60.0,
+        "total": 72.5
+      }
+    },
+    "B": {
+      "name": "需求端三级限流",
+      "config": {
+        "headway_min": 12.0,
+        "formation_cars": 6,
+        "limit_level": 3,
+        "demand_mult": 1.0
+      },
+      "metrics": {
+        "max_saturation": 0.82,
+        "avg_delay_min": 24.66,
+        "unmet_persons_per_hour": 2764,
+        "deferred_persons_per_hour": 4521,
+        "required_trains": 392,
+        "energy_kwh_per_day": 3548617.1
+      },
+      "score": {
+        "congestion": 84.0,
+        "service": 0.0,
+        "cost": 100.0,
+        "robustness": 60.0,
+        "total": 59.6
+      }
+    },
+    "D": {
+      "name": "强化档增购+8min",
+      "config": {
+        "headway_min": 8.0,
+        "formation_cars": 8,
+        "limit_level": 1,
+        "demand_mult": 1.0
+      },
+      "metrics": {
+        "max_saturation": 0.797,
+        "avg_delay_min": 4.0,
+        "unmet_persons_per_hour": 0,
+        "deferred_persons_per_hour": 0,
+        "required_trains": 582,
+        "energy_kwh_per_day": 6510346.9
+      },
+      "score": {
+        "congestion": 87.1,
+        "service": 100.0,
+        "cost": 54.0,
+        "robustness": 80.0,
+        "total": 83.6
+      }
+    }
+  },
+  "guardrail": {
+    "bad_params": {
+      "scenario": "holiday",
+      "headway_min": 2.0,
+      "formation_cars": 20,
+      "limit_level": 5,
+      "demand_mult": 3.0
+    },
+    "normalize_record": [
+      {
+        "field": "headway_min",
+        "from": 2.0,
+        "to": 4.0,
+        "rule": ">=4.0"
+      },
+      {
+        "field": "formation_cars",
+        "from": 20,
+        "to": 8,
+        "rule": "enum[2, 4, 6, 8]"
+      },
+      {
+        "field": "limit_level",
+        "from": 5,
+        "to": 3,
+        "rule": "enum[0, 1, 2, 3]"
+      },
+      {
+        "field": "demand_mult",
+        "from": 3.0,
+        "to": 2.0,
+        "rule": "<=2.0"
+      }
+    ],
+    "executed_params_on": {
+      "headway_min": 4.0,
+      "formation_cars": 8,
+      "limit_level": 3,
+      "demand_mult": 2.0
+    },
+    "off_metrics": {
+      "max_saturation": 2.271,
+      "avg_delay_min": 1.0,
+      "required_trains": 2309,
+      "unmet_persons_per_hour": 0
+    },
+    "on_metrics": {
+      "max_saturation": 1.514,
+      "avg_delay_min": 2.0,
+      "required_trains": 1157,
+      "unmet_persons_per_hour": 0
+    },
+    "conclusion": "护栏ON将越界参数钳制到合法域，方案从'不可执行/极端'修正为'可执行'；OFF裸执行会产生不可复现/超物理约束的结果。"
+  },
+  "planner": {
+    "random_trials": 60,
+    "seed": 20261011,
+    "best_random": {
+      "config": {
+        "scenario": "holiday",
+        "headway_min": 8,
+        "formation_cars": 6,
+        "limit_level": 3,
+        "demand_mult": 1.0
+      },
+      "score": {
+        "congestion": 87.1,
+        "service": 95.5,
+        "cost": 70.3,
+        "robustness": 60.0,
+        "total": 83.5
+      }
+    },
+    "agent_recommended_D": {
+      "config": {
+        "scenario": "holiday",
+        "headway_min": 8.0,
+        "formation_cars": 8,
+        "limit_level": 1,
+        "demand_mult": 1.0,
+        "fleet_limit": 600
+      },
+      "score": {
+        "congestion": 87.1,
+        "service": 100.0,
+        "cost": 54.0,
+        "robustness": 80.0,
+        "total": 83.6
+      },
+      "metrics": {
+        "max_saturation": 0.797,
+        "avg_delay_min": 4.0,
+        "unmet_persons_per_hour": 0
+      }
+    },
+    "delta_total": 0.1,
+    "conclusion": "在【同一真实需求×1.0、同一稳健性口径】下，随机需 60 次盲搜才能达到方案质量上界（83.5 分），而智能体 1 次结构化生成即得 83.6 分，质量上界相当。但随机方案**不可解释、无代价披露、无护栏审计**，也无法回答评委'为什么这个方案/代价多少/是否安全' —— 这正是交通安全关键系统的必需。规划器的价值是**从问题到方案的可解释决策链 + 安全护栏 + 代价记账**，而非算力取胜。"
+  },
+  "closure": {
+    "no_critic": {
+      "name": "单轮（C修正版，未升级）",
+      "config": {
+        "scenario": "holiday",
+        "headway_min": 10.2,
+        "formation_cars": 8,
+        "limit_level": 1,
+        "demand_mult": 1.0
+      },
+      "score": {
+        "congestion": 63.0,
+        "service": 91.4,
+        "cost": 83.9,
+        "robustness": 60.0,
+        "total": 75.4
+      },
+      "metrics": {
+        "max_saturation": 0.935,
+        "avg_delay_min": 8.06,
+        "unmet_persons_per_hour": 103
+      }
+    },
+    "with_critic": {
+      "name": "完整闭环（Critic升级→D）",
+      "config": {
+        "scenario": "holiday",
+        "headway_min": 8.0,
+        "formation_cars": 8,
+        "limit_level": 1,
+        "demand_mult": 1.0,
+        "fleet_limit": 600
+      },
+      "score": {
+        "congestion": 87.1,
+        "service": 100.0,
+        "cost": 54.0,
+        "robustness": 80.0,
+        "total": 83.6
+      },
+      "metrics": {
+        "max_saturation": 0.797,
+        "avg_delay_min": 4.0,
+        "unmet_persons_per_hour": 0
+      }
+    },
+    "delta_total": 8.2,
+    "conclusion": "Critic 判定C不达标并触发'强化档（增购车辆）'升级，总分 75.4 → 83.6，平均延误 8.1→4.0 min。闭环的价值是'让系统自己发现方案不可行并升级'。"
+  },
+  "baseline_metrics": {
+    "max_saturation": 1.196,
+    "avg_delay_min": 13.78,
+    "unmet_persons_per_hour": 1054,
+    "required_trains": 392,
+    "energy_kwh_per_day": 4538462.5
+  }
+}
