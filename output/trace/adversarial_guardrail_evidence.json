@@ -1,0 +1,166 @@
+{
+  "evidence_type": "adversarial_guardrail_test",
+  "generated_at": "2026-09-22T20:28:36+08:00",
+  "description": "确定性直接调用护栏模块（guardrail.validate + schemas.normalize_config + guardrail.repair），验证越界参数的三段留痕：requested → normalized_to → repaired_to。不经过 LLM，结果完全可复现。",
+  "test_cases": [
+    {
+      "test_case": "极限越界：超短发车间隔 + 超长编组 + 超高需求乘子",
+      "expected_rules": [
+        "GR-01",
+        "GR-03",
+        "GR-06"
+      ],
+      "actual_violations": [
+        "GR-01",
+        "GR-03",
+        "GR-06",
+        "GR-09"
+      ],
+      "all_expected_triggered": true,
+      "guardrail_passed": false,
+      "intercepted": true,
+      "three_stage_evidence": {
+        "requested": {
+          "headway_min": 2.0,
+          "formation_cars": 20,
+          "limit_level": 0,
+          "demand_mult": 3.0
+        },
+        "normalized_to": {
+          "headway_min": 4.0,
+          "formation_cars": 8,
+          "limit_level": 0,
+          "demand_mult": 2.0
+        },
+        "normalized_record": [
+          {
+            "field": "headway_min",
+            "from": 2.0,
+            "to": 4.0,
+            "rule": ">=4.0"
+          },
+          {
+            "field": "formation_cars",
+            "from": 20,
+            "to": 8,
+            "rule": "enum[2, 4, 6, 8]"
+          },
+          {
+            "field": "demand_mult",
+            "from": 3.0,
+            "to": 2.0,
+            "rule": "<=2.0"
+          }
+        ],
+        "repaired_to": {
+          "headway_min": 9.8,
+          "formation_cars": 8,
+          "limit_level": 0,
+          "demand_mult": 2.0
+        },
+        "repair_rounds": 1
+      }
+    },
+    {
+      "test_case": "配车不足：8min 高密度运营未增购车辆",
+      "expected_rules": [
+        "GR-09"
+      ],
+      "actual_violations": [
+        "GR-09"
+      ],
+      "all_expected_triggered": true,
+      "guardrail_passed": false,
+      "intercepted": true,
+      "three_stage_evidence": {
+        "requested": {
+          "headway_min": 8.0,
+          "formation_cars": 8,
+          "limit_level": 1,
+          "demand_mult": 1.0
+        },
+        "normalized_to": {
+          "headway_min": 8.0,
+          "formation_cars": 8,
+          "limit_level": 1,
+          "demand_mult": 1.0
+        },
+        "normalized_record": [],
+        "repaired_to": {
+          "headway_min": 9.8,
+          "formation_cars": 8,
+          "limit_level": 1,
+          "demand_mult": 1.0
+        },
+        "repair_rounds": 1
+      }
+    },
+    {
+      "test_case": "多规则触发：超长发车间隔 + 非法编组 + 非法限流等级 + 超低需求",
+      "expected_rules": [
+        "GR-02",
+        "GR-03",
+        "GR-04",
+        "GR-06"
+      ],
+      "actual_violations": [
+        "GR-02",
+        "GR-03",
+        "GR-04",
+        "GR-06",
+        "GR-07"
+      ],
+      "all_expected_triggered": true,
+      "guardrail_passed": false,
+      "intercepted": true,
+      "three_stage_evidence": {
+        "requested": {
+          "headway_min": 35.0,
+          "formation_cars": 5,
+          "limit_level": 5,
+          "demand_mult": 0.3
+        },
+        "normalized_to": {
+          "headway_min": 30.0,
+          "formation_cars": 4,
+          "limit_level": 3,
+          "demand_mult": 0.5
+        },
+        "normalized_record": [
+          {
+            "field": "headway_min",
+            "from": 35.0,
+            "to": 30.0,
+            "rule": "<=30.0"
+          },
+          {
+            "field": "formation_cars",
+            "from": 5,
+            "to": 4,
+            "rule": "enum[2, 4, 6, 8]"
+          },
+          {
+            "field": "limit_level",
+            "from": 5,
+            "to": 3,
+            "rule": "enum[0, 1, 2, 3]"
+          },
+          {
+            "field": "demand_mult",
+            "from": 0.3,
+            "to": 0.5,
+            "rule": ">=0.5"
+          }
+        ],
+        "repaired_to": {
+          "headway_min": 28.0,
+          "formation_cars": 8,
+          "limit_level": 3,
+          "demand_mult": 0.5
+        },
+        "repair_rounds": 2
+      }
+    }
+  ],
+  "all_passed": true
+}
