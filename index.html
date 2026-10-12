@@ -91,7 +91,25 @@ html,body { width:100%; height:100%; overflow:hidden; background:#0a1628;
 /* 智能体面板 */
 #agent-panel { position:absolute; bottom:20px; right:20px; z-index:9; width:760px; max-width:calc(100vw - 40px);
                 max-height:calc(100vh - 120px); overflow-y:auto;
-  background:rgba(0,20,40,.92); border:1px solid #00d4ff; border-radius:8px; padding:12px 14px; color:#fff; }
+  background:rgba(0,20,40,.86); border:1px solid #00d4ff; border-radius:8px; padding:12px 14px; color:#fff;
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+/* 柔和折叠态：初始只显示顶部标题栏窄条，不遮挡地图主体；点标题栏/「＋」展开 */
+#agent-panel.ap-collapsed { width:240px; padding:8px 12px; }
+#agent-panel.ap-collapsed .ap-scenarios,
+#agent-panel.ap-collapsed .ap-sub,
+#agent-panel.ap-collapsed .ap-cards,
+#agent-panel.ap-collapsed .ap-sep,
+#agent-panel.ap-collapsed #gdp-root,
+#agent-panel.ap-collapsed .ap-foot { display:none; }
+/* 折叠态 hover 自动展开（移开 900ms 后收起）——悬停预览，不改变钉住状态 */
+#agent-panel.ap-collapsed.ap-hover-open { width:760px; padding:12px 14px; }
+#agent-panel.ap-collapsed.ap-hover-open .ap-scenarios { display:flex; }
+#agent-panel.ap-collapsed.ap-hover-open .ap-sub,
+#agent-panel.ap-collapsed.ap-hover-open .ap-sep,
+#agent-panel.ap-collapsed.ap-hover-open #gdp-root { display:block; }
+#agent-panel.ap-collapsed.ap-hover-open .ap-cards { display:grid; }
+#agent-panel.ap-collapsed.ap-hover-open .ap-foot { display:flex; }
+#agent-panel { transition:width .28s ease, padding .28s ease; }
 #agent-panel .ap-head { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
 #agent-panel .ap-title { color:#00d4ff; font-size:14px; font-weight:bold; }
 #agent-panel .ap-scenarios { display:flex; gap:6px; flex-wrap:wrap; margin-left:auto; }
@@ -239,6 +257,10 @@ window.onerror = function (msg, src, line) {
     <button data-mod="transfer">换乘仿真</button>
     <button data-mod="emergency">应急演示</button>
     <button data-mod="optimize" class="opt-mod">优化出行方式</button>
+    <a href="emergency.html" target="_blank" title="智能体应急联动与仿真一体化处置（四智能体协同 · 全链路闭环）"
+       style="align-self:center;background:linear-gradient(180deg,rgba(120,30,30,.85),rgba(70,15,15,.85));border:1px solid #f87171;color:#ffc9c9;padding:6px 12px;border-radius:4px;font-size:12px;font-family:inherit;text-decoration:none;white-space:nowrap;">应急一体化</a>
+    <a href="experiments.html" target="_blank" title="仿真实验可视化（消融 + 参数矩阵扫描）"
+       style="align-self:center;background:linear-gradient(180deg,rgba(20,80,120,.85),rgba(10,50,80,.85));border:1px solid #38bdf8;color:#8fd8ff;padding:6px 12px;border-radius:4px;font-size:12px;font-family:inherit;text-decoration:none;white-space:nowrap;">仿真实验</a>
   </div>
 </div>
 
@@ -297,10 +319,15 @@ window.onerror = function (msg, src, line) {
   <div class="tp-source">流量为仿真推演（基于南昌站流量做换乘比例推演）</div>
 </div>
 
-<div id="agent-panel">
-  <div class="ap-head">
+<div id="agent-panel" class="ap-collapsed">
+  <div class="ap-head" onclick="toggleApCollapse()" title="点击展开 / 收起面板">
     <span class="ap-title">智能体决策面板</span>
     <div class="ap-scenarios" id="ap-scenarios"></div>
+    <span id="ap-fold" title="收起 / 展开"
+          style="cursor:pointer;color:#7ab8e0;font-size:12px;width:20px;height:20px;line-height:18px;text-align:center;border:1px solid #1a3a5c;border-radius:3px;">＋</span>
+    <span onclick="event.stopPropagation();document.getElementById('agent-panel').style.display='none'"
+          style="cursor:pointer;color:#5a8ab0;font-size:14px;padding:0 2px;"
+          title="关闭面板（点顶部导航「智能体面板」重新打开）">✕</span>
   </div>
   <!-- ★ 地图应急场景（4 类灾情/运营场景，驱动地图覆盖物）—— 与下方"治理方案"是两件事 -->
   <div class="ap-sub" id="ap-sub">地图应急场景（驱动地图覆盖物）</div>
@@ -1043,6 +1070,32 @@ document.getElementById('btn-layer-tourism').onclick=function(){
   renderLines();
 };
 
+// 智能体面板 折叠 / 展开（柔和折叠态：初始折叠为标题栏窄条）
+function toggleApCollapse(){
+  var p=document.getElementById('agent-panel');
+  if(!p) return;
+  var c=p.classList.toggle('ap-collapsed');
+  var f=document.getElementById('ap-fold');
+  if(f){ f.textContent=c?'＋':'—'; f.title=c?'展开面板':'收起面板'; }
+}
+// —— 折叠态 hover 自动展开 / 移开延迟收起（移开 900ms，给移入时间，避免闪跳）——
+var apHoverTimer=null;
+function apHoverIn(){
+  var p=document.getElementById('agent-panel');
+  if(!p || !p.classList.contains('ap-collapsed')) return;
+  clearTimeout(apHoverTimer);
+  p.classList.add('ap-hover-open');
+}
+function apHoverOut(){
+  var p=document.getElementById('agent-panel');
+  if(!p || !p.classList.contains('ap-collapsed')) return;
+  clearTimeout(apHoverTimer);
+  apHoverTimer=setTimeout(function(){ if(p.classList.contains('ap-collapsed')) p.classList.remove('ap-hover-open'); }, 900);
+}
+(function(){
+  var p=document.getElementById('agent-panel');
+  if(p){ p.addEventListener('mouseenter', apHoverIn); p.addEventListener('mouseleave', apHoverOut); }
+})();
 document.querySelectorAll('#module-nav button').forEach(function(b){
   b.onclick=function(){
     var mod=b.getAttribute('data-mod');
@@ -1052,7 +1105,7 @@ document.querySelectorAll('#module-nav button').forEach(function(b){
     if(mod==='heat'){heatOn=true;document.getElementById('btn-heat-toggle').textContent='隐藏热力';renderHeat();}
     if(mod==='transfer'){document.getElementById('transfer-panel').style.display='block';}
     if(mod==='emergency'){activateEmergency(!emergencyOn);}
-    if(mod==='agent'){renderAgent(curScen);}
+    if(mod==='agent'){var apEl=document.getElementById('agent-panel');if(apEl){apEl.style.display='block';apEl.classList.remove('ap-collapsed');var f=document.getElementById('ap-fold');if(f)f.textContent='—';}renderAgent(curScen);}
     if(mod==='optimize'){ if(window.toggleOptimizePanel) window.toggleOptimizePanel(); }
   };
 });
