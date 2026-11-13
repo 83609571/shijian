@@ -1,0 +1,7 @@
+# 赣鄱智轨 · 线路版 · 仿真与智能体依赖
+# 入口：run_agent.py（智能体命令行） / api_server.py（HTTP 服务）
+# 客流仿真：sim/passenger_flow_sim.py（生成 data/flow_*.json）
+# 智能体核心：agent/（Planner-Executor-Critic 三阶段 + 护栏）
+# 仅使用 Python 标准库（Python >= 3.10），无第三方依赖。
+# 如需用 pyecharts 重生成2D地图（可选，非必需），取消下行注释：
+# pyecharts>=2.0
