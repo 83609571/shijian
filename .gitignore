@@ -5,6 +5,7 @@ js/local-ak.js
 _规划/
 交接文档*.md
 *评审诊断*.md
+决赛材料/
 *.zip
 .claude/
 _codebuddy/
@@ -12,6 +13,8 @@ _codebuddy/
 # ===== 过程产物（按需保留）=====
 output/trace/
 output/_t/
+output/scratch/
+output/sim_results/*.json
 __pycache__/
 *.pyc
 .DS_Store
