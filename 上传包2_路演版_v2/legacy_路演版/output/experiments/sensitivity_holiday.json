@@ -1,0 +1,208 @@
+{
+  "scenario": "holiday",
+  "hub": "南昌站",
+  "base_config": {
+    "scenario": "holiday",
+    "headway_min": 8.0,
+    "formation_cars": 8,
+    "limit_level": 1,
+    "demand_mult": 1.0
+  },
+  "axes": {
+    "demand_mult": [
+      {
+        "param": 0.8,
+        "metrics": {
+          "max_saturation": 0.638,
+          "avg_delay_min": 4.0,
+          "unmet_persons_per_hour": 0,
+          "deferred_persons_per_hour": 0,
+          "required_trains": 582,
+          "energy_kwh_per_day": 6391408.1
+        }
+      },
+      {
+        "param": 0.9,
+        "metrics": {
+          "max_saturation": 0.718,
+          "avg_delay_min": 4.0,
+          "unmet_persons_per_hour": 0,
+          "deferred_persons_per_hour": 0,
+          "required_trains": 582,
+          "energy_kwh_per_day": 6450877.5
+        }
+      },
+      {
+        "param": 1.0,
+        "metrics": {
+          "max_saturation": 0.797,
+          "avg_delay_min": 4.0,
+          "unmet_persons_per_hour": 0,
+          "deferred_persons_per_hour": 0,
+          "required_trains": 582,
+          "energy_kwh_per_day": 6510346.9
+        }
+      },
+      {
+        "param": 1.1,
+        "metrics": {
+          "max_saturation": 0.807,
+          "avg_delay_min": 4.38,
+          "unmet_persons_per_hour": 0,
+          "deferred_persons_per_hour": 474,
+          "required_trains": 582,
+          "energy_kwh_per_day": 6569816.3
+        }
+      },
+      {
+        "param": 1.2,
+        "metrics": {
+          "max_saturation": 0.88,
+          "avg_delay_min": 5.34,
+          "unmet_persons_per_hour": 0,
+          "deferred_persons_per_hour": 517,
+          "required_trains": 582,
+          "energy_kwh_per_day": 6629285.6
+        }
+      }
+    ],
+    "headway_min": [
+      {
+        "param": 6,
+        "metrics": {
+          "max_saturation": 0.757,
+          "avg_delay_min": 3.0,
+          "unmet_persons_per_hour": 0,
+          "deferred_persons_per_hour": 0,
+          "required_trains": 775,
+          "energy_kwh_per_day": 8482231.2
+        }
+      },
+      {
+        "param": 8,
+        "metrics": {
+          "max_saturation": 0.797,
+          "avg_delay_min": 4.0,
+          "unmet_persons_per_hour": 0,
+          "deferred_persons_per_hour": 0,
+          "required_trains": 582,
+          "energy_kwh_per_day": 6510346.9
+        }
+      },
+      {
+        "param": 10,
+        "metrics": {
+          "max_saturation": 0.917,
+          "avg_delay_min": 7.49,
+          "unmet_persons_per_hour": 22,
+          "deferred_persons_per_hour": 431,
+          "required_trains": 467,
+          "energy_kwh_per_day": 5327216.3
+        }
+      },
+      {
+        "param": 12,
+        "metrics": {
+          "max_saturation": 1.1,
+          "avg_delay_min": 14.03,
+          "unmet_persons_per_hour": 1054,
+          "deferred_persons_per_hour": 1033,
+          "required_trains": 392,
+          "energy_kwh_per_day": 4538462.5
+        }
+      },
+      {
+        "param": 14,
+        "metrics": {
+          "max_saturation": 1.284,
+          "avg_delay_min": 22.19,
+          "unmet_persons_per_hour": 2031,
+          "deferred_persons_per_hour": 1435,
+          "required_trains": 335,
+          "energy_kwh_per_day": 3975067.0
+        }
+      }
+    ],
+    "formation_cars": [
+      {
+        "param": 4,
+        "metrics": {
+          "max_saturation": 0.797,
+          "avg_delay_min": 15.71,
+          "unmet_persons_per_hour": 2764,
+          "deferred_persons_per_hour": 0,
+          "required_trains": 582,
+          "energy_kwh_per_day": 3548617.1
+        }
+      },
+      {
+        "param": 6,
+        "metrics": {
+          "max_saturation": 0.797,
+          "avg_delay_min": 7.01,
+          "unmet_persons_per_hour": 279,
+          "deferred_persons_per_hour": 0,
+          "required_trains": 582,
+          "energy_kwh_per_day": 5031433.6
+        }
+      },
+      {
+        "param": 8,
+        "metrics": {
+          "max_saturation": 0.797,
+          "avg_delay_min": 4.0,
+          "unmet_persons_per_hour": 0,
+          "deferred_persons_per_hour": 0,
+          "required_trains": 582,
+          "energy_kwh_per_day": 6510346.9
+        }
+      }
+    ],
+    "limit_level": [
+      {
+        "param": 0,
+        "metrics": {
+          "max_saturation": 0.797,
+          "avg_delay_min": 4.0,
+          "unmet_persons_per_hour": 0,
+          "deferred_persons_per_hour": 0,
+          "required_trains": 582,
+          "energy_kwh_per_day": 6510346.9
+        }
+      },
+      {
+        "param": 1,
+        "metrics": {
+          "max_saturation": 0.797,
+          "avg_delay_min": 4.0,
+          "unmet_persons_per_hour": 0,
+          "deferred_persons_per_hour": 0,
+          "required_trains": 582,
+          "energy_kwh_per_day": 6510346.9
+        }
+      },
+      {
+        "param": 2,
+        "metrics": {
+          "max_saturation": 0.797,
+          "avg_delay_min": 4.0,
+          "unmet_persons_per_hour": 0,
+          "deferred_persons_per_hour": 0,
+          "required_trains": 582,
+          "energy_kwh_per_day": 6510346.9
+        }
+      },
+      {
+        "param": 3,
+        "metrics": {
+          "max_saturation": 0.797,
+          "avg_delay_min": 4.0,
+          "unmet_persons_per_hour": 0,
+          "deferred_persons_per_hour": 0,
+          "required_trains": 582,
+          "energy_kwh_per_day": 6510346.9
+        }
+      }
+    ]
+  }
+}

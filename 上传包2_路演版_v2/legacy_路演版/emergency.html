@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>赣鄱智轨 · 智能体应急联动与仿真一体化处置</title>
+<script src="lib/echarts.min.js"></script>
+<style>
+  :root{
+    --bg:#0b1526; --panel:#12203a; --panel2:#182a4a; --line:#24395c;
+    --txt:#e2e8f0; --sub:#8aa3bf; --cyan:#38bdf8; --green:#34d399;
+    --amber:#fbbf24; --red:#f87171; --purple:#a78bfa;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
+  .wrap{max-width:1200px;margin:0 auto;padding:24px 20px 60px;}
+  header{border-left:5px solid var(--red);padding-left:16px;margin-bottom:18px;}
+  header h1{font-size:22px;font-weight:800;}
+  header .sub{color:var(--sub);font-size:12px;margin-top:4px;line-height:1.6;}
+  .scene-bar{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0;}
+  .scene-bar button{background:var(--panel2);border:1px solid var(--line);color:var(--sub);
+    padding:8px 14px;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit;}
+  .scene-bar button.active{background:var(--red);border-color:var(--red);color:#1f0404;font-weight:700;}
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+  @media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr);}}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;}
+  .kpi .k{font-size:11px;color:var(--sub);}
+  .kpi .v{font-size:24px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums;}
+  .kpi .d{font-size:10px;color:var(--sub);margin-top:3px;line-height:1.5;}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:16px;}
+  .card h2{font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+  .card .note{font-size:11px;color:var(--sub);margin-bottom:10px;line-height:1.6;}
+  .chart{width:100%;height:320px;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:900px){.grid2{grid-template-columns:1fr;}}
+  .trigger{padding:10px 14px;border-left:4px solid var(--amber);background:rgba(251,191,36,.07);
+    border-radius:0 8px 8px 0;font-size:13px;line-height:1.7;margin-bottom:14px;}
+  .trigger b{color:var(--amber);}
+  .steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:6px;}
+  @media(max-width:900px){.steps{grid-template-columns:repeat(2,1fr);}}
+  .step{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px;}
+  .step .agent{font-size:13px;font-weight:700;color:var(--cyan);}
+  .step .win{font-size:11px;color:var(--green);margin:4px 0 6px;}
+  .step ul{list-style:none;}
+  .step li{font-size:11px;color:var(--txt);line-height:1.6;padding-left:12px;position:relative;}
+  .step li::before{content:"·";position:absolute;left:0;color:var(--sub);}
+  .viz-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
+  .viz-tags span{background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.35);
+    color:var(--cyan);font-size:11px;padding:4px 10px;border-radius:12px;}
+  .risk-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:6px;}
+  .risk-table th,.risk-table td{border:1px solid var(--line);padding:7px 10px;text-align:left;}
+  .risk-table th{background:var(--panel2);color:var(--sub);font-weight:600;}
+  .lv-y{color:#fde047;} .lv-o{color:#fb923c;} .lv-r{color:#f87171;}
+  .foot{margin-top:22px;font-size:11px;color:var(--sub);border-top:1px solid var(--line);padding-top:14px;line-height:1.8;}
+  #status{font-size:12px;color:var(--amber);min-height:18px;margin-bottom:8px;}
+  .verdict{padding:10px 14px;border-left:4px solid var(--green);background:rgba(52,211,153,.07);
+    border-radius:0 8px 8px 0;font-size:12px;line-height:1.8;}
+  nav.top{display:flex;gap:14px;margin-bottom:16px;font-size:12px;}
+  nav.top a{color:var(--cyan);text-decoration:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="top">
+    <a href="index.html">← 返回主界面</a><a href="experiments.html">仿真实验</a><a href="bmap.html">百度地图版</a>
+  </nav>
+  <header>
+    <h1>赣鄱智轨 · 智能体应急联动与仿真一体化处置</h1>
+    <div class="sub">客流预估 → 风险感知（ISAC/传感器） → 四智能体协同调度 → 仿真引擎全程验证 ·
+      5G-A 确定性网络底座（应急专用切片 + MEC 边缘 + 通感直感） · 全确定性可复算</div>
+  </header>
+
+  <div id="status">加载应急编排数据…</div>
+
+  <div class="scene-bar" id="scene-bar"></div>
+
+  <div class="trigger" id="trigger-box">—</div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="k">T0 风险感知</div><div class="v" id="k-sense">—</div><div class="d" id="k-sense-d">—</div></div>
+    <div class="kpi"><div class="k">全链路总响应（感知+四智能体）</div><div class="v" id="k-total">—</div><div class="d" id="k-total-d">—</div></div>
+    <div class="kpi"><div class="k">较人工调度（2h）提速</div><div class="v" id="k-speed">—</div><div class="d" id="k-speed-d">—</div></div>
+    <div class="kpi"><div class="k">仿真验证 · 旅客延误总量（人·分钟）</div><div class="v" id="k-pd">—</div><div class="d" id="k-pd-d">—</div></div>
+  </div>
+
+  <div class="card">
+    <h2><span style="color:var(--red)">▍</span>第一环 · 客流预估（常态运行，提前预判）</h2>
+    <div class="note" id="fc-note">站点基础流量 × 场景乘子；预测智能体在 MEC 边缘运行，结果毫秒级同步调度中心</div>
+    <div class="chart" id="c-forecast" style="height:260px"></div>
+  </div>
+
+  <div class="card">
+    <h2><span style="color:var(--cyan)">▍</span>四智能体协同时间线（5G-A 全要素 vs 4G 对照）</h2>
+    <div class="note">决策预算：灾害预警 ≤3s / 维保调度 ≤5s / 应急联动 ≤5s / 客流预测 ≤10s（MEC 边缘运行）；
+      传输走应急专用切片；4G 对照含中心云计算与人工确认回环。<span id="tl-note"></span></div>
+    <div class="chart" id="c-timeline" style="height:330px"></div>
+  </div>
+
+  <div class="card">
+    <h2><span style="color:var(--green)">▍</span>处置动作链（按智能体时序）</h2>
+    <div class="steps" id="steps"></div>
+    <div style="margin-top:12px;font-size:12px;color:var(--sub);">地图表现：</div>
+    <div class="viz-tags" id="viz-tags"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2><span style="color:var(--amber)">▍</span>仿真验证 · 基线 vs 处置后</h2>
+      <div class="note">基线 = 既有间隔 + 走廊既有网络；处置后 = 智能体方案（间隔/编组/限流）+ 5G-A 全要素。
+        经 comm_layer 确定性复算。</div>
+      <div class="chart" id="c-verify" style="height:300px"></div>
+    </div>
+    <div class="card">
+      <h2><span style="color:var(--purple)">▍</span>五场景总响应对比（含 4G 与人工对照）</h2>
+      <div class="note">对数轴：人工调度 7200s / 4G 对照 / 5G-A 全要素 —— 决策预算 23s + 感知与传输。</div>
+      <div class="chart" id="c-scenes" style="height:300px"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span style="color:var(--red)">▍</span>风险分级（边坡示例）</h2>
+    <table class="risk-table">
+      <tr><th>等级</th><th>位移速率</th><th>降雨条件</th><th>响应措施</th></tr>
+      <tr><td class="lv-y">黄色</td><td>0.6mm/d</td><td>降雨持续</td><td>加密巡检，准备限速</td></tr>
+      <tr><td class="lv-o">橙色</td><td>1.0mm/d</td><td>降雨超阈值</td><td>限速20km/h，改线准备</td></tr>
+      <tr><td class="lv-r">红色</td><td>突破历史极值</td><td>极端降雨</td><td>区段停运，全线疏散</td></tr>
+    </table>
+    <div class="verdict" id="verdict" style="margin-top:12px;">—</div>
+  </div>
+
+  <div class="foot">
+    数据来源：<code>data/emergency_orchestration.json</code>（由 <code>python -m sim.emergency_orchestration</code> 生成）·
+    时间线与仿真验证同 <code>sim/comm_layer.py</code> 底账（R 链路 / 切片 / MEC / ISAC）·
+    全部数值为确定性仿真推演（real=False 口径），锚点见 <code>data/comm_capability.json</code>。
+  </div>
+</div>
+
+<script>
+  var charts = {};
+  var DATA = null, CUR = 'landslide';
+  var accent='#38bdf8', green='#34d399', amber='#fbbf24', red='#f87171',
+      sub='#8aa3bf', line='#24395c', txt='#e2e8f0', purple='#a78bfa';
+  function el(id){ return document.getElementById(id); }
+  function tooltip(){ return {trigger:'axis',triggerOn:'click',renderMode:'richText',confine:true}; }
+
+  function init(){
+    ['c-forecast','c-timeline','c-verify','c-scenes'].forEach(function(id){
+      charts[id] = echarts.init(el(id));
+    });
+    fetch('data/emergency_orchestration.json').then(function(r){ return r.json(); })
+      .then(function(d){
+        DATA = d;
+        var bar = el('scene-bar');
+        d.scenes.forEach(function(s){
+          var b = document.createElement('button');
+          b.textContent = s.scene_name + (s.risk === '红色' ? ' 🔴' : ' 🟠');
+          b.id = 'sc-' + s.scene_id;
+          b.onclick = function(){ renderScene(s.scene_id); };
+          bar.appendChild(b);
+        });
+        renderAll();
+        el('status').textContent = '已加载五类场景编排数据（全确定性）';
+      })
+      .catch(function(e){ el('status').textContent = '加载失败：' + e + '（请先运行 python -m sim.emergency_orchestration）'; });
+    window.addEventListener('resize', function(){ for(var k in charts) charts[k].resize(); });
+  }
+
+  function renderAll(){
+    /* 五场景总响应对比（对数轴） */
+    var names = DATA.scenes.map(function(s){ return s.scene_name; });
+    charts['c-scenes'].setOption({
+      tooltip:tooltip(),
+      grid:{left:64,right:30,top:30,bottom:60},
+      xAxis:{type:'category',data:names,axisLabel:{color:txt,fontSize:10,interval:0,rotate:18},
+        axisLine:{lineStyle:{color:line}}},
+      yAxis:{type:'log',name:'响应时间(秒·对数)',nameTextStyle:{color:sub,fontSize:10},
+        axisLabel:{color:sub,fontSize:10},splitLine:{lineStyle:{color:line}}},
+      series:[
+        {name:'人工调度',type:'bar',barWidth:'22%',data:names.map(function(){return 7200;}),
+         itemStyle:{color:'#64748b'}},
+        {name:'4G 对照',type:'bar',barWidth:'22%',
+         data:DATA.scenes.map(function(s){return s.timeline_control_4g.total_s;}),
+         itemStyle:{color:amber}},
+        {name:'5G-A 全要素',type:'bar',barWidth:'22%',
+         data:DATA.scenes.map(function(s){return s.timeline.total_s;}),
+         itemStyle:{color:green},
+         label:{show:true,position:'top',color:green,fontSize:10,formatter:'{c}s'}}
+      ]
+    });
+    var b = DATA.total_response_budget_s;
+    el('verdict').innerHTML = '<b>总响应 ≈ ' +
+      Math.min.apply(null, DATA.scenes.map(function(s){return s.timeline.total_s;})) + '~' +
+      Math.max.apply(null, DATA.scenes.map(function(s){return s.timeline.total_s;})) +
+      's</b>（四智能体决策预算 ' + b + 's + T0 感知 + 切片传输），较人工调度 ' +
+      DATA.manual_baseline_min + ' 分钟快约两个数量级；仿真验证表明处置后旅客延误、受影响人次'
+      + '与恢复时间全面下降 —— 客流走向提前预判，事故触发秒级响应，四类智能体协同处置，仿真引擎全程验证。';
+  }
+
+  function renderScene(id){
+    CUR = id;
+    document.querySelectorAll('[id^="sc-"]').forEach(function(b){
+      b.classList.toggle('active', b.id === 'sc-' + id); });
+    var s = DATA.scenes.filter(function(x){ return x.scene_id === id; })[0];
+    if(!s) return;
+    el('trigger-box').innerHTML = '<b>[' + s.risk + '预警] ' + s.scene_name + '</b> · ' + s.trigger +
+      ' · 枢纽：' + s.hub;
+    /* KPI */
+    el('k-sense').textContent = s.timeline.sense_s + ' s';
+    el('k-sense-d').textContent = 'T0 · ' + s.timeline.t0_label + (s.timeline.isac ? '（ISAC 通感直感）' : '');
+    el('k-total').textContent = s.timeline.total_s + ' s';
+    el('k-total-d').textContent = s.timeline.net_label + ' · ' + (s.timeline.slice_label || '无切片') +
+      ' · ' + s.timeline.compute_at;
+    el('k-speed').textContent = s.speedup_vs_manual.toFixed(0) + ' ×';
+    el('k-speed-d').textContent = '人工调度对照 ' + s.manual_baseline_min + ' min；4G 对照 ' +
+      s.timeline_control_4g.total_s + 's';
+    var v = s.verify;
+    el('k-pd').textContent = v ? (v.baseline.delay_person_min.toLocaleString() + ' → ' +
+      v.handled.delay_person_min.toLocaleString()) : '—';
+    el('k-pd-d').textContent = v ? '基线 → 处置后（-' +
+      v.delta.delay_person_min_reduction.toLocaleString() + '）' : '';
+    /* 客流预估 */
+    var fc = s.forecast;
+    el('fc-note').textContent = fc.method + ' · 场景乘子：通勤×' + fc.multipliers[fc.scenario].commuter +
+      ' / 旅游×' + fc.multipliers[fc.scenario].tourism + ' · 未来1h预估 ' +
+      fc.next_1h_total.toLocaleString() + ' 人次';
+    charts['c-forecast'].setOption({
+      tooltip:tooltip(),
+      grid:{left:70,right:40,top:34,bottom:30},
+      xAxis:{type:'value',name:'人次/日',nameTextStyle:{color:sub,fontSize:10},
+        axisLabel:{color:sub,fontSize:10},splitLine:{lineStyle:{color:line}}},
+      yAxis:{type:'category',data:fc.top5.map(function(t){return t.name;}).reverse(),
+        axisLabel:{color:txt,fontSize:12}},
+      series:[
+        {name:'全日流量',type:'bar',barWidth:'38%',
+         data:fc.top5.map(function(t){return t.flow;}).reverse(),
+         itemStyle:{color:accent},label:{show:true,position:'right',color:txt,fontSize:10}},
+        {name:'未来1h预估',type:'bar',barWidth:'38%',
+         data:fc.top5.map(function(t){return t.next_1h;}).reverse(),
+         itemStyle:{color:green},label:{show:true,position:'right',color:green,fontSize:10}}
+      ]
+    });
+    /* 时间线（甘特） */
+    el('tl-note').textContent = '本场景：' + s.timeline.net_label + ' · ' +
+      (s.timeline.slice_label || '无切片') + ' · ' + s.timeline.compute_at;
+    var rows = [
+      {name:'T0 风险感知', s:0, e:s.timeline.sense_s, c:red},
+      {name:'4G 对照 · 总响应', s:0, e:s.timeline_control_4g.total_s, c:'#64748b', ctl:true}
+    ];
+    s.timeline.stages.forEach(function(st){
+      rows.push({name:st.agent, s:st.start_s, e:st.end_s, c:accent});
+    });
+    var cats = rows.map(function(r){return r.name;});
+    charts['c-timeline'].setOption({
+      tooltip:{trigger:'item',confine:true,
+        formatter:function(p){
+          var r = rows[p.dataIndex];
+          return r.name + '<br>' + r.s + 's → ' + r.e + 's（' + (r.e - r.s).toFixed(3) + 's）' +
+            (r.ctl ? '<br>含中心云计算与人工确认回环' : '');
+        }},
+      grid:{left:120,right:60,top:30,bottom:40},
+      xAxis:{type:'value',name:'秒（对数坐标不适用甘特，线性展示）',
+        nameTextStyle:{color:sub,fontSize:10},axisLabel:{color:sub,fontSize:10},
+        splitLine:{lineStyle:{color:line}}},
+      yAxis:{type:'category',data:cats.slice().reverse(),
+        axisLabel:{color:txt,fontSize:11}},
+      series:[{type:'custom',renderItem:function(params,api){
+          var idx = cats.length - 1 - params.dataIndex;
+          var r = rows[idx];
+          var start = api.coord([r.s, idx]);
+          var end = api.coord([Math.max(r.e, r.s + 0.15), idx]);
+          var h = api.size([0, 1])[1] * 0.5;
+          return {type:'rect',shape:{x:start[0],y:start[1]-h/2,width:Math.max(end[0]-start[0],4),height:h},
+            style:{fill:r.c,r:4}};
+        },data:rows.map(function(){return 0;}),
+        encode:{x:0,y:0}}]
+    });
+    /* 处置动作 */
+    var colors = {t:accent};
+    el('steps').innerHTML = s.steps.map(function(st, i){
+      var ag = s.timeline.stages[i];
+      return '<div class="step"><div class="agent">' + st.agent + '</div>' +
+        '<div class="win">' + (ag ? (ag.start_s + '~' + ag.end_s + 's') : '') + '</div>' +
+        '<ul>' + st.actions.map(function(a){ return '<li>' + a + '</li>'; }).join('') + '</ul></div>';
+    }).join('');
+    el('viz-tags').innerHTML = s.map_visual.map(function(m){ return '<span>' + m + '</span>'; }).join('');
+    /* 仿真验证 */
+    if(v){
+      charts['c-verify'].setOption({
+        tooltip:tooltip(),
+        legend:{top:4,textStyle:{color:sub,fontSize:11}},
+        grid:{left:56,right:20,top:40,bottom:36},
+        xAxis:{type:'category',data:['总恢复(min)','受影响(人次)','旅客延误(人·分钟)'],
+          axisLabel:{color:txt,fontSize:11},axisLine:{lineStyle:{color:line}}},
+        yAxis:{type:'value',axisLabel:{color:sub,fontSize:10},splitLine:{lineStyle:{color:line}}},
+        series:[
+          {name:'基线（既有）',type:'bar',barWidth:'30%',
+           data:[v.baseline.recovery_min, v.baseline.affected, v.baseline.delay_person_min],
+           itemStyle:{color:red},label:{show:true,position:'top',color:txt,fontSize:10}},
+          {name:'处置后（智能体+5G-A）',type:'bar',barWidth:'30%',
+           data:[v.handled.recovery_min, v.handled.affected, v.handled.delay_person_min],
+           itemStyle:{color:green},label:{show:true,position:'top',color:green,fontSize:10}}
+        ]
+      });
+    }
+  }
+  window.addEventListener('load', init);
+</script>
+</body>
+</html>

@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>赣鄱智轨 · 仿真实验可视化（消融 + 参数矩阵扫描）</title>
+<script src="lib/echarts.min.js"></script>
+<style>
+  :root{
+    --bg:#0b1526; --panel:#12203a; --panel2:#182a4a; --line:#24395c;
+    --txt:#e2e8f0; --sub:#8aa3bf; --cyan:#38bdf8; --green:#34d399; --amber:#fbbf24; --red:#f87171;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;}
+  .wrap{max-width:1200px;margin:0 auto;padding:24px 20px 60px;}
+  header{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-bottom:22px;border-left:5px solid var(--cyan);padding-left:16px;}
+  header h1{font-size:22px;font-weight:800;}
+  header .sub{color:var(--sub);font-size:12px;margin-top:4px;}
+  .sc-switch{margin-left:auto;display:flex;gap:8px;align-items:center;}
+  .sc-switch a.nav-home{background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+    padding:7px 16px;border-radius:6px;font-size:13px;text-decoration:none;display:inline-block;font-family:inherit;}
+  .sc-switch a.nav-home:hover{border-color:var(--cyan);color:var(--cyan);}
+  .sc-switch button{background:var(--panel2);border:1px solid var(--line);color:var(--sub);padding:7px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-family:inherit;}
+  .sc-switch button.active{background:var(--cyan);color:#04121f;border-color:var(--cyan);font-weight:700;}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+  @media(max-width:900px){.grid{grid-template-columns:1fr;}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px;}
+  .card h2{font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+  .card .note{font-size:11px;color:var(--sub);margin-bottom:10px;line-height:1.5;}
+  .chart{width:100%;height:320px;}
+  .legend-row{display:flex;flex-wrap:wrap;gap:14px;font-size:11px;color:var(--sub);margin:8px 0 4px;}
+  .legend-row i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:middle;}
+  .foot{margin-top:26px;font-size:11px;color:var(--sub);border-top:1px solid var(--line);padding-top:14px;}
+  #status{font-size:12px;color:var(--amber);min-height:18px;}
+  /* ---- 实验⑥ SLA 切换台 ---- */
+  .sla-bar{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:10px 0 12px;}
+  .sla-bar .grp{display:flex;align-items:center;gap:6px;}
+  .sla-bar .grp b{font-size:11px;color:var(--sub);font-weight:600;}
+  .sla-bar button{background:var(--panel2);border:1px solid var(--line);color:var(--sub);
+    padding:5px 12px;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit;}
+  .sla-bar button.active{background:var(--cyan);color:#04121f;border-color:var(--cyan);font-weight:700;}
+  .sla-bar button.active.g-4g{background:var(--red);border-color:var(--red);color:#1f0404;}
+  .sla-bar button.active.g-5g{background:var(--amber);border-color:var(--amber);color:#1f1404;}
+  .sla-bar button.active.g-5ga{background:var(--green);border-color:var(--green);color:#04170c;}
+  .sla-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:12px;}
+  @media(max-width:900px){.sla-cards{grid-template-columns:repeat(2,1fr);}}
+  .kpi{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;}
+  .kpi .k{font-size:11px;color:var(--sub);}
+  .kpi .v{font-size:22px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums;}
+  .kpi .d{font-size:10px;color:var(--sub);margin-top:3px;}
+  .sla-verdict{margin-top:12px;padding:10px 14px;border-left:4px solid var(--green);
+    background:rgba(52,211,153,.07);border-radius:0 8px 8px 0;font-size:12px;line-height:1.7;color:var(--txt);}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>赣鄱智轨 · 仿真实验可视化</h1>
+      <div class="sub">消融实验（策略 / 护栏 / 闭环 / 规划器）+ 参数矩阵扫描 + 通信能力消融（5G-A 通感算智一体化） · 引擎 engine_b + comm_layer · 全确定性可复现</div>
+    </div>
+    <div class="sc-switch">
+      <a class="nav-home" href="index.html">← 返回主平台</a>
+      <a class="nav-home" href="emergency.html">应急页</a>
+      <button id="sc-holiday" class="active" onclick="load('holiday')">节假日</button>
+      <button id="sc-weekday" onclick="load('weekday')">工作日</button>
+    </div>
+  </header>
+
+  <div id="status">加载中…</div>
+
+  <div class="grid">
+    <div class="card">
+      <h2><span style="color:var(--cyan)">▍</span>治理策略对照</h2>
+      <div class="note">同一真实需求下，四类治理范式的加权总分（拥堵.4·服务.3·成本.2·稳健.1，与 Critic 同口径）</div>
+      <div class="chart" id="c-strategy"></div>
+    </div>
+    <div class="card">
+      <h2><span style="color:var(--green)">▍</span>客流敏感度（±20%）</h2>
+      <div class="note">推荐方案最大饱和度 / 平均延误随客流乘子 0.8~1.2 的波动，验证结论稳健</div>
+      <div class="chart" id="c-demand"></div>
+    </div>
+    <div class="card">
+      <h2><span style="color:var(--amber)">▍</span>发车间隔敏感度</h2>
+      <div class="note">最大饱和度 / 平均延误随发车间隔 6~14min 的波动</div>
+      <div class="chart" id="c-headway"></div>
+    </div>
+    <div class="card">
+      <h2><span style="color:var(--red)">▍</span>护栏消融（越界参数 ON/OFF）</h2>
+      <div class="note">同一组越界参数（间隔2min/编组20/限流5/客流×3）：护栏OFF裸执行 vs ON钳制修正</div>
+      <div class="chart" id="c-guardrail"></div>
+    </div>
+    <div class="card" style="grid-column:1/-1">
+      <h2><span style="color:var(--cyan)">▍</span>Critic 闭环价值 + 规划器对照</h2>
+      <div class="note">闭环：Critic 判定方案C不达标 → 自动升级强化档D；规划器：1次结构化生成 vs 60次随机盲搜（同前提、同稳健性口径）</div>
+      <div class="chart" id="c-closure" style="height:360px"></div>
+    </div>
+    <div class="card" style="grid-column:1/-1">
+      <h2><span style="color:var(--green)">▍</span>实验④ · 通信能力消融（5G-A 通感算智一体化 · ICT 是仿真自变量）</h2>
+      <div class="note">同一治理方案（D 档）× 同一列车故障，只变网络档位：响应链路 R、总恢复时间与旅客延误随之变化且可复算 ——
+        通信能力真正进入了仿真闭环，而非展示层名词。左：R 链路四段分解（感知/传输/计算/执行 × 确认轮次）；
+        右：三档网络下的总恢复时间 / 受影响人次 / 旅客延误（人·分钟）。R = (T_sense + T_comm + T_compute) × n_rounds + T_execute</div>
+      <div class="grid">
+        <div class="chart" id="c-comm-r" style="height:340px"></div>
+        <div class="chart" id="c-comm-impact" style="height:340px"></div>
+      </div>
+    </div>
+    <div class="card" style="grid-column:1/-1">
+      <h2><span style="color:var(--cyan)">▍</span>实验⑤ · 网络 SLA 对照（对照组 4G vs 实验组 A/B/C）</h2>
+      <div class="note">对照组：4G 传统铁路通信（无切片 · 中心云 · 人工确认）；实验组A：5G-A 确定性网络（应急切片 · 南昌 MEC）；
+        B：A + ISAC 通感直感；C：A + AI 空口（弱覆盖段增强）。判据：链路时间（感知+传输+计算）与决策执行成功率随网络 SLA 变化且可复算。
+        左：四组链路时间与成功率；右：ISAC 通感 vs 专用传感网的成本-感知提速对照 + 弱覆盖段增强效果。</div>
+      <div class="grid">
+        <div class="chart" id="c-sla-chain" style="height:340px"></div>
+        <div class="chart" id="c-sla-isac" style="height:340px"></div>
+      </div>
+    </div>
+    <div class="card" style="grid-column:1/-1">
+      <h2><span style="color:var(--cyan)">▍</span>实验⑥ · 网络 SLA 切换台（现场交互 · 亲手验证 ICT 是自变量）</h2>
+      <div class="note">切换网络档位 / 切片 / 推理位置 / ISAC / AI 空口，前端用与后端<b>同一公式、同一参数</b>
+        （R = (T_sense + T_comm + T_compute) × n_rounds + T_execute，常量取自 data/comm_capability.json 的 model_params）
+        实时复算应急响应指标 —— 答辩现场评委亲手切一遍，即可验证「同一事件，网络档位决定少滞留多少人」。</div>
+      <div class="sla-bar">
+        <div class="grp"><b>网络档位</b>
+          <button id="sl-net-4G"    class="g-4g"  onclick="slaSet('net','4G')">4G</button>
+          <button id="sl-net-5G"    class="g-5g"  onclick="slaSet('net','5G')">5G</button>
+          <button id="sl-net-5G-A"  class="g-5ga" onclick="slaSet('net','5G-A')">5G-A</button>
+        </div>
+        <div class="grp"><b>切片</b>
+          <button id="sl-sl-1" onclick="slaSet('slice',null)">无</button>
+          <button id="sl-sl-2" onclick="slaSet('slice','commuter')">通勤</button>
+          <button id="sl-sl-3" onclick="slaSet('slice','emergency')">应急专用</button>
+        </div>
+        <div class="grp"><b>推理位置</b>
+          <button id="sl-mec-1" onclick="slaSet('mec',null)">默认</button>
+          <button id="sl-mec-2" onclick="slaSet('mec','nanchang')">南昌MEC</button>
+          <button id="sl-mec-3" onclick="slaSet('mec','jiujiang')">九江MEC</button>
+          <button id="sl-mec-4" onclick="slaSet('mec','shangrao')">上饶MEC</button>
+        </div>
+        <div class="grp"><b>增强</b>
+          <button id="sl-isa" onclick="slaToggle('isac')">ISAC 通感</button>
+          <button id="sl-ai"  onclick="slaToggle('ai')">AI 空口(弱覆盖)</button>
+        </div>
+        <div class="grp"><b>事件</b>
+          <button id="sl-ev-1" class="active" onclick="slaSet('event','train_fault')">列车故障</button>
+          <button id="sl-ev-2" onclick="slaSet('event','landslide')">暴雨边坡</button>
+          <button id="sl-ev-3" onclick="slaSet('event','foreign_object')">异物侵限</button>
+          <button id="sl-ev-4" onclick="slaSet('event','crowd_surge')">大客流</button>
+        </div>
+      </div>
+      <div class="sla-cards">
+        <div class="kpi"><div class="k">响应链路 R（感知+传输+计算）× 确认轮次</div><div class="v" id="sla-r">—</div><div class="d" id="sla-r-d">—</div></div>
+        <div class="kpi"><div class="k">决策执行成功率（可靠性×(1−丢包) 轮次幂）</div><div class="v" id="sla-rate">—</div><div class="d" id="sla-rate-d">—</div></div>
+        <div class="kpi"><div class="k">总恢复时间（R + 物理处置 + 消散）</div><div class="v" id="sla-tr">—</div><div class="d" id="sla-tr-d">—</div></div>
+        <div class="kpi"><div class="k">旅客延误总量（人·分钟）</div><div class="v" id="sla-pd">—</div><div class="d" id="sla-pd-d">—</div></div>
+      </div>
+      <div class="grid" style="margin-top:12px">
+        <div class="chart" id="c-sla-live-r" style="height:300px"></div>
+        <div class="chart" id="c-sla-live-impact" style="height:300px"></div>
+      </div>
+      <div class="sla-verdict" id="sla-verdict">加载通信能力底账…</div>
+    </div>
+  </div>
+
+  <div class="foot">数据来源：<code>output/experiments/ablation_&lt;场景&gt;.json</code> · <code>sensitivity_&lt;场景&gt;.json</code> · <code>comm_ablation_&lt;场景&gt;.json</code> · <code>network_sla_&lt;场景&gt;.json</code>（由 <code>python3 experiments.py</code> 生成）· 口径与智能体 Critic 完全一致 · 通信锚点台账见 <code>data/comm_capability.json</code>（3GPP URLLC / R19 ISAC / 高铁 5G 案例量级，推演值已标注）。</div>
+</div>
+
+<script>
+  var charts = {};
+  var SC = 'holiday';
+  var accent='#38bdf8', green='#34d399', amber='#fbbf24', red='#f87171', sub='#8aa3bf', line='#24395c', txt='#e2e8f0';
+  function el(id){ return document.getElementById(id); }
+  function initCharts(){
+    ['c-strategy','c-demand','c-headway','c-guardrail','c-closure','c-comm-r','c-comm-impact','c-sla-chain','c-sla-isac','c-sla-live-r','c-sla-live-impact'].forEach(function(id){
+      charts[id] = echarts.init(el(id));
+    });
+  }
+  function tooltip(){ return {trigger:'axis',triggerOn:'click',renderMode:'richText',confine:true}; }
+
+  function load(sc){
+    SC = sc;
+    el('sc-holiday').classList.toggle('active', sc==='holiday');
+    el('sc-weekday').classList.toggle('active', sc==='weekday');
+    el('status').textContent = '加载 ' + sc + ' 实验数据…';
+    Promise.all([
+      fetch('output/experiments/ablation_' + sc + '.json').then(function(r){ return r.json(); }),
+      fetch('output/experiments/sensitivity_' + sc + '.json').then(function(r){ return r.json(); }),
+      fetch('output/experiments/comm_ablation_' + sc + '.json').then(function(r){ return r.json(); })
+        .catch(function(){ return null; }),
+      fetch('output/experiments/network_sla_' + sc + '.json').then(function(r){ return r.json(); })
+        .catch(function(){ return null; })
+    ]).then(function(rs){ render(rs[0], rs[1], rs[2]); renderSla(rs[3]); })
+      .catch(function(e){ el('status').textContent = '加载失败：' + e + '（请先运行 python3 experiments.py）'; });
+  }
+
+  function render(ab, sen, comm){
+    renderComm(comm);
+    el('status').textContent = '场景：' + (SC==='holiday'?'节假日':'工作日') + ' · 枢纽：' + ab.hub + ' · 已加载 ' + SC + ' 实验数据';
+    var st = ab.strategy;
+
+    // 图1 策略对照（分组横向：总分）
+    var names = ['基准','A 供给','B 需求','D 强化'];
+    var scores = [st.baseline.score.total, st.A.score.total, st.B.score.total, st.D.score.total];
+    charts['c-strategy'].setOption({
+      tooltip:tooltip(),
+      legend:{top:6,textStyle:{color:sub,fontSize:11}},
+      grid:{left:70,right:30,top:40,bottom:30},
+      xAxis:{type:'value',max:100,axisLabel:{color:sub,fontSize:11},splitLine:{lineStyle:{color:line}}},
+      yAxis:{type:'category',data:names,axisLabel:{color:txt,fontSize:12}},
+      series:[{type:'bar',name:'加权总分',data:[
+        {value:scores[0],itemStyle:{color:'#64748b'}},
+        {value:scores[1],itemStyle:{color:amber}},
+        {value:scores[2],itemStyle:{color:'#fb7185'}},
+        {value:scores[3],itemStyle:{color:green}}
+      ],label:{show:true,position:'right',color:txt,fontSize:11,formatter:'{c}分'},barWidth:'52%'}]
+    });
+
+    // 图2 客流敏感度
+    var dm = sen.axes.demand_mult;
+    var cSat = dm.map(function(c){return c.metrics.max_saturation;});
+    var cDel = dm.map(function(c){return c.metrics.avg_delay_min;});
+    charts['c-demand'].setOption({
+      tooltip:tooltip(),
+      legend:{top:6,textStyle:{color:sub,fontSize:11}},
+      grid:{left:45,right:50,top:40,bottom:30},
+      xAxis:{type:'category',data:dm.map(function(c){return '×'+c.param;}),axisLabel:{color:txt,fontSize:11},axisLine:{lineStyle:{color:line}}},
+      yAxis:[
+        {type:'value',name:'最大饱和度',nameTextStyle:{color:sub,fontSize:10},axisLabel:{color:sub,fontSize:10},splitLine:{lineStyle:{color:line}},max:1.2},
+        {type:'value',name:'延误(min)',nameTextStyle:{color:sub,fontSize:10},axisLabel:{color:sub,fontSize:10},splitLine:{show:false}}
+      ],
+      series:[
+        {name:'最大饱和度',type:'line',data:cSat,smooth:true,symbolSize:7,lineStyle:{width:2,color:accent},itemStyle:{color:accent},yAxisIndex:0},
+        {name:'平均延误',type:'line',data:cDel,smooth:true,symbolSize:7,lineStyle:{width:2,color:green},itemStyle:{color:green},yAxisIndex:1}
+      ]
+    });
+
+    // 图3 发车间隔敏感度
+    var hw = sen.axes.headway_min;
+    charts['c-headway'].setOption({
+      tooltip:tooltip(),
+      legend:{top:6,textStyle:{color:sub,fontSize:11}},
+      grid:{left:45,right:50,top:40,bottom:30},
+      xAxis:{type:'category',data:hw.map(function(c){return c.param+'min';}),axisLabel:{color:txt,fontSize:11},axisLine:{lineStyle:{color:line}}},
+      yAxis:[
+        {type:'value',name:'最大饱和度',nameTextStyle:{color:sub,fontSize:10},axisLabel:{color:sub,fontSize:10},splitLine:{lineStyle:{color:line}}},
+        {type:'value',name:'延误(min)',nameTextStyle:{color:sub,fontSize:10},axisLabel:{color:sub,fontSize:10},splitLine:{show:false}}
+      ],
+      series:[
+        {name:'最大饱和度',type:'line',data:hw.map(function(c){return c.metrics.max_saturation;}),smooth:true,symbolSize:7,lineStyle:{width:2,color:accent},itemStyle:{color:accent},yAxisIndex:0},
+        {name:'平均延误',type:'line',data:hw.map(function(c){return c.metrics.avg_delay_min;}),smooth:true,symbolSize:7,lineStyle:{width:2,color:green},itemStyle:{color:green},yAxisIndex:1}
+      ]
+    });
+
+    // 图4 护栏消融（配车 + 饱和度双指标）
+    var gr = ab.guardrail;
+    charts['c-guardrail'].setOption({
+      tooltip:tooltip(),
+      legend:{top:6,textStyle:{color:sub,fontSize:11}},
+      grid:{left:45,right:50,top:40,bottom:30},
+      xAxis:{type:'category',data:['护栏 OFF（裸执行）','护栏 ON（钳制修正）'],axisLabel:{color:txt,fontSize:12},axisLine:{lineStyle:{color:line}}},
+      yAxis:[
+        {type:'value',name:'最大饱和度',nameTextStyle:{color:sub,fontSize:10},axisLabel:{color:sub,fontSize:10},splitLine:{lineStyle:{color:line}}},
+        {type:'value',name:'配车需求(列)',nameTextStyle:{color:sub,fontSize:10},axisLabel:{color:sub,fontSize:10},splitLine:{show:false}}
+      ],
+      series:[
+        {name:'最大饱和度',type:'bar',data:[
+          {value:gr.off_metrics.max_saturation,itemStyle:{color:red}},
+          {value:gr.on_metrics.max_saturation,itemStyle:{color:green}}
+        ],barWidth:'30%',yAxisIndex:0,label:{show:true,position:'top',color:txt,fontSize:11}},
+        {name:'配车需求',type:'bar',data:[
+          {value:gr.off_metrics.required_trains,itemStyle:{color:'#f59e0b'}},
+          {value:gr.on_metrics.required_trains,itemStyle:{color:'#22c55e'}}
+        ],barWidth:'30%',yAxisIndex:1,label:{show:true,position:'top',color:txt,fontSize:11}}
+      ]
+    });
+
+    // 图5 闭环 + 规划器
+    var cl = ab.closure;
+    var pl = ab.planner;
+    charts['c-closure'].setOption({
+      tooltip:tooltip(),
+      legend:{top:6,textStyle:{color:sub,fontSize:11}},
+      grid:{left:45,right:40,top:40,bottom:30},
+      xAxis:{type:'category',data:['单轮（C修正版）','完整闭环（Critic→D）','随机盲搜60次','智能体1次生成'],axisLabel:{color:txt,fontSize:12},axisLine:{lineStyle:{color:line}}},
+      yAxis:{type:'value',name:'加权总分',nameTextStyle:{color:sub,fontSize:10},axisLabel:{color:sub,fontSize:10},splitLine:{lineStyle:{color:line}},max:100},
+      series:[{type:'bar',name:'加权总分',data:[
+        {value:cl.no_critic.score.total,itemStyle:{color:'#64748b'}},
+        {value:cl.with_critic.score.total,itemStyle:{color:green}},
+        {value:pl.best_random.score.total,itemStyle:{color:amber}},
+        {value:pl.agent_recommended_D.score.total,itemStyle:{color:accent}}
+      ],barWidth:'44%',label:{show:true,position:'top',color:txt,fontSize:11,formatter:'{c}分'}}]
+    });
+    resizeAll();
+  }
+
+  function renderComm(comm){
+    var has = !!(comm && comm.matrix && comm.matrix.train_fault);
+    ['c-comm-r','c-comm-impact'].forEach(function(id){
+      if(charts[id]) charts[id].clear();
+    });
+    if(!has) return;
+    var nets = ['4G','5G','5G-A'];
+    var tf = comm.matrix.train_fault;
+
+    // 图6 R 链路四段分解（堆叠柱：感知/传输/计算 ×轮次 + 执行）
+    var mkSeries = function(key, color, name){
+      return {name:name, type:'bar', stack:'r', barWidth:'46%',
+        itemStyle:{color:color},
+        data:nets.map(function(n){
+          var v = (tf[n].r_breakdown || {})[key] || 0;
+          var rounds = (key === 'execute_s') ? 1 : (tf[n].n_rounds || 1);
+          return +(v * rounds).toFixed(3);
+        })};
+    };
+    charts['c-comm-r'].setOption({
+      tooltip:{trigger:'axis',axisPointer:{type:'shadow'},confine:true,
+        formatter:function(ps){
+          var n = ps[0].name; var r = tf[n];
+          return n + ' · R=' + r.r_total_s + 's（×' + r.n_rounds + '轮确认）<br>' +
+            ps.map(function(p){ return p.marker + p.seriesName + '：' + p.value + 's'; }).join('<br>');
+        }},
+      legend:{top:4,textStyle:{color:sub,fontSize:11}},
+      grid:{left:56,right:26,top:40,bottom:44},
+      xAxis:{type:'category',data:nets,axisLabel:{color:txt,fontSize:12},axisLine:{lineStyle:{color:line}}},
+      yAxis:{type:'value',name:'R 链路（秒）',nameTextStyle:{color:sub,fontSize:10},
+        axisLabel:{color:sub,fontSize:10},splitLine:{lineStyle:{color:line}}},
+      series:[
+        mkSeries('sense_s', '#38bdf8', '感知 T_sense'),
+        mkSeries('comm_s', '#34d399', '传输 T_comm'),
+        mkSeries('compute_s', '#fbbf24', '计算 T_compute'),
+        mkSeries('execute_s', '#94a3b8', '执行 T_execute'),
+        {name:'R 合计',type:'line',data:nets.map(function(n){return tf[n].r_total_s;}),
+         lineStyle:{width:2,color:'#f87171'},itemStyle:{color:'#f87171'},symbolSize:8,
+         label:{show:true,position:'top',color:txt,fontSize:11,formatter:'{c}s'}}
+      ]
+    });
+
+    // 图7 三档网络的恢复时间 / 受影响人次 / 旅客延误
+    charts['c-comm-impact'].setOption({
+      tooltip:{trigger:'axis',axisPointer:{type:'shadow'},confine:true},
+      legend:{top:4,textStyle:{color:sub,fontSize:11}},
+      grid:{left:52,right:56,top:40,bottom:44},
+      xAxis:{type:'category',data:nets,axisLabel:{color:txt,fontSize:12},axisLine:{lineStyle:{color:line}}},
+      yAxis:[
+        {type:'value',name:'恢复(min) / 受影响(人次)',nameTextStyle:{color:sub,fontSize:10},
+         axisLabel:{color:sub,fontSize:10},splitLine:{lineStyle:{color:line}}},
+        {type:'value',name:'旅客延误(人·分钟)',nameTextStyle:{color:sub,fontSize:10},
+         axisLabel:{color:sub,fontSize:10},splitLine:{show:false}}
+      ],
+      series:[
+        {name:'总恢复时间(min)',type:'bar',barWidth:'26%',
+         data:nets.map(function(n){return tf[n].recovery_min;}),
+         itemStyle:{color:function(p){return ['#f87171','#fbbf24','#34d399'][p.dataIndex];}},
+         label:{show:true,position:'top',color:txt,fontSize:10}},
+        {name:'受影响人次',type:'bar',barWidth:'26%',
+         data:nets.map(function(n){return tf[n].affected_persons;}),
+         itemStyle:{color:function(p){return ['#fecaca','#fde68a','#a7f3d0'][p.dataIndex];}},
+         label:{show:true,position:'top',color:txt,fontSize:10}},
+        {name:'旅客延误(人·分钟)',type:'line',yAxisIndex:1,
+         data:nets.map(function(n){return tf[n].passenger_delay_person_min;}),
+         lineStyle:{width:2,color:'#38bdf8'},itemStyle:{color:'#38bdf8'},symbolSize:8,
+         label:{show:true,position:'top',color:'#38bdf8',fontSize:10}}
+      ]
+    });
+  }
+
+  function renderSla(sla){
+    ['c-sla-chain','c-sla-isac'].forEach(function(id){
+      if(charts[id]) charts[id].clear();
+    });
+    if(!sla || !sla.groups) return;
+    /* 接通切换台：稳态基数 + 对照组基准值（随场景刷新） */
+    if (sla.steady_state) SLA.ss = sla.steady_state;
+    var ctlEv = sla.groups.control_4g && sla.groups.control_4g.events &&
+                sla.groups.control_4g.events.train_fault;
+    if (ctlEv) SLA.ctl = { chain: ctlEv.chain_s,
+                           rate: +(ctlEv.decision_success_rate*100).toFixed(3),
+                           tr: ctlEv.recovery_min,
+                           pd: ctlEv.passenger_delay_person_min };
+    if (SLA.mp) slaCompute();
+    var order = ['control_4g','a_5ga_det','b_5ga_isac','c_5ga_ai_air'];
+    var labels = order.map(function(g){ return sla.groups[g].label; });
+    var colors = ['#f87171','#fbbf24','#38bdf8','#34d399'];
+    var tfChain = order.map(function(g){ return +(sla.groups[g].events.train_fault.chain_s).toFixed(2); });
+    var tfRate  = order.map(function(g){ return +(sla.groups[g].events.train_fault.decision_success_rate*100).toFixed(2); });
+
+    // 图8 链路时间 + 决策执行成功率（对照组 vs A/B/C）
+    charts['c-sla-chain'].setOption({
+      tooltip:{trigger:'axis',axisPointer:{type:'shadow'},confine:true,
+        formatter:function(ps){
+          var i = ps[0].dataIndex; var g = sla.groups[order[i]]; var ev = g.events.train_fault;
+          return g.label + '<br>' +
+            ps.map(function(p){ return p.marker + p.seriesName + '：' + p.value + (p.seriesName.indexOf('成功率')>=0?'%':'s'); }).join('<br>') +
+            '<br>R合计：' + ev.r_total_s + 's（×' + ev.n_rounds + '轮）· 恢复 ' + ev.recovery_min + 'min';
+        }},
+      legend:{top:4,textStyle:{color:sub,fontSize:11}},
+      grid:{left:64,right:64,top:40,bottom:44},
+      xAxis:{type:'category',data:labels,axisLabel:{color:txt,fontSize:11,interval:0},axisLine:{lineStyle:{color:line}}},
+      yAxis:[
+        {type:'value',name:'链路时间(秒·对数)',nameTextStyle:{color:sub,fontSize:10},type:'log',
+         axisLabel:{color:sub,fontSize:10},splitLine:{lineStyle:{color:line}}},
+        {type:'value',name:'成功率(%)',min:60,max:100,nameTextStyle:{color:sub,fontSize:10},
+         axisLabel:{color:sub,fontSize:10},splitLine:{show:false}}
+      ],
+      series:[
+        {name:'链路时间',type:'bar',barWidth:'40%',data:tfChain,
+         itemStyle:{color:function(p){return colors[p.dataIndex];}},
+         label:{show:true,position:'top',color:txt,fontSize:10,formatter:'{c}s'}},
+        {name:'决策执行成功率',type:'line',yAxisIndex:1,data:tfRate,
+         lineStyle:{width:2,color:'#e2e8f0'},itemStyle:{color:'#e2e8f0'},symbolSize:8,
+         label:{show:true,position:'top',color:'#e2e8f0',fontSize:10,formatter:'{c}%'}}
+      ]
+    });
+
+    // 图9 ISAC 通感 vs 专用传感网（成本-感知提速）+ 弱覆盖段 AI 空口增强
+    var isac = sla.isac_comparison || {};
+    var weak = (sla.weak_coverage && sla.weak_coverage.weak_spots && sla.weak_coverage.weak_spots[0]) || null;
+    var barNames = [], barCapex = [], barSense = [];
+    if (isac.dedicated && isac.isac){
+      barNames = ['专用传感网','ISAC 通感一体'];
+      barCapex = [isac.dedicated.capex_index, isac.isac.capex_index];
+      barSense = [isac.dedicated.sense_s, isac.isac.sense_s];
+    }
+    var series9 = [];
+    if (barNames.length){
+      series9.push({name:'建设成本指数',type:'bar',barWidth:'30%',data:barCapex,
+        itemStyle:{color:'#fbbf24'},
+        label:{show:true,position:'top',color:txt,fontSize:10}});
+      series9.push({name:'感知时延(秒)',type:'bar',barWidth:'30%',data:barSense,
+        itemStyle:{color:'#38bdf8'},
+        label:{show:true,position:'top',color:txt,fontSize:10,formatter:'{c}s'}});
+    }
+    if (weak && weak.nets){
+      var wn = weak.nets;
+      var wNames = [], wRate = [];
+      ['4G','5G-A','5G-A AI空口'].forEach(function(k){
+        var hit = null;
+        Object.keys(wn).forEach(function(key){
+          if (key.indexOf('4G')>=0 && k==='4G') hit = wn[key];
+          else if (key.indexOf('ai')>=0 && k.indexOf('AI')>=0) hit = wn[key];
+          else if (key.indexOf('5G-A')>=0 && key.indexOf('ai')<0 && k==='5G-A') hit = wn[key];
+        });
+        if (hit){ wNames.push(k); wRate.push(+(hit.success_rate*100).toFixed(2)); }
+      });
+      if (wNames.length){
+        series9.push({name:'弱覆盖段成功率',type:'line',yAxisIndex:barNames.length?1:0,data:wRate,
+          lineStyle:{width:2,color:'#34d399'},itemStyle:{color:'#34d399'},symbolSize:8,
+          label:{show:true,position:'top',color:'#34d399',fontSize:10,formatter:'{c}%'}});
+      }
+    }
+    charts['c-sla-isac'].setOption({
+      tooltip:{trigger:'axis',axisPointer:{type:'shadow'},confine:true},
+      legend:{top:4,textStyle:{color:sub,fontSize:11}},
+      grid:{left:56,right:56,top:40,bottom:44},
+      xAxis:{type:'category',data:barNames.length?barNames:['—'],axisLabel:{color:txt,fontSize:12},axisLine:{lineStyle:{color:line}}},
+      yAxis:[
+        {type:'value',name:'指数 / 秒',nameTextStyle:{color:sub,fontSize:10},
+         axisLabel:{color:sub,fontSize:10},splitLine:{lineStyle:{color:line}}},
+        {type:'value',name:'成功率(%)',min:60,max:100,nameTextStyle:{color:sub,fontSize:10},
+         axisLabel:{color:sub,fontSize:10},splitLine:{show:false}}
+      ],
+      series: series9.length?series9:[{type:'bar',data:[0]}]
+    });
+  }
+
+  function resizeAll(){ for(var k in charts) charts[k].resize(); }
+  window.addEventListener('resize', resizeAll);
+
+  /* ============ 实验⑥ 网络 SLA 切换台：前端与后端同一公式、同一参数实时复算 ============ */
+  var SLA = { net:'4G', slice:null, mec:null, isac:false, ai:false, event:'train_fault', mp:null, ctl:null };
+  function slaSet(kind, val){
+    SLA[kind] = val;
+    if(kind === 'event'){ syncButtons(); slaCompute(); return; }
+    if(kind === 'net' && SLA.net === '4G'){ SLA.slice = null; SLA.mec = null; SLA.isac = false; }
+    if(kind === 'net' && SLA.net !== '4G' && SLA.net !== '5G-A'){ SLA.isac = false; SLA.ai = false; }
+    syncButtons(); slaCompute();
+  }
+  function slaToggle(kind){ SLA[kind] = !SLA[kind]; syncButtons(); slaCompute(); }
+  function syncButtons(){
+    document.querySelectorAll('[id^="sl-net-"]').forEach(function(b){
+      b.classList.toggle('active', b.id === 'sl-net-' + SLA.net); });
+    var slMap = { 'sl-sl-1': null, 'sl-sl-2': 'commuter', 'sl-sl-3': 'emergency' };
+    document.querySelectorAll('[id^="sl-sl-"]').forEach(function(b){
+      b.classList.toggle('active', SLA.slice === slMap[b.id]); });
+    var mecMap = { 'sl-mec-1': null, 'sl-mec-2': 'nanchang', 'sl-mec-3': 'jiujiang', 'sl-mec-4': 'shangrao' };
+    document.querySelectorAll('[id^="sl-mec-"]').forEach(function(b){
+      b.classList.toggle('active', SLA.mec === mecMap[b.id]); });
+    document.querySelectorAll('[id^="sl-ev-"]').forEach(function(b){
+      var v = b.id.replace('sl-ev-','');
+      b.classList.toggle('active', SLA.event === v); });
+    el('sl-isa').classList.toggle('active', !!SLA.isac);
+    el('sl-ai').classList.toggle('active', !!SLA.ai);
+  }
+  function slaCompute(){
+    var mp = SLA.mp;
+    if(!mp){ el('sla-verdict').textContent = '通信能力底账（data/comm_capability.json）加载中…'; return; }
+    var net = SLA.net;
+    var p = (mp.net_profiles || {})[net];
+    var ev = (mp.incidents || {})[SLA.event];
+    if(!p || !ev){ el('sla-verdict').textContent = '模型参数缺失，请先运行 python3 -m sim.comm_layer'; return; }
+    /* 切片（与 SLICE_PROFILES 同参）：4G 无切片；应急 ×0.8 / 通勤 ×1.0 / 旅游 ×1.2 */
+    var commMs = p.comm_ms, sliceTag = null;
+    if(SLA.slice && net !== '4G'){
+      var s = (mp.slices || {})[SLA.slice];
+      if(s){ commMs = commMs * s.comm_factor; sliceTag = s.label + (s.preempt ? '(可抢占)' : ''); }
+    }
+    /* MEC（与 MEC_NODES 同参）：4G 不支持就近推理 */
+    var computeMs = p.compute_ms, at = p.compute_at_default;
+    if(SLA.mec && net !== '4G'){
+      var m = (mp.mec_nodes || {})[SLA.mec];
+      if(m){ computeMs = m.compute_ms; at = m.name; }
+    }
+    /* ISAC（仅 5G-A）：感知减半；AI 空口（仅 5G-A）：弱覆盖因子取 5G-A+ai 档 */
+    var senseS = p.sense_s * ((SLA.isac && net === '5G-A') ? 0.5 : 1.0);
+    var commS = commMs / 1000;
+    var computeS = computeMs / 1000;
+    var chain = senseS + commS + computeS;
+    var rounds = p.n_rounds;
+    var R = chain * rounds + ev.t_execute_s;
+    var weakRel = p.reliability;
+    if(SLA.ai && net === '5G-A'){
+      var wd = (mp.weak_degradation || {})['5G-A+ai'];
+      if(wd){ weakRel = wd.reliability; }
+    }
+    var perRound = weakRel * (1 - p.packet_loss);
+    var rate = Math.pow(Math.max(0, Math.min(1, perRound)), rounds);
+    /* 恢复模型（与后端 simulate_incident 完全一致，稳态基数取自实验⑤输出） */
+    var ss = SLA.ss || { demand_ph: 4200, capacity_ph: 16800, surplus: 12600 };
+    var rMin = R / 60;
+    var wMin = rMin + ev.t_physical_min;
+    var blocked = ss.demand_ph * ev.severity * (wMin / 60);
+    var surplus = Math.max(ss.capacity_ph - ss.demand_ph * (1 - ev.severity), 1.0);
+    var disMin = blocked / surplus;
+    var trMin = wMin + disMin;
+    var affected = ss.demand_ph * wMin / 60;
+    var delayPp = wMin / 2 + disMin;
+    var pd = affected * delayPp;
+    /* 展示 */
+    el('sla-r').textContent = R >= 60 ? (R/60).toFixed(1) + ' min' : R.toFixed(1) + ' s';
+    el('sla-r-d').textContent = '感知 ' + senseS.toFixed(2) + 's + 传输 ' + (commS*1000).toFixed(0) + 'ms + 计算 ' + (computeS*1000).toFixed(0) + 'ms × ' + rounds + '轮 + 执行 ' + ev.t_execute_s + 's · ' + at;
+    el('sla-rate').textContent = (rate*100).toFixed(3) + '%';
+    el('sla-rate-d').textContent = '可靠性 ' + weakRel + ' · 丢包 ' + p.packet_loss + (sliceTag ? ' · ' + sliceTag : (net === '4G' ? ' · 无切片' : ''));
+    el('sla-tr').textContent = trMin.toFixed(1) + ' min';
+    el('sla-tr-d').textContent = '影响窗口 ' + wMin.toFixed(2) + 'min（R+' + ev.t_physical_min + 'min 处置）+ 消散 ' + disMin.toFixed(2) + 'min';
+    el('sla-pd').textContent = Math.round(pd).toLocaleString();
+    el('sla-pd-d').textContent = '受影响 ' + Math.round(affected).toLocaleString() + ' 人次 · 人均延误 ' + delayPp.toFixed(1) + ' min';
+    /* 双图联动：当前配置 vs 对照组 4G */
+    var ctl = SLA.ctl || { chain: 121.65, rate: 95.082, tr: 30.27, pd: 99710 };
+    var tag = net + (SLA.slice ? '·' + sliceTag : '') + (SLA.mec ? '·' + at : '') + (SLA.isac ? '+ISAC' : '') + (SLA.ai ? '+AI空口' : '');
+    var axis = [tag, '对照组 4G'];
+    charts['c-sla-live-r'].setOption({
+      tooltip:{trigger:'axis',axisPointer:{type:'shadow'},confine:true},
+      grid:{left:56,right:26,top:40,bottom:44},
+      xAxis:{type:'category',data:axis,axisLabel:{color:txt,fontSize:10,interval:0},axisLine:{lineStyle:{color:line}}},
+      yAxis:{type:'value',name:'链路时间(秒·对数)',type:'log',nameTextStyle:{color:sub,fontSize:10},
+        axisLabel:{color:sub,fontSize:10},splitLine:{lineStyle:{color:line}}},
+      series:[{name:'链路时间',type:'bar',barWidth:'44%',
+        data:[{value:+chain.toFixed(2),itemStyle:{color:accent}},
+              {value:ctl.chain,itemStyle:{color:red}}],
+        label:{show:true,position:'top',color:txt,fontSize:11,formatter:'{c}s'}}]
+    });
+    charts['c-sla-live-impact'].setOption({
+      tooltip:{trigger:'axis',axisPointer:{type:'shadow'},confine:true},
+      grid:{left:56,right:56,top:40,bottom:44},
+      xAxis:{type:'category',data:axis,axisLabel:{color:txt,fontSize:10,interval:0},axisLine:{lineStyle:{color:line}}},
+      yAxis:{type:'value',name:'总恢复(min)',nameTextStyle:{color:sub,fontSize:10},
+        axisLabel:{color:sub,fontSize:10},splitLine:{lineStyle:{color:line}}},
+      series:[{name:'总恢复(min)',type:'bar',barWidth:'44%',
+        data:[{value:+trMin.toFixed(2),itemStyle:{color:green}},
+              {value:ctl.tr,itemStyle:{color:red}}],
+        label:{show:true,position:'top',color:txt,fontSize:11,formatter:'{c}min'}}]
+    });
+    /* 结论文本 */
+    el('sla-verdict').innerHTML =
+      '<b>当前配置 vs 对照组4G</b>：链路 ' + chain.toFixed(2) + 's vs ' + ctl.chain + 's（' +
+      (ctl.chain >= chain ? (ctl.chain/Math.max(chain,0.001)).toFixed(1) + '× 提速' : (chain/ctl.chain).toFixed(1) + '× 恶化') + '）' +
+      ' · 成功率 ' + (rate*100).toFixed(3) + '% vs ' + ctl.rate + '%' +
+      ' · 总恢复 ' + trMin.toFixed(1) + 'min vs ' + ctl.tr + 'min' +
+      ' · 旅客延误 ' + Math.round(pd).toLocaleString() + ' vs ' + Math.round(ctl.pd).toLocaleString() + ' 人·分钟' +
+      ' —— 同一事件，网络SLA决定恢复速度与滞留人数：ICT 是仿真的自变量，不是展示名词。';
+  }
+  function initSla(){
+    fetch('data/comm_capability.json').then(function(r){ return r.json(); }).then(function(cap){
+      SLA.mp = cap.model_params;
+      SLA.ctl = (window.__netsla_ctl) || { chain: 121.65, rate: 95.082, tr: 30.27, pd: 99710 };
+      syncButtons();
+      slaCompute();
+    }).catch(function(){ el('sla-verdict').textContent = '通信能力底账加载失败，请先运行 python3 -m sim.comm_layer'; });
+  }
+  window.addEventListener('load', function(){ initCharts(); load('holiday'); initSla(); });
+</script>
+</body>
+</html>

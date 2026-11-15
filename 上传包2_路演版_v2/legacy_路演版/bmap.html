@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" href="data:,">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>赣鄱智轨</title>
+  <link rel="stylesheet" href="css/style.css?v=20261008">
+  <!-- 0) 本地 AK（可选 · 已被 .gitignore 忽略，不进入参赛包）
+       缺失时 map-base.js 会渲染明确的提示页并引导到零 AK 版，不会白屏。 -->
+  <script src="js/local-ak.js?v=20260926"
+          onerror="this.onerror=null;console.warn('[赣鄱智轨] 未找到 js/local-ak.js，将使用占位 AK（地图不可用，可加 ?ak=xxx 临时指定）');"></script>
+  <!-- 1) 配置（含 AK 读取逻辑 + 线路/站点数据） -->
+  <script src="js/config.js?v=20260926"></script>
+  <!-- 2) 加载模块一基座逻辑（initMap 等） + 各功能模块 -->
+  <script src="js/map-base.js?v=20260926"></script>
+  <script src="js/agent-decision.js?v=20260926"></script>
+  <!-- ★ 决策地图：把「节假日大客流·枢纽换乘拥堵治理」的决策结果叠加到地图
+       （瓶颈圈 / 线路治理色 / 枢纽换乘环 / 方案摘要卡；由方案 Tab 切换联动） -->
+  <script src="js/decision-map.js?v=20261008"></script>
+  <script src="js/agent-panel.js?v=20261008"></script>
+  <script src="js/emergency.js?v=20260926"></script>
+  <script src="js/train-sim.js?v=20260926"></script>
+  <script src="js/transfer-sim.js?v=20260926"></script>
+  <!-- ★ 仿真评价指标（依方案 2.7）：把 10 项评价指标落到地图上，
+       基准方案 vs 优化方案逐项对比；数据取自 data/agent_decision_*.json -->
+  <script src="js/metrics-panel.js?v=20261008"></script>
+  <script src="js/app.js?v=20261008"></script>
+  <!-- 3) 注入百度地图 JSAPI GL（AK 取自 config.js 的 window.GanpoConfig.BMAP_AK）
+       ★ 必须用 document.write 在"HTML 解析阶段"同步注入 ★
+       为什么不能改成动态 createElement('script')：
+       百度 api 返回的脚本内部使用 document.write() 二次追加 getscript。
+       动态插入的 script 默认是 async，一旦它加载完成时文档已解析结束，
+       其内部的 document.write() 会触发隐式 document.open()，把整页清空
+       → 表现为【白屏 / 地图完全不生成】。解析阶段的 document.write 则安全，
+       且仍可继续从 config.js 动态读取 AK。 -->
+  <script>
+    (function () {
+      var ak = (window.GanpoConfig && window.GanpoConfig.BMAP_AK) || '';
+      document.write(
+        '<script type="text/javascript" src="//api.map.baidu.com/api?type=webgl&v=1.0&ak=' +
+        encodeURIComponent(ak) + '"><\/script>'
+      );
+    })();
+  </script>
+</head>
+<body>
+  <div id="app">
+    <!-- 地图底座 -->
+    <div id="map_container"></div>
+
+    <!-- 顶部标题 + 模块导航（app.js 动态构建 6 模块快捷按钮） -->
+    <div id="topbar">
+      <div class="brand">赣鄱智轨 <small>江西省通勤-旅游复合轨道</small></div>
+      <div id="module-nav"></div>
+      <a href="emergency.html" target="_blank" title="智能体应急联动与仿真一体化处置"
+         style="align-self:center;margin-left:8px;background:linear-gradient(180deg,rgba(120,30,30,.85),rgba(70,15,15,.85));border:1px solid #f87171;color:#ffc9c9;padding:6px 12px;border-radius:4px;font-size:12px;text-decoration:none;white-space:nowrap;">应急一体化</a>
+    </div>
+
+    <!-- 图例 -->
+    <div id="legend">
+      <div class="item"><span class="swatch" style="background:#ffffff"></span>线路（通勤 + 旅游 · 统一着色）</div>
+      <div class="item"><span class="swatch" style="background:#00d4ff"></span>站点客流（圆点 + 站名 + 日均客流，随线路显隐）</div>
+      <div class="item"><span class="swatch" style="background:#4fa8d8"></span>设区市行政区划（市级划分）</div>
+      <div class="item"><span class="swatch" style="background:#ff00ff"></span>应急风险段（品红）</div>
+      <div class="item"><span class="swatch" style="background:#00ffcc"></span>应急改线路径（青绿）</div>
+      <div class="item"><span class="swatch" style="background:#ff8800"></span>齿轨爬坡段（橙色闪烁）</div>
+    </div>
+  </div>
+
+  <!-- 热力 / 列车 / 智能体面板 / 换乘 / 应急 的工具栏与面板均由各模块 JS 自行创建，
+       此处无需预置容器。 -->
+
+  <!-- 4) 等 DOM 就绪后再初始化地图。
+       ★ 不能在 head 里提前调用 ★
+       原写法在脚本 onload 时立刻 initMap()，若百度脚本加载快于 body 解析，
+       此时 #map_container 尚不存在，new BMapGL.Map('map_container') 直接失败。
+       改为 DOMContentLoaded 后调用，保证容器一定存在。 -->
+  <script>
+    (function () {
+      function boot() {
+        if (window.initMap) {
+          window.initMap();
+        } else {
+          console.error('[赣鄱智轨] initMap 未定义，map-base.js 可能未加载成功。');
+        }
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', boot);
+      } else {
+        boot();
+      }
+    })();
+  </script>
+</body>
+</html>
